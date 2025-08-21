@@ -101,12 +101,48 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
         documentation_markdown: data.documentation_markdown || undefined,
       }
 
-      await createAPI(apiData)
+      // 详细的请求日志
+      console.log('🚀 [CreateAPIForm] 开始创建API请求')
+      console.log('📤 [CreateAPIForm] 发送数据:', JSON.stringify(apiData, null, 2))
+      console.log('🌍 [CreateAPIForm] 当前环境:', process.env.NODE_ENV)
+      console.log('⏰ [CreateAPIForm] 请求时间:', new Date().toISOString())
+      
+      // 调用API并记录响应
+      const startTime = Date.now()
+      const response = await createAPI(apiData)
+      const endTime = Date.now()
+      
+      console.log('✅ [CreateAPIForm] API创建成功')
+      console.log('📥 [CreateAPIForm] 响应数据:', JSON.stringify(response, null, 2))
+      console.log('⏱️ [CreateAPIForm] 请求耗时:', `${endTime - startTime}ms`)
+      
       toast.success('API创建成功！')
       onSuccess()
     } catch (error: any) {
-      console.error('创建API失败:', error)
-      toast.error(error.message || '创建API失败')
+      console.group('❌ [CreateAPIForm] API创建失败')
+      console.error('完整错误对象:', error)
+      console.error('错误消息:', error.message)
+      console.error('错误堆栈:', error.stack)
+      
+      // 如果是网络错误，记录更多详细信息
+      if (error.response) {
+        console.error('📥 HTTP响应状态:', error.response.status)
+        console.error('📥 HTTP响应头:', error.response.headers)
+        console.error('📥 HTTP响应数据:', error.response.data)
+      } else if (error.request) {
+        console.error('📤 HTTP请求对象:', error.request)
+        console.error('📤 请求未收到响应')
+      } else {
+        console.error('⚠️ 请求配置错误:', error.config)
+      }
+      
+      // 记录更多环境信息
+      console.error('🌍 当前URL:', window.location.href)
+      console.error('🌍 User Agent:', navigator.userAgent)
+      console.error('⏰ 错误时间:', new Date().toISOString())
+      console.groupEnd()
+      
+      toast.error(`创建API失败: ${error.message || '未知错误'}`)
     } finally {
       setIsSubmitting(false)
     }

@@ -79,12 +79,24 @@ const refreshToken = async (): Promise<string> => {
 // 请求拦截器
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    console.group('📤 [api-client] 请求拦截器')
+    console.log('🔗 URL:', config.url)
+    console.log('🔧 方法:', config.method?.toUpperCase())
+    console.log('🏠 BaseURL:', config.baseURL)
+    console.log('⏰ 超时设置:', config.timeout + 'ms')
+    
     // 若调用方已显式设置 Authorization，则不覆盖（例如登录时使用 Firebase ID Token）
     const hasCallerAuthHeader = Boolean(config.headers && (config.headers as any).Authorization)
+    console.log('🔐 已有Authorization头:', hasCallerAuthHeader)
+    
     if (!hasCallerAuthHeader) {
       const accessToken = TokenManager.getAccessToken()
+      console.log('🔑 获取到的访问令牌:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null')
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`
+        console.log('✅ 已添加Authorization头')
+      } else {
+        console.log('⚠️ 没有访问令牌，未添加Authorization头')
       }
     }
 
@@ -92,9 +104,16 @@ apiClient.interceptors.request.use(
     // TODO: 后续从用户设置中获取 API Key
     // config.headers['x-vola-key'] = userApiKey
 
+    console.log('📋 请求头:', config.headers)
+    if (config.data) {
+      console.log('📦 请求数据:', typeof config.data === 'string' ? config.data : JSON.stringify(config.data, null, 2))
+    }
+    console.groupEnd()
+
     return config
   },
   (error) => {
+    console.error('❌ [api-client] 请求拦截器错误:', error)
     return Promise.reject(error)
   }
 )
@@ -102,9 +121,41 @@ apiClient.interceptors.request.use(
 // 响应拦截器
 apiClient.interceptors.response.use(
   (response) => {
+    console.group('📥 [api-client] 响应拦截器 - 成功')
+    console.log('🔗 URL:', response.config.url)
+    console.log('🔧 方法:', response.config.method?.toUpperCase())
+    console.log('📊 状态码:', response.status)
+    console.log('📝 状态文本:', response.statusText)
+    console.log('📋 响应头:', response.headers)
+    console.log('📦 响应数据:', response.data)
+    console.groupEnd()
     return response
   },
   async (error: AxiosError) => {
+    console.group('❌ [api-client] 响应拦截器 - 错误')
+    console.error('完整错误对象:', error)
+    console.error('错误消息:', error.message)
+    console.error('错误代码:', error.code)
+    
+    if (error.response) {
+      console.error('📥 错误响应:')
+      console.error('  状态码:', error.response.status)
+      console.error('  状态文本:', error.response.statusText)
+      console.error('  响应头:', error.response.headers)
+      console.error('  响应数据:', error.response.data)
+    } else if (error.request) {
+      console.error('📤 请求错误 (无响应):')
+      console.error('  请求对象:', error.request)
+    }
+    
+    if (error.config) {
+      console.error('⚙️ 请求配置:')
+      console.error('  URL:', error.config.url)
+      console.error('  方法:', error.config.method)
+      console.error('  baseURL:', error.config.baseURL)
+    }
+    console.groupEnd()
+    
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = (originalRequest && originalRequest.url) || ''
 
@@ -113,6 +164,7 @@ apiClient.interceptors.response.use(
     const isAuthRefresh = requestUrl.includes('/api/v1/auth/refresh')
     const isAuthLogout = requestUrl.includes('/api/v1/auth/logout')
     if ((isAuthLogin || isAuthRefresh || isAuthLogout) && error.response?.status === 401) {
+      console.log('🔄 [api-client] 认证相关接口401错误，跳过令牌刷新')
       return Promise.reject(error)
     }
 

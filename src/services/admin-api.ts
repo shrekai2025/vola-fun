@@ -54,9 +54,59 @@ export interface CreateAPIResponse {
  */
 export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIResponse> => {
   try {
+    console.log('🔄 [admin-api] 开始调用创建API接口')
+    console.log('📤 [admin-api] 请求URL: /api/v1/apis')
+    console.log('📤 [admin-api] 请求方法: POST')
+    console.log('📤 [admin-api] 请求数据:', JSON.stringify(data, null, 2))
+    
+    const startTime = Date.now()
     const response = await apiClient.post<CreateAPIResponse>('/api/v1/apis', data)
+    const endTime = Date.now()
+    
+    console.log('✅ [admin-api] API创建请求成功')
+    console.log('📥 [admin-api] 响应状态:', response.status)
+    console.log('📥 [admin-api] 响应头:', response.headers)
+    console.log('📥 [admin-api] 响应数据:', JSON.stringify(response.data, null, 2))
+    console.log('⏱️ [admin-api] API调用耗时:', `${endTime - startTime}ms`)
+    
     return response.data
   } catch (error: any) {
+    console.group('❌ [admin-api] API创建请求失败')
+    console.error('完整错误对象:', error)
+    console.error('错误类型:', error.constructor.name)
+    console.error('错误消息:', error.message)
+    
+    if (error.response) {
+      console.error('📥 [admin-api] HTTP响应错误:')
+      console.error('  状态码:', error.response.status)
+      console.error('  状态文本:', error.response.statusText)
+      console.error('  响应头:', error.response.headers)
+      console.error('  响应数据:', error.response.data)
+    } else if (error.request) {
+      console.error('📤 [admin-api] HTTP请求错误 (无响应):')
+      console.error('  请求对象:', error.request)
+      console.error('  请求状态:', error.request.readyState)
+      console.error('  请求超时:', error.request.timeout)
+    } else {
+      console.error('⚠️ [admin-api] 请求配置错误:', error.config)
+    }
+    
+    // 记录axios特有的错误信息
+    if (error.code) {
+      console.error('🔗 [admin-api] 错误代码:', error.code)
+    }
+    if (error.config) {
+      console.error('⚙️ [admin-api] 请求配置:', {
+        url: error.config.url,
+        method: error.config.method,
+        baseURL: error.config.baseURL,
+        headers: error.config.headers,
+        timeout: error.config.timeout
+      })
+    }
+    
+    console.groupEnd()
+    
     // 处理特定的API错误
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message)
