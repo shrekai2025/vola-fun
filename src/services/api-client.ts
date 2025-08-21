@@ -7,7 +7,7 @@ import Toast from '@/components/ui/toast'
 
 // API 基础配置
 // 🔧 调试开关：设置为true直接请求后端，false使用代理
-const USE_DIRECT_API = false // 切换回代理模式，修复URL配置
+const USE_DIRECT_API = true // 按用户要求改为直接请求服务器
 
 const API_BASE_URL = process.env.NODE_ENV === 'development' 
   ? (USE_DIRECT_API ? 'https://api.vola.fun' : '/api/proxy') // 开发环境：直接访问或使用代理

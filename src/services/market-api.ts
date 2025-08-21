@@ -78,7 +78,8 @@ export const getMarketAPIs = async (params?: GetMarketAPIsParams): Promise<Marke
       ...requestParams,
     }
 
-    const response = await apiClient.get<MarketAPIListResponse>('/api/v1/apis', { 
+    console.log('🚀 [market-api] 修复后的端点: /api/v1/apis/ (已添加尾部斜杠)')
+    const response = await apiClient.get<MarketAPIListResponse>('/api/v1/apis/', { 
       params: finalParams,
       signal
     })

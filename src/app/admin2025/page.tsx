@@ -9,8 +9,11 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/toast'
 import { useTranslation } from '@/components/providers/LanguageProvider'
-import { Plus, Settings, Database } from 'lucide-react'
+import { Plus, Settings, Database, CheckCircle, Clock } from 'lucide-react'
 import CreateAPIForm from './components/CreateAPIForm'
+import APIReviewList from './components/APIReviewList'
+
+type TabType = 'create' | 'review'
 
 export default function AdminPage() {
   const { user, isLoggedIn, loading } = useUserCache()
@@ -18,6 +21,7 @@ export default function AdminPage() {
   const toast = useToast()
   const { t } = useTranslation()
   
+  const [activeTab, setActiveTab] = useState<TabType>('create')
   const [showCreateForm, setShowCreateForm] = useState(false)
 
   // 权限检查
@@ -77,65 +81,108 @@ export default function AdminPage() {
           </Badge>
         </div>
 
-        {/* 功能卡片网格 */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          {/* API 管理卡片 */}
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Plus className="h-5 w-5 text-primary" />
-                API Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm mb-4">
-                Create and manage API services in the marketplace
-              </p>
-              <Button 
-                onClick={() => setShowCreateForm(true)}
-                className="w-full"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create New API
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Tab 导航 */}
+        <div className="border-b border-border mb-6">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('create')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'create'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+            >
+              <Plus className="h-4 w-4 inline mr-2" />
+              创建API
+            </button>
+            <button
+              onClick={() => setActiveTab('review')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'review'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+              }`}
+            >
+              <Clock className="h-4 w-4 inline mr-2" />
+              审核API
+            </button>
+          </nav>
+        </div>
 
-          {/* 其他管理功能卡片可以后续添加 */}
-          <Card className="hover:shadow-lg transition-shadow opacity-60">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Settings className="h-5 w-5 text-muted-foreground" />
-                User Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm mb-4">
-                Manage user accounts and permissions
-              </p>
-              <Button variant="outline" size="sm" disabled className="w-full">
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Tab 内容 */}
+        <div className="min-h-[600px]">
+          {activeTab === 'create' && (
+            <div className="space-y-6">
+              {/* API创建页面 */}
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Plus className="h-6 w-6 text-primary" />
+                    创建新的API服务
+                  </CardTitle>
+                  <p className="text-muted-foreground">
+                    在API市场中创建和发布新的API服务
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={() => setShowCreateForm(true)}
+                    size="lg"
+                    className="w-full sm:w-auto"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    开始创建API
+                  </Button>
+                </CardContent>
+              </Card>
 
-          <Card className="hover:shadow-lg transition-shadow opacity-60">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Database className="h-5 w-5 text-muted-foreground" />
-                System Metrics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-sm mb-4">
-                View system performance and usage statistics
-              </p>
-              <Button variant="outline" size="sm" disabled className="w-full">
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
+              {/* 其他管理功能预览 */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="opacity-60">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Settings className="h-5 w-5 text-muted-foreground" />
+                      用户管理
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      管理用户账户和权限设置
+                    </p>
+                    <Button variant="outline" size="sm" disabled className="w-full">
+                      即将推出
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="opacity-60">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Database className="h-5 w-5 text-muted-foreground" />
+                      系统统计
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      查看系统性能和使用统计数据
+                    </p>
+                    <Button variant="outline" size="sm" disabled className="w-full">
+                      即将推出
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'review' && (
+            <APIReviewList 
+              onAPIApproved={(apiId) => {
+                toast.success('API审核通过成功!')
+                console.log('API审核通过:', apiId)
+              }}
+            />
+          )}
         </div>
 
         {/* API 创建表单模态框 */}
@@ -144,7 +191,7 @@ export default function AdminPage() {
             onClose={() => setShowCreateForm(false)}
             onSuccess={() => {
               setShowCreateForm(false)
-              toast.success('API created successfully!')
+              toast.success('API创建成功!')
             }}
           />
         )}

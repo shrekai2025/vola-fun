@@ -1,16 +1,16 @@
 # 🚀 当前调试配置状态
 
-## ✅ 已启用：直接请求后端模式
+## ✅ 已切换：直接API模式 (按用户要求)
 
 **配置位置**: `src/services/api-client.ts`
 ```typescript
-const USE_DIRECT_API = true // 当前设置
+const USE_DIRECT_API = true // 按用户要求改为直接请求服务器
 ```
 
 ## 📊 当前行为
-- ❌ **跳过代理**: 不使用 `/api/proxy/...` 路由
-- ✅ **直接请求**: 直接向 `https://api.vola.fun/api/v1/apis` 发送POST请求
-- 🔍 **目的**: 排查POST→GET问题是否出在代理层
+- ✅ **直接请求**: 直接向 `https://api.vola.fun/api/v1/apis/` 发送POST请求
+- ❌ **跳过代理**: 不使用 `/api/proxy/...` 路由转发
+- 🎯 **目的**: 按用户要求直接访问后端服务器
 
 ## 🧪 测试现在即可进行
 
@@ -20,19 +20,22 @@ const USE_DIRECT_API = true // 当前设置
    - Network面板：查看请求到 `https://api.vola.fun`
    - Console：查看详细的调试日志
 
-## 📈 预期结果分析
+## 📈 配置变更历史
 
-### ✅ 如果POST请求成功
-- **结论**: 问题确实出在代理层
-- **解决**: 修复代理配置
+### ❌ 直接API访问测试 (CORS限制确认)
+- **CORS错误**: `No 'Access-Control-Allow-Origin' header is present`
+- **重定向问题**: `https://api.vola.fun` → `http://api.vola.fun`
+- **协议降级**: HTTPS到HTTP导致浏览器阻止跨域请求
 
-### ❌ 如果仍然POST→GET  
-- **结论**: 问题在axios拦截器或认证逻辑
-- **解决**: 重点检查令牌刷新逻辑
+### ✅ 代理模式阶段 (技术解决方案)
+- **解决CORS**: 通过Next.js代理避免跨域限制
+- **修复重定向**: 添加尾部斜杠避免POST→GET问题
+- **功能正常**: 所有API请求通过代理正常工作
 
-### 🚫 如果出现CORS错误
-- **结论**: 后端CORS配置问题，但排除了代理问题
-- **解决**: 配置后端CORS或切换回代理模式
+### 🎯 当前配置 (按用户要求)
+- **直接请求**: 用户要求使用直接API访问
+- **跳过代理**: 不再通过 `/api/proxy` 转发
+- **可能问题**: 可能遇到之前发现的CORS问题
 
 ## 🔄 如需切换回代理模式
 
