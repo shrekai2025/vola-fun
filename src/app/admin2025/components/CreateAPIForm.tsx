@@ -62,7 +62,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
     watch,
     formState: { errors },
     setValue,
-  } = useForm<CreateAPIFormData>({
+  } = useForm({
     resolver: zodResolver(createAPISchema),
     defaultValues: {
       category: 'data',
@@ -102,10 +102,27 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
       }
 
       // 详细的请求日志
-      console.log('🚀 [CreateAPIForm] 开始创建API请求')
+      console.group('🚀 [CreateAPIForm] 开始创建API请求')
+      console.log('🔧 [CreateAPIForm] 当前模式: 通过代理请求')
+      console.log('💡 [CreateAPIForm] 修复内容: 添加尾部斜杠避免POST→GET重定向')
+      console.log('🎯 [CreateAPIForm] 请求路径: /api/v1/apis/ (包含尾部斜杠)')
       console.log('📤 [CreateAPIForm] 发送数据:', JSON.stringify(apiData, null, 2))
       console.log('🌍 [CreateAPIForm] 当前环境:', process.env.NODE_ENV)
       console.log('⏰ [CreateAPIForm] 请求时间:', new Date().toISOString())
+      
+      // 🔍 Network面板调试指导
+      console.group('🔍 Network面板调试指导 (代理模式 - 已修复重定向)')
+      console.log('%c1. 打开浏览器开发者工具的Network面板', 'color: #4CAF50; font-weight: bold;')
+      console.log('%c2. 确保勾选了"Preserve log"选项', 'color: #2196F3; font-weight: bold;')
+      console.log('%c3. 查找以下请求链路:', 'color: #FF9800; font-weight: bold;')
+      console.log('   • OPTIONS /api/proxy/api/v1/apis/ - CORS预检请求')
+      console.log('   • POST /api/proxy/api/v1/apis/ - 实际的API创建请求')
+      console.log('   • 应该不再有重定向（无301/302状态码）')
+      console.log('   • POST方法应该保持不变')
+      console.log('%c4. ✅ 修复内容：URL添加尾部斜杠，避免重定向', 'color: #4CAF50; font-weight: bold;')
+      console.log('%c5. ✅ 应该看到：redirected: false', 'color: #4CAF50; font-weight: bold;')
+      console.groupEnd()
+      console.groupEnd()
       
       // 调用API并记录响应
       const startTime = Date.now()
@@ -164,7 +181,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
         </CardHeader>
         
         <CardContent className="pt-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6">
             {/* 基本信息 */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground">基本信息</h3>

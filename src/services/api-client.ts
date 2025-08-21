@@ -6,8 +6,11 @@ import { TokenManager } from '@/lib/cookie'
 import Toast from '@/components/ui/toast'
 
 // API 基础配置
+// 🔧 调试开关：设置为true直接请求后端，false使用代理
+const USE_DIRECT_API = false // 切换回代理模式，修复URL配置
+
 const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? '/api/proxy' // 开发环境使用代理
+  ? (USE_DIRECT_API ? 'https://api.vola.fun' : '/api/proxy') // 开发环境：直接访问或使用代理
   : 'https://api.vola.fun' // 生产环境直接访问
 const REQUEST_TIMEOUT = 30000 // 30秒超时
 
@@ -84,6 +87,13 @@ apiClient.interceptors.request.use(
     console.log('🔧 方法:', config.method?.toUpperCase())
     console.log('🏠 BaseURL:', config.baseURL)
     console.log('⏰ 超时设置:', config.timeout + 'ms')
+    
+    // 🔧 显示当前配置模式
+    const mode = USE_DIRECT_API ? '🎯 直接请求后端 (跳过代理)' : '🌐 通过代理请求'
+    console.log(`🚀 请求模式: ${mode}`)
+    if (USE_DIRECT_API) {
+      console.log('💡 当前正在直接请求后端API以排查代理问题')
+    }
     
     // 若调用方已显式设置 Authorization，则不覆盖（例如登录时使用 Firebase ID Token）
     const hasCallerAuthHeader = Boolean(config.headers && (config.headers as any).Authorization)
@@ -170,12 +180,34 @@ apiClient.interceptors.response.use(
 
     // 处理 401 未授权错误（Token 过期）
     if (error.response?.status === 401 && !originalRequest._retry) {
+      console.log('🔄 [api-client] 检测到401错误，准备刷新令牌')
+      console.log('🔍 [api-client] 原始请求详情:', {
+        url: originalRequest?.url,
+        method: originalRequest?.method, // 关键：检查method是否丢失
+        hasAuthHeader: !!(originalRequest?.headers?.Authorization),
+        _retry: originalRequest?._retry
+      })
+      
+      // 🚨 关键检查：确保方法没有丢失
+      if (!originalRequest?.method) {
+        console.error('🚨 [api-client] 严重错误：originalRequest.method 丢失!')
+        console.error('🚨 [api-client] 这可能导致重试时默认使用GET方法')
+        console.error('🚨 [api-client] originalRequest对象:', originalRequest)
+      }
+      
       if (isRefreshing) {
+        console.log('🔄 [api-client] 已在刷新令牌，将请求加入队列')
         // 如果正在刷新，将请求加入队列
         return new Promise((resolve, reject) => {
           failedQueue.push({
             resolve: (token: string) => {
+              if (!originalRequest?.method) {
+                console.error('🚨 [api-client] 队列重试时method仍然丢失!')
+                reject(new Error('HTTP method lost during token refresh'))
+                return
+              }
               originalRequest.headers.Authorization = `Bearer ${token}`
+              console.log('🔄 [api-client] 队列重试请求:', originalRequest.method, originalRequest.url)
               resolve(apiClient(originalRequest))
             },
             reject: (err: any) => {
@@ -189,11 +221,23 @@ apiClient.interceptors.response.use(
       isRefreshing = true
 
       try {
+        console.log('🔄 [api-client] 开始刷新访问令牌')
         const newAccessToken = await refreshToken()
+        console.log('✅ [api-client] 令牌刷新成功，准备重试原始请求')
+        
+        // 再次检查method
+        if (!originalRequest?.method) {
+          console.error('🚨 [api-client] 令牌刷新后method仍然丢失!')
+          throw new Error('HTTP method lost during token refresh')
+        }
+        
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+        console.log('🔄 [api-client] 重试请求:', originalRequest.method, originalRequest.url)
+        
         processQueue(null, newAccessToken)
         return apiClient(originalRequest)
       } catch (refreshError) {
+        console.error('❌ [api-client] 令牌刷新失败:', refreshError)
         processQueue(refreshError, null)
         TokenManager.clearTokens()
         // 重定向到登录页面或显示登录弹窗

@@ -5,6 +5,7 @@ import { useUserCache } from '@/hooks/useUserCache'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { motion } from 'framer-motion'
 import { Key, Zap, ArrowRight } from 'lucide-react'
+import { FloatingUFO } from '@/components/ui/floating-ufo'
 
 export function HeroSection() {
   const { user, isLoggedIn, loading } = useUserCache()
@@ -33,7 +34,8 @@ export function HeroSection() {
   }
 
   return (
-    <section className="min-h-[80vh] py-12 flex items-center justify-center bg-background">
+    <section className="relative min-h-[80vh] py-12 flex items-center justify-center bg-background">
+      <FloatingUFO />
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}

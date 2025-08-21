@@ -55,12 +55,12 @@ export interface CreateAPIResponse {
 export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIResponse> => {
   try {
     console.log('🔄 [admin-api] 开始调用创建API接口')
-    console.log('📤 [admin-api] 请求URL: /api/v1/apis')
+    console.log('📤 [admin-api] 请求URL: /api/v1/apis/ (添加尾部斜杠避免重定向)')
     console.log('📤 [admin-api] 请求方法: POST')
     console.log('📤 [admin-api] 请求数据:', JSON.stringify(data, null, 2))
     
     const startTime = Date.now()
-    const response = await apiClient.post<CreateAPIResponse>('/api/v1/apis', data)
+    const response = await apiClient.post<CreateAPIResponse>('/api/v1/apis/', data)
     const endTime = Date.now()
     
     console.log('✅ [admin-api] API创建请求成功')
@@ -122,68 +122,4 @@ export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIRespon
   }
 }
 
-/**
- * 获取API列表（管理员视图）
- */
-export const getAPIs = async (params?: {
-  page?: number
-  limit?: number
-  category?: string
-  status?: string
-  search?: string
-}) => {
-  try {
-    const response = await apiClient.get('/api/v1/apis', { params })
-    return response.data
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '获取API列表失败')
-  }
-}
 
-/**
- * 获取单个API详情（管理员视图）
- */
-export const getAPI = async (id: string) => {
-  try {
-    const response = await apiClient.get(`/api/v1/apis/${id}`)
-    return response.data
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '获取API详情失败')
-  }
-}
-
-/**
- * 更新API信息
- */
-export const updateAPI = async (id: string, data: Partial<CreateAPIRequest>) => {
-  try {
-    const response = await apiClient.put(`/api/v1/apis/${id}`, data)
-    return response.data
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '更新API失败')
-  }
-}
-
-/**
- * 删除API
- */
-export const deleteAPI = async (id: string) => {
-  try {
-    const response = await apiClient.delete(`/api/v1/apis/${id}`)
-    return response.data
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '删除API失败')
-  }
-}
-
-/**
- * 更改API状态（启用/禁用）
- */
-export const updateAPIStatus = async (id: string, status: 'active' | 'inactive' | 'draft') => {
-  try {
-    const response = await apiClient.patch(`/api/v1/apis/${id}/status`, { status })
-    return response.data
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '更新API状态失败')
-  }
-}
