@@ -1,26 +1,183 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+  /* 基于配色文档的明亮主题 */
+  --primary: #FFB800; /* 主品牌色 */
+  --primary-hover: #FFE082; /* 悬停状态 */
+  --primary-active: #E6A600; /* 按下状态 */
+  --primary-foreground: #212121; /* 主色上的文字 */
+  
+  /* 背景色系 */
+  --background: #F5F5F5; /* 页面整体背景 */
+  --card: #FFFFFF; /* 主要内容区域背景 */
+  --card-foreground: #212121; /* 卡片文字 */
+  --popover: #EEEEEE; /* 弹出框背景 */
+  --popover-foreground: #212121;
+  
+  /* 辅助色系 */
+  --secondary: #EEEEEE; /* 输入框、按钮背景 */
+  --secondary-foreground: #212121;
+  --muted: #F5F5F5; /* 静音/次要背景 */
+  --muted-foreground: #616161; /* 次要文本 */
+  --accent: #FFE082; /* 强调色 */
+  --accent-foreground: #212121;
+  
+  /* 边框和输入 */
+  --border: #E0E0E0; /* 默认边框 */
+  --input: #EEEEEE; /* 输入框背景 */
+  --ring: #BDBDBD; /* 聚焦环 */
+  
+  /* 功能色 */
+  --destructive: #C62828; /* 错误/危险 */
+  --destructive-foreground: #FFFFFF;
+  --success: #2E7D32; /* 成功 */
+  --success-foreground: #FFFFFF;
+  --warning: #FF8F00; /* 警告 */
+  --warning-foreground: #FFFFFF;
+  --info: #0277BD; /* 信息 */
+  --info-foreground: #FFFFFF;
+  
+  /* 文本颜色 */
+  --foreground: #212121; /* 主要文本 */
+  --text-secondary: #616161; /* 次要文本 */
+  --text-placeholder: #9E9E9E; /* 占位符文本 */
+  
+  /* 图表色 */
+  --chart-1: #FFB800;
+  --chart-2: #2E7D32;
+  --chart-3: #0277BD;
+  --chart-4: #FF8F00;
+  --chart-5: #C62828;
+  
+  /* 侧边栏 */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #212121;
+  --sidebar-primary: #FFB800;
+  --sidebar-primary-foreground: #212121;
+  --sidebar-accent: #FFE082;
+  --sidebar-accent-foreground: #212121;
+  --sidebar-border: #E0E0E0;
+  --sidebar-ring: #BDBDBD;
+}
+
+.dark {
+  /* 基于配色文档的暗色主题 */
+  --primary: #FFB800; /* 主品牌色，在深色背景下依然保持 */
+  --primary-hover: #FFD54F; /* 悬停状态，更亮的黄色 */
+  --primary-active: #E6A600; /* 按下状态 */
+  --primary-foreground: #121212; /* 主色上的文字使用暗色 */
+  
+  /* 背景色系 */
+  --background: #121212; /* 页面整体背景 */
+  --card: #1E1E1E; /* 主要内容区域背景 */
+  --card-foreground: #E0E0E0; /* 卡片文字 */
+  --popover: #2C2C2C; /* 弹出框背景 */
+  --popover-foreground: #E0E0E0;
+  
+  /* 辅助色系 */
+  --secondary: #2C2C2C; /* 输入框、按钮背景 */
+  --secondary-foreground: #E0E0E0;
+  --muted: #1E1E1E; /* 静音/次要背景 */
+  --muted-foreground: #BDBDBD; /* 次要文本 */
+  --accent: #FFD54F; /* 强调色 */
+  --accent-foreground: #E0E0E0;
+  
+  /* 边框和输入 */
+  --border: #424242; /* 默认边框 */
+  --input: #2C2C2C; /* 输入框背景 */
+  --ring: #616161; /* 聚焦环 */
+  
+  /* 功能色 */
+  --destructive: #EF5350; /* 错误/危险 */
+  --destructive-foreground: #121212;
+  --success: #66BB6A; /* 成功 */
+  --success-foreground: #121212;
+  --warning: #FFA726; /* 警告 */
+  --warning-foreground: #121212;
+  --info: #42A5F5; /* 信息 */
+  --info-foreground: #121212;
+  
+  /* 文本颜色 */
+  --foreground: #E0E0E0; /* 主要文本 */
+  --text-secondary: #BDBDBD; /* 次要文本 */
+  --text-placeholder: #757575; /* 占位符文本 */
+  
+  /* 图表色 */
+  --chart-1: #FFB800;
+  --chart-2: #66BB6A;
+  --chart-3: #42A5F5;
+  --chart-4: #FFA726;
+  --chart-5: #EF5350;
+  
+  /* 侧边栏 */
+  --sidebar: #1E1E1E;
+  --sidebar-foreground: #E0E0E0;
+  --sidebar-primary: #FFB800;
+  --sidebar-primary-foreground: #121212;
+  --sidebar-accent: #FFD54F;
+  --sidebar-accent-foreground: #121212;
+  --sidebar-border: #424242;
+  --sidebar-ring: #616161;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .mask-image-radial {
+    mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
+  }
+  
+  /* Aurora动画已移除以优化性能 */
 }
