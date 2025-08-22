@@ -5,6 +5,13 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { CachedAvatar } from '@/components/ui/cached-avatar'
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserCache } from '@/hooks/useUserCache'
 import { useTheme } from '@/components/providers/ThemeProvider'
@@ -72,21 +79,44 @@ export function Header() {
         {loading ? (
           <div className="w-7 h-7 bg-muted rounded-full animate-pulse"></div>
         ) : isLoggedIn && user ? (
-          <Link href="/profile">
-            <CachedAvatar 
-              src={user.avatar_url} 
-              alt={user.full_name || 'User Avatar'}
-              className="cursor-pointer ring-2 ring-transparent hover:ring-primary/20"
-              size={29}
-              fallback={
-                <div className="bg-muted text-foreground text-sm font-medium w-full h-full flex items-center justify-center">
-                  {user.full_name?.charAt(0) || user.username?.charAt(0) || user.email?.charAt(0)}
-                </div>
-              }
-            />
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full">
+                <CachedAvatar 
+                  src={user.avatar_url} 
+                  alt={user.full_name || 'User Avatar'}
+                  className="cursor-pointer ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200"
+                  size={29}
+                  fallback={
+                    <div className="bg-muted text-foreground text-sm font-medium w-full h-full flex items-center justify-center">
+                      {user.full_name?.charAt(0) || user.username?.charAt(0) || user.email?.charAt(0)}
+                    </div>
+                  }
+                />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/api-provider" className="cursor-pointer">
+                  {t.nav.apiProvider}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="cursor-pointer">
+                  {t.nav.profile}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={handleLogout}
+                className="cursor-pointer text-destructive focus:text-destructive"
+              >
+                {t.nav.logout}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
-                    <Button
+          <Button
             onClick={() => showAuthModal('email')}
             disabled={authLoading}
             size="sm"

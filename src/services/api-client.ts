@@ -3,11 +3,11 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import type { ApiResponse, TokenData, RefreshTokenResponse } from '@/types/auth'
 import { TokenManager } from '@/lib/cookie'
-import Toast from '@/components/ui/toast'
+// import Toast from '@/components/ui/toast'  // 不再使用Toast类，改为组件层面处理
 
 // API 基础配置
 // 🔧 调试开关：设置为true直接请求后端，false使用代理
-const USE_DIRECT_API = true // 开发环境调试开关
+const USE_DIRECT_API = false // 开发环境调试开关
 
 const API_BASE_URL = process.env.NODE_ENV === 'development' 
   ? (USE_DIRECT_API ? 'https://api.vola.fun' : '/api/proxy') // 开发环境：直接访问或使用代理
@@ -241,7 +241,8 @@ apiClient.interceptors.response.use(
         processQueue(refreshError, null)
         TokenManager.clearTokens()
         // 重定向到登录页面或显示登录弹窗
-        Toast.error('Session expired, please log in again')
+        // Session expired错误需要特殊处理，但也移除toast，让认证系统处理
+        // Toast.error('Session expired, please log in again')
         // TODO: 触发登录弹窗
         return Promise.reject(refreshError)
       } finally {
@@ -249,50 +250,17 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // 处理其他错误
-    handleApiError(error)
+    // 不自动显示toast，让组件自己处理
+    // handleApiError(error)  // 移除自动toast显示
     return Promise.reject(error)
   }
 )
 
-// 统一错误处理
-const handleApiError = (error: AxiosError) => {
-  if (error.code === 'ECONNABORTED') {
-    Toast.error('Request timeout, please try again later')
-  } else if (error.code === 'ERR_NETWORK') {
-    Toast.error('Network connection failed, please check network settings')
-  } else if (error.code === 'ERR_INSUFFICIENT_RESOURCES') {
-    Toast.error('Too many requests, please wait and try again')
-  } else if (error.response) {
-    const status = error.response.status
-    const data = error.response.data as any
-
-    switch (status) {
-      case 400:
-        Toast.error(data?.message || 'Invalid request parameters')
-        break
-      case 401:
-        Toast.error(data?.message || 'Authentication failed')
-        break
-      case 403:
-        Toast.error(data?.message || 'Access denied')
-        break
-      case 404:
-        Toast.error(data?.message || 'Requested resource not found')
-        break
-      case 429:
-        Toast.error(data?.message || 'Too many requests, please try again later')
-        break
-      case 500:
-        Toast.error(data?.message || 'Internal server error')
-        break
-      default:
-        Toast.error(data?.message || `Request failed (${status})`)
-    }
-  } else {
-    Toast.error('Network error, please try again later')
-  }
-}
+// 统一错误处理函数（已停用 - 让组件自己处理错误显示以支持多语言）
+// const handleApiError = (error: AxiosError) => {
+//   // 这个函数已经不再使用，所有错误处理都由组件层面处理
+//   // 以确保支持多语言和避免重复toast
+// }
 
 // 导出配置好的 API 客户端
 export default apiClient

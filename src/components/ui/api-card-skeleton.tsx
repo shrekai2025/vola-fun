@@ -57,7 +57,13 @@ export function APICardSkeletonGrid({ count = 9 }: { count?: number }) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: count }).map((_, index) => (
-        <APICardSkeleton key={index} />
+        <div 
+          key={index} 
+          className="animate-in fade-in slide-in-from-bottom-4 duration-300"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          <APICardSkeleton />
+        </div>
       ))}
     </div>
   )

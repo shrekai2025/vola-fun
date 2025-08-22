@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toast";
 import AuthModal from "@/components/auth/AuthModal";
 import WelcomeModal from "@/components/auth/WelcomeModal";
 import { Header } from "@/components/organisms/Header";
+import { Footer } from "@/components/ui/footer";
 
 // 暂时使用系统字体避免 Turbopack 下 Google Fonts 的兼容性问题
 
@@ -61,10 +62,13 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="dark">
           <LanguageProvider>
             <JotaiProvider>
-              <Header />
-                          <div className="min-h-screen bg-background pt-[60px]">
-              {children}
-            </div>
+              <div className="min-h-screen bg-background flex flex-col">
+                <Header />
+                <main className="flex-1 pt-[60px]">
+                  {children}
+                </main>
+                <Footer />
+              </div>
               <Toaster />
               {/* 认证相关弹窗 */}
               <AuthModal />

@@ -1,6 +1,7 @@
 'use client'
 
 import { Header } from '@/components/organisms/Header'
+import { Footer } from '@/components/ui/footer'
 import { ReactNode } from 'react'
 
 interface MainLayoutProps {
@@ -9,17 +10,12 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="flex-1">
         {children}
       </main>
-      <footer className="mt-auto bg-white border-t py-8">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>&copy; 2024 vola.fun. All rights reserved.</p>
-          <p className="text-sm mt-2">简化API管理，打造面向AI的API生态</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

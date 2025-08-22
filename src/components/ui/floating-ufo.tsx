@@ -105,7 +105,7 @@ export function FloatingUFO() {
     <>
       {/* 背景流星雨：固定于区域，不随UFO漂移 */}
       <div
-        className="pointer-events-none absolute top-32 left-1/2 transform -translate-x-1/2 w-40 h-28 z-0"
+        className="pointer-events-none absolute top-[78px] left-1/2 transform -translate-x-1/2 w-40 h-28 z-0"
         style={{
           WebkitMaskImage: 'radial-gradient(60% 45% at center, black 70%, transparent 100%)',
           maskImage: 'radial-gradient(60% 45% at center, black 70%, transparent 100%)'
@@ -137,7 +137,7 @@ export function FloatingUFO() {
       </div>
 
       <motion.div
-      className="absolute top-32 left-1/2 transform -translate-x-1/2 w-24 h-24 opacity-70 z-10"
+      className="absolute top-[78px] left-1/2 transform -translate-x-1/2 w-24 h-24 opacity-70 z-10"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       animate={{

@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
 import { getMarketAPIs, type MarketAPI, type GetMarketAPIsParams } from '@/services/market-api'
-import { Search, Star, Clock, DollarSign, AlertCircle, ExternalLink, FileText } from 'lucide-react'
+import { Clock, AlertCircle, FileText } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { APICardSkeletonGrid, LoadMoreSkeleton } from '@/components/ui/api-card-skeleton'
@@ -49,9 +49,9 @@ export default function APIMarketSection() {
   const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('')
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [sortBy, setSortBy] = useState<'total_calls' | 'rating' | 'created_at'>('total_calls')
+  const [sortBy, setSortBy] = useState<'total_calls' | 'created_at'>('total_calls')
   
   // 防抖和请求管理
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -88,10 +88,7 @@ export default function APIMarketSection() {
         ...params
       }
 
-      // 如果有搜索词，使用搜索接口
-      if (searchTerm.trim()) {
-        requestParams.search = searchTerm.trim()
-      }
+
 
       // 如果选择了分类，添加分类过滤
       if (selectedCategory && selectedCategory !== 'all') {
@@ -138,32 +135,24 @@ export default function APIMarketSection() {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [searchTerm, selectedCategory, sortBy])
+  }, [selectedCategory, sortBy])
 
-  // 防抖搜索效果
+  // 分类和排序变化时重新加载
   useEffect(() => {
     // 清除之前的定时器
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current)
     }
     
-    // 设置新的防抖定时器
-    searchTimeoutRef.current = setTimeout(() => {
-      loadAPIs(1, true)
-    }, searchTerm ? 300 : 0) // 搜索时防抖300ms，其他立即执行
+    // 立即执行加载
+    loadAPIs(1, true)
     
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchTerm, selectedCategory, sortBy, loadAPIs])
-
-  // 搜索处理 - 只更新搜索词，实际请求由 useEffect 处理
-  const handleSearch = (value: string) => {
-    setSearchTerm(value)
-    setCurrentPage(1)
-  }
+  }, [selectedCategory, sortBy, loadAPIs])
 
   // 分类选择处理
   const handleCategorySelect = (category: string) => {
@@ -178,13 +167,7 @@ export default function APIMarketSection() {
     }
   }
 
-  // 格式化价格显示
-  const formatPrice = (totalCalls: number): string => {
-    if (totalCalls === 0) return '免费试用'
-    if (totalCalls < 1000) return `¥0.01/次`
-    if (totalCalls < 10000) return `¥0.005/次`
-    return `¥0.002/次`
-  }
+
 
   // 格式化调用次数
   const formatUsageCount = (count: number): string => {
@@ -209,27 +192,19 @@ export default function APIMarketSection() {
   }, [])
 
   return (
-    <section id="api-market-section" className="py-16 bg-background">
+    <section id="api-market-section" className="bg-background pb-[60px]">
       <div className="container mx-auto px-4">
-        {/* 标题 */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2 text-center">{t.home.marketTitle}</h2>
-          <p className="text-muted-foreground text-center">
-            {t.home.marketSubtitle}
+        {/* 介绍文案 */}
+        <div className="text-center mb-8">
+          <p className="text-lg text-muted-foreground">
+            {t.home.apiMarketIntro}
           </p>
         </div>
 
+
         {/* 搜索和筛选 */}
         <div className="mb-8 space-y-4">
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input 
-              placeholder={t.home.searchPlaceholder}
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </div>
+
           
           {/* 分类标签 */}
           <div className="flex flex-wrap gap-2 justify-center">
@@ -291,21 +266,14 @@ export default function APIMarketSection() {
               size="sm"
               onClick={() => setSortBy('total_calls')}
             >
-              热门度
-            </Button>
-            <Button 
-              variant={sortBy === 'rating' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setSortBy('rating')}
-            >
-              评分
+              {t.home.sorting.popularity}
             </Button>
             <Button 
               variant={sortBy === 'created_at' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setSortBy('created_at')}
             >
-              最新
+              {t.home.sorting.latest}
             </Button>
           </div>
         </div>
@@ -350,14 +318,9 @@ export default function APIMarketSection() {
                               {api.name}
                             </CardTitle>
                           </div>
-                          {api.rating && api.rating > 0 && (
-                            <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                              <Star className="h-4 w-4 fill-warning text-warning" />
-                              <span>{api.rating.toFixed(1)}</span>
-                            </div>
-                          )}
+
                         </div>
-                        <CardDescription className="line-clamp-2">
+                        <CardDescription className="line-clamp-2 h-10">
                           {api.short_description}
                         </CardDescription>
                       </CardHeader>
@@ -377,17 +340,13 @@ export default function APIMarketSection() {
 
                         {/* 统计信息 */}
                         <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-1">
-                              <DollarSign className="h-4 w-4" />
-                              <span>{formatPrice(api.total_calls)}</span>
-                            </div>
+                          <div className="flex items-center justify-center">
                             <div className="flex items-center space-x-1">
                               <Clock className="h-4 w-4" />
                               <span>~200ms</span>
                             </div>
                           </div>
-                          <div className="text-xs text-muted-foreground/80">
+                          <div className="text-xs text-muted-foreground/80 text-center">
                             已调用 {formatUsageCount(api.total_calls)} 次
                           </div>
                         </div>
@@ -397,22 +356,9 @@ export default function APIMarketSection() {
                           <Button size="sm" className="flex-1" asChild>
                             <span>
                               <FileText className="h-4 w-4 mr-1" />
-                              查看详情
+                              {t.home.viewDetails}
                             </span>
                           </Button>
-                          {api.documentation_url && (
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                window.open(api.documentation_url, '_blank')
-                              }}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          )}
                         </div>
                       </CardContent>
                     </Link>
@@ -441,7 +387,7 @@ export default function APIMarketSection() {
             {!hasMore && apis.length > 0 && (
               <div className="text-center mt-8">
                 <p className="text-muted-foreground text-sm">
-                  已显示全部 {apis.length} 个API服务
+                  {t.home.totalCount.replace('{count}', apis.length.toString())}
                 </p>
               </div>
             )}

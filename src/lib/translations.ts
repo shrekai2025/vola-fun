@@ -15,6 +15,34 @@ export interface Translations {
     close: string
   }
   
+  // Footer
+  footer: {
+    description: string
+    product: {
+      title: string
+      apiMarket: string
+      documentation: string
+    }
+    connect: {
+      title: string
+      twitter: string
+      email: string
+      github: string
+      wechat: string
+    }
+    language: {
+      title: string
+      english: string
+      chinese: string
+    }
+    pricing: string
+    privacy: string
+    terms: string
+    copyright: string
+    allRightsReserved: string
+    theme: string
+  }
+  
   // 导航
   nav: {
     docs: string
@@ -22,6 +50,7 @@ export interface Translations {
     getStarted: string
     profile: string
     logout: string
+    apiProvider: string
   }
   
   // 主页
@@ -44,6 +73,13 @@ export interface Translations {
       finance: string
       validation: string
     }
+    sorting: {
+      popularity: string
+      latest: string
+    }
+    viewDetails: string
+    totalCount: string
+    apiMarketIntro: string
   }
   
   // Profile页面
@@ -120,6 +156,76 @@ export interface Translations {
     copied: string
   }
 
+  // API提供商页面
+  apiProvider: {
+    title: string
+    description: string
+    createNew: string
+    createFirst: string
+    loading: string
+    noAPIs: string
+    noAPIsDescription: string
+  }
+
+  // API端点管理页面
+  endpoints: {
+    title: string
+    description: string
+    createNew: string
+    noEndpoints: string
+    loading: string
+    loadFailed: string
+    retry: string
+    
+    // 端点信息
+    endpointName: string
+    path: string
+    method: string
+    endpointDescription: string
+    type: string
+    
+    // 统计信息
+    totalCalls: string
+    successRate: string
+    avgResponseTime: string
+    pricePerCall: string
+    
+    // 操作按钮
+    edit: string
+    delete: string
+    save: string
+    cancel: string
+    confirm: string
+    
+    // 表单字段
+    nameLabel: string
+    descriptionLabel: string
+    pathLabel: string
+    methodLabel: string
+    typeLabel: string
+    headersLabel: string
+    queryParamsLabel: string
+    bodyParamsLabel: string
+    responseBodyLabel: string
+    priceLabel: string
+    
+    // 状态和消息
+    active: string
+    inactive: string
+    createSuccess: string
+    updateSuccess: string
+    deleteSuccess: string
+    createFailed: string
+    updateFailed: string
+    deleteFailed: string
+    
+    // 确认对话框
+    deleteConfirmTitle: string
+    deleteConfirmMessage: string
+    editConfirmTitle: string
+    editConfirmMessage: string
+  }
+
   // 错误信息
   errors: {
     userInfoFailed: string
@@ -150,12 +256,40 @@ export const en: Translations = {
     close: 'Close'
   },
   
+  footer: {
+    description: 'The intelligent API marketplace. Command a curated ecosystem of APIs with a universal key.',
+    product: {
+      title: 'Product',
+      apiMarket: 'API Market',
+      documentation: 'Documentation'
+    },
+    connect: {
+      title: 'Connect',
+      twitter: 'Twitter/X',
+      email: 'Email',
+      github: 'GitHub',
+      wechat: 'WeChat'
+    },
+    language: {
+      title: 'Language',
+      english: 'English',
+      chinese: '简体中文'
+    },
+    pricing: 'Pricing',
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Service',
+    copyright: '© 2025 VOLA.',
+    allRightsReserved: 'All rights reserved.',
+    theme: 'Theme'
+  },
+  
   nav: {
     docs: 'Docs',
     pricing: 'Pricing',
     getStarted: 'Get started',
     profile: 'Profile',
-    logout: 'Logout'
+    logout: 'Logout',
+    apiProvider: 'API Provider'
   },
   
   home: {
@@ -176,7 +310,14 @@ export const en: Translations = {
       tools: 'Tools',
       finance: 'Finance',
       validation: 'Validation'
-    }
+    },
+    sorting: {
+      popularity: 'Popular',
+      latest: 'Latest'
+    },
+    viewDetails: 'View Details',
+    totalCount: 'Showing all {count} API services',
+    apiMarketIntro: 'Discover and integrate powerful APIs to accelerate your development'
   },
   
   profile: {
@@ -250,6 +391,74 @@ export const en: Translations = {
     copy: 'Copy',
     copied: 'Copied'
   },
+
+  apiProvider: {
+    title: 'API Provider',
+    description: 'Manage and publish your API services to the Vola marketplace',
+    createNew: 'Create New API',
+    createFirst: 'Create Your First API',
+    loading: 'Loading...',
+    noAPIs: 'No APIs yet',
+    noAPIsDescription: 'You haven\'t created any APIs yet. Start by creating your first API to share with the community.'
+  },
+
+  endpoints: {
+    title: 'API Endpoints',
+    description: 'Manage endpoints for your API',
+    createNew: 'Create New Endpoint',
+    noEndpoints: 'No Endpoints',
+    loading: 'Loading...',
+    loadFailed: 'Load Failed',
+    retry: 'Retry',
+    
+    // 端点信息
+    endpointName: 'Endpoint Name',
+    path: 'Path',
+    method: 'Method',
+    endpointDescription: 'Description',
+    type: 'Type',
+    
+    // 统计信息
+    totalCalls: 'Total Calls',
+    successRate: 'Success Rate',
+    avgResponseTime: 'Avg Response Time',
+    pricePerCall: 'Price per Call',
+    
+    // 操作按钮
+    edit: 'Edit',
+    delete: 'Delete',
+    save: 'Save',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    
+    // 表单字段
+    nameLabel: 'Name',
+    descriptionLabel: 'Description', 
+    pathLabel: 'Path',
+    methodLabel: 'HTTP Method',
+    typeLabel: 'Type',
+    headersLabel: 'Headers',
+    queryParamsLabel: 'Query Parameters',
+    bodyParamsLabel: 'Body Parameters',
+    responseBodyLabel: 'Response Body',
+    priceLabel: 'Price per Call',
+    
+    // 状态和消息
+    active: 'Active',
+    inactive: 'Inactive',
+    createSuccess: 'Endpoint created successfully',
+    updateSuccess: 'Endpoint updated successfully',
+    deleteSuccess: 'Endpoint deleted successfully',
+    createFailed: 'Failed to create endpoint',
+    updateFailed: 'Failed to update endpoint',
+    deleteFailed: 'Failed to delete endpoint',
+    
+    // 确认对话框
+    deleteConfirmTitle: 'Delete Endpoint',
+    deleteConfirmMessage: 'Are you sure you want to delete this endpoint? This action cannot be undone.',
+    editConfirmTitle: 'Save Changes',
+    editConfirmMessage: 'Are you sure you want to save these changes?'
+  },
   
   errors: {
     userInfoFailed: 'Failed to load user information:',
@@ -279,12 +488,40 @@ export const zh: Translations = {
     close: '关闭'
   },
   
+  footer: {
+    description: '智能API市场。通过单一通用密钥，掌控精选的API生态系统。',
+    product: {
+      title: '产品',
+      apiMarket: 'API市场',
+      documentation: '文档'
+    },
+    connect: {
+      title: '联系我们',
+      twitter: 'Twitter/X',
+      email: '邮箱',
+      github: 'GitHub',
+      wechat: '微信'
+    },
+    language: {
+      title: '语言',
+      english: 'English',
+      chinese: '简体中文'
+    },
+    pricing: '定价',
+    privacy: '隐私政策',
+    terms: '服务条款',
+    copyright: '© 2025 VOLA',
+    allRightsReserved: '保留所有权利。',
+    theme: '主题'
+  },
+  
   nav: {
     docs: '文档',
     pricing: '定价',
     getStarted: '开始使用',
     profile: '个人资料',
-    logout: '退出登录'
+    logout: '退出登录',
+    apiProvider: 'API 提供商'
   },
   
   home: {
@@ -305,7 +542,14 @@ export const zh: Translations = {
       tools: '工具',
       finance: '金融',
       validation: '验证'
-    }
+    },
+    sorting: {
+      popularity: '热门度',
+      latest: '最新'
+    },
+    viewDetails: '查看详情',
+    totalCount: '已显示全部 {count} 个API服务',
+    apiMarketIntro: '发现和集成强大的API，加速您的开发进程'
   },
   
   profile: {
@@ -378,6 +622,74 @@ export const zh: Translations = {
     testCompleted: 'API测试完成',
     copy: '复制',
     copied: '已复制'
+  },
+
+  apiProvider: {
+    title: 'API 提供商',
+    description: '管理并发布您的API服务到Vola市场',
+    createNew: '创建新API',
+    createFirst: '创建您的第一个API',
+    loading: '加载中...',
+    noAPIs: '暂无API',
+    noAPIsDescription: '您还没有创建任何API。开始创建您的第一个API来与社区分享吧。'
+  },
+
+  endpoints: {
+    title: 'API 端点',
+    description: '管理您的API端点',
+    createNew: '创建新端点',
+    noEndpoints: '暂无Endpoint',
+    loading: '加载中...',
+    loadFailed: '加载失败',
+    retry: '重试',
+    
+    // 端点信息
+    endpointName: '端点名称',
+    path: '路径',
+    method: '方法',
+    endpointDescription: '描述',
+    type: '类型',
+    
+    // 统计信息
+    totalCalls: '总调用量',
+    successRate: '成功率',
+    avgResponseTime: '平均响应时间',
+    pricePerCall: '每次调用价格',
+    
+    // 操作按钮
+    edit: '编辑',
+    delete: '删除',
+    save: '保存',
+    cancel: '取消',
+    confirm: '确认',
+    
+    // 表单字段
+    nameLabel: '名称',
+    descriptionLabel: '描述',
+    pathLabel: '路径',
+    methodLabel: 'HTTP方法',
+    typeLabel: '类型',
+    headersLabel: '请求头',
+    queryParamsLabel: '查询参数',
+    bodyParamsLabel: '请求体参数',
+    responseBodyLabel: '响应体',
+    priceLabel: '每次调用价格',
+    
+    // 状态和消息
+    active: '激活',
+    inactive: '未激活',
+    createSuccess: '端点创建成功',
+    updateSuccess: '端点更新成功',
+    deleteSuccess: '端点删除成功',
+    createFailed: '端点创建失败',
+    updateFailed: '端点更新失败',
+    deleteFailed: '端点删除失败',
+    
+    // 确认对话框
+    deleteConfirmTitle: '删除端点',
+    deleteConfirmMessage: '确定要删除此端点吗？此操作不可撤销。',
+    editConfirmTitle: '保存更改',
+    editConfirmMessage: '确定要保存这些更改吗？'
   },
   
   errors: {

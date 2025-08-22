@@ -16,8 +16,8 @@ export function HeroSection() {
 
   // 处理"获得API Key"按钮点击
   const handleGetApiKey = () => {
-    if (!isLoggedIn || !isSubscribed) {
-      // 未登录或未订阅用户跳转到pricing页
+    if (loading || !isLoggedIn || !isSubscribed) {
+      // 用户信息加载中、未登录或未订阅用户跳转到pricing页
       window.location.href = '/pricing'
     } else {
       // 已登录已订阅用户跳转到profile页
@@ -34,7 +34,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative min-h-[80vh] py-12 flex items-center justify-center bg-background">
+    <section className="relative min-h-[80vh] flex items-center justify-center bg-background">
       <FloatingUFO />
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}
@@ -59,7 +59,6 @@ export function HeroSection() {
           <Button 
             size="lg" 
             onClick={handleGetApiKey}
-            disabled={loading}
             className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
           >
             <Key className="mr-2 h-5 w-5" />
