@@ -16,36 +16,24 @@ import { getUserAPI, updateUserAPI } from '@/services/user-api'
 import type { MarketAPI } from '@/services/market-api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 
-// 表单验证模式
-const updateUserAPISchema = z.object({
-  name: z.string().min(1, 'API名称不能为空').max(255, 'API名称不能超过255个字符'),
+// 表单验证模式 - 使用函数创建以获取翻译
+const createUpdateUserAPISchema = (t: any) => z.object({
+  name: z.string().min(1, t.apiProvider.edit.nameRequired).max(255, t.apiProvider.edit.nameMaxLength),
   slug: z.string()
-    .min(1, 'API标识不能为空')
-    .regex(/^[a-z0-9-]+$/, 'API标识只能包含小写字母、数字和连字符'),
-  short_description: z.string().min(1, '简短描述不能为空').max(100, '简短描述不能超过100个字符'),
+    .min(1, t.apiProvider.edit.slugRequired)
+    .regex(/^[a-z0-9-]+$/, t.apiProvider.edit.slugFormat),
+  short_description: z.string().min(1, t.apiProvider.edit.shortDescRequired).max(100, t.apiProvider.edit.shortDescMaxLength),
   long_description: z.string().optional(),
   category: z.enum(['data', 'ai_ml', 'finance', 'social', 'tools', 'communication', 'entertainment', 'business', 'other']),
-  base_url: z.string().url('请输入有效的URL'),
-  health_check_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
-  website_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
-  documentation_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
-  terms_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
+  base_url: z.string().url(t.apiProvider.edit.validUrl),
+  health_check_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
+  website_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
+  documentation_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
+  terms_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
   documentation_markdown: z.string().optional(),
 })
 
-type UpdateUserAPIFormData = z.infer<typeof updateUserAPISchema>
-
-const CATEGORIES = [
-  { value: 'data', label: '数据' },
-  { value: 'ai_ml', label: 'AI/机器学习' },
-  { value: 'finance', label: '金融' },
-  { value: 'social', label: '社交' },
-  { value: 'tools', label: '工具' },
-  { value: 'communication', label: '通信' },
-  { value: 'entertainment', label: '娱乐' },
-  { value: 'business', label: '商业' },
-  { value: 'other', label: '其他' },
-]
+type UpdateUserAPIFormData = z.infer<ReturnType<typeof createUpdateUserAPISchema>>
 
 interface UserAPIEditSectionProps {
   apiId: string
@@ -63,6 +51,19 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
 
   // 稳定化翻译对象
   const translations = useMemo(() => t.apiProvider, [t.apiProvider])
+  
+  // 创建分类选项
+  const categories = useMemo(() => [
+    { value: 'data', label: t.apiProvider.categories.data },
+    { value: 'ai_ml', label: t.apiProvider.categories.ai_ml },
+    { value: 'finance', label: t.apiProvider.categories.finance },
+    { value: 'social', label: t.apiProvider.categories.social },
+    { value: 'tools', label: t.apiProvider.categories.tools },
+    { value: 'communication', label: t.apiProvider.categories.communication },
+    { value: 'entertainment', label: t.apiProvider.categories.entertainment },
+    { value: 'business', label: t.apiProvider.categories.business },
+    { value: 'other', label: t.apiProvider.categories.other },
+  ], [t.apiProvider.categories])
 
   const {
     register,
@@ -71,7 +72,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
     setValue,
     reset,
   } = useForm<UpdateUserAPIFormData>({
-    resolver: zodResolver(updateUserAPISchema),
+    resolver: zodResolver(createUpdateUserAPISchema(t)),
   })
 
   // 加载API详情
@@ -89,7 +90,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         name: apiData.name,
         slug: apiData.slug,
         short_description: apiData.short_description,
-        long_description: '', // MarketAPI中没有此字段，使用空字符串
+        long_description: apiData.long_description || '', // 现在MarketAPI包含此字段
         category: apiData.category as any,
         base_url: apiData.base_url,
         health_check_url: apiData.health_check_url || '',
@@ -129,16 +130,46 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
     try {
       setSubmitting(true)
       
-      const updateData = {
-        ...data,
+      // 处理空URL字段 - 如果为空字符串则不传该字段
+      const updateData: any = {
+        name: data.name,
+        slug: data.slug,
+        short_description: data.short_description,
+        category: data.category,
+        base_url: data.base_url,
         tags: tags,
+      }
+      
+      // 可选字段：只有不为空时才传递
+      if (data.long_description && data.long_description.trim()) {
+        updateData.long_description = data.long_description
+      }
+      
+      if (data.health_check_url && data.health_check_url.trim()) {
+        updateData.health_check_url = data.health_check_url
+      }
+      
+      if (data.website_url && data.website_url.trim()) {
+        updateData.website_url = data.website_url
+      }
+      
+      if (data.documentation_url && data.documentation_url.trim()) {
+        updateData.documentation_url = data.documentation_url
+      }
+      
+      if (data.terms_url && data.terms_url.trim()) {
+        updateData.terms_url = data.terms_url
+      }
+      
+      if (data.documentation_markdown && data.documentation_markdown.trim()) {
+        updateData.documentation_markdown = data.documentation_markdown
       }
 
       console.log('更新用户API:', updateData)
       
       await updateUserAPI(apiId, updateData)
       
-      toast.success('API更新成功！')
+      toast.success(t.apiProvider.edit.saveChanges + ' ' + t.common.success)
       
       // 返回到API Provider页面
       router.push('/api-provider')
@@ -146,11 +177,11 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
     } catch (error: unknown) {
       console.error('更新API失败:', error)
       const errorMessage = error instanceof Error ? error.message : '更新失败'
-      toast.error(`更新失败：${errorMessage}`)
+      toast.error(`${t.common.error}：${errorMessage}`)
     } finally {
       setSubmitting(false)
     }
-  }, [apiId, tags]) // 移除toast和router依赖
+  }, [apiId, tags, t]) // 移除toast和router依赖
 
   useEffect(() => {
     loadAPI()
@@ -162,7 +193,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">加载API信息中...</p>
+            <p className="text-muted-foreground">{t.apiProvider.edit.loadingAPI}</p>
           </div>
         </div>
       </div>
@@ -174,9 +205,9 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <p className="text-muted-foreground mb-4">API不存在或您没有访问权限</p>
+            <p className="text-muted-foreground mb-4">{t.apiProvider.edit.notFound}</p>
             <Button asChild>
-              <Link href="/api-provider">返回列表</Link>
+              <Link href="/api-provider">{t.apiProvider.edit.noAccess}</Link>
             </Button>
           </div>
         </div>
@@ -192,23 +223,23 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/api-provider" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              返回列表
+              {t.apiProvider.edit.backToList}
             </Link>
           </Button>
         </div>
         <div className="flex items-center gap-3 mb-2">
           <h1 className="text-3xl font-bold text-foreground">
-            编辑 API: {api.name}
+            {t.apiProvider.edit.title}: {api.name}
           </h1>
           <Badge 
             variant="outline" 
             className={`${api.status === 'draft' ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'}`}
           >
-            {api.status === 'draft' ? '草稿' : api.status}
+            {api.status === 'draft' ? t.apiProvider.edit.draft : t.apiProvider.edit.published}
           </Badge>
         </div>
         <p className="text-muted-foreground">
-          编辑您的API信息。保存后，如果是草稿状态的API将继续保持草稿状态。
+          {t.apiProvider.edit.editingNote}
         </p>
       </div>
 
@@ -216,18 +247,18 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         {/* 基本信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>基本信息</CardTitle>
+            <CardTitle>{t.apiProvider.edit.basicInfo}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* API名称和标识 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  API 名称 <span className="text-destructive">*</span>
+                  {t.apiProvider.edit.apiName} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   {...register('name')}
-                  placeholder="例如：天气预报API"
+                  placeholder={t.apiProvider.edit.namePlaceholder}
                   className={errors.name ? 'border-destructive' : ''}
                 />
                 {errors.name && (
@@ -236,18 +267,18 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  API 标识 (slug) <span className="text-destructive">*</span>
+                  {t.apiProvider.edit.apiSlug} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   {...register('slug')}
-                  placeholder="例如：weather-forecast"
+                  placeholder={t.apiProvider.edit.slugPlaceholder}
                   className={errors.slug ? 'border-destructive' : ''}
                 />
                 {errors.slug && (
                   <p className="text-destructive text-sm mt-1">{errors.slug.message}</p>
                 )}
                 <p className="text-muted-foreground text-xs mt-1">
-                  用于生成API访问URL，只能包含小写字母、数字和连字符
+                  {t.apiProvider.edit.slugHelper}
                 </p>
               </div>
             </div>
@@ -255,11 +286,11 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
             {/* 描述 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                简短描述 <span className="text-destructive">*</span>
+                {t.apiProvider.edit.shortDescription} <span className="text-destructive">*</span>
               </label>
               <Input
                 {...register('short_description')}
-                placeholder="简要描述您的API功能..."
+                placeholder={t.apiProvider.edit.shortDescPlaceholder}
                 className={errors.short_description ? 'border-destructive' : ''}
               />
               {errors.short_description && (
@@ -269,25 +300,25 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                详细描述
+                {t.apiProvider.edit.longDescription}
               </label>
               <textarea
                 {...register('long_description')}
                 className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder="详细介绍您的API功能、使用场景等..."
+                placeholder={t.apiProvider.edit.longDescPlaceholder}
               />
             </div>
 
             {/* 分类 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                API 分类 <span className="text-destructive">*</span>
+                {t.apiProvider.edit.category} <span className="text-destructive">*</span>
               </label>
               <select
                 {...register('category')}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {CATEGORIES.map((category) => (
+                {categories.map((category) => (
                   <option key={category.value} value={category.value}>
                     {category.label}
                   </option>
@@ -300,16 +331,16 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         {/* 技术配置 */}
         <Card>
           <CardHeader>
-            <CardTitle>技术配置</CardTitle>
+            <CardTitle>{t.apiProvider.edit.technicalConfig}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">
-                基础 URL <span className="text-destructive">*</span>
+                {t.apiProvider.edit.baseUrl} <span className="text-destructive">*</span>
               </label>
               <Input
                 {...register('base_url')}
-                placeholder="https://api.example.com"
+                placeholder={t.apiProvider.edit.baseUrlPlaceholder}
                 className={errors.base_url ? 'border-destructive' : ''}
               />
               {errors.base_url && (
@@ -319,11 +350,11 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                健康检查 URL
+                {t.apiProvider.edit.healthCheckUrl}
               </label>
               <Input
                 {...register('health_check_url')}
-                placeholder="https://api.example.com/health"
+                placeholder={t.apiProvider.edit.healthUrlPlaceholder}
                 className={errors.health_check_url ? 'border-destructive' : ''}
               />
               {errors.health_check_url && (
@@ -336,17 +367,17 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         {/* 链接信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>相关链接</CardTitle>
+            <CardTitle>{t.apiProvider.edit.relatedLinks}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  官方网站
+                  {t.apiProvider.edit.websiteUrl}
                 </label>
                 <Input
                   {...register('website_url')}
-                  placeholder="https://example.com"
+                  placeholder={t.apiProvider.edit.websiteUrlPlaceholder}
                   className={errors.website_url ? 'border-destructive' : ''}
                 />
                 {errors.website_url && (
@@ -355,11 +386,11 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  文档链接
+                  {t.apiProvider.edit.documentationUrl}
                 </label>
                 <Input
                   {...register('documentation_url')}
-                  placeholder="https://docs.example.com"
+                  placeholder={t.apiProvider.edit.docsUrlPlaceholder}
                   className={errors.documentation_url ? 'border-destructive' : ''}
                 />
                 {errors.documentation_url && (
@@ -370,11 +401,11 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                服务条款链接
+                {t.apiProvider.edit.termsUrl}
               </label>
               <Input
                 {...register('terms_url')}
-                placeholder="https://example.com/terms"
+                placeholder={t.apiProvider.edit.termsUrlPlaceholder}
                 className={errors.terms_url ? 'border-destructive' : ''}
               />
               {errors.terms_url && (
@@ -387,19 +418,19 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         {/* 标签和文档 */}
         <Card>
           <CardHeader>
-            <CardTitle>标签和文档</CardTitle>
+            <CardTitle>{t.apiProvider.edit.tagsAndDocs}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 标签 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                标签 (最多5个)
+                {t.apiProvider.edit.tags}
               </label>
               <div className="flex gap-2 mb-2">
                 <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="输入标签..."
+                  placeholder={t.apiProvider.edit.tagsPlaceholder}
                   className="flex-1"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -436,22 +467,12 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
             {/* Markdown文档 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                API 文档 (Markdown)
+                {t.apiProvider.edit.apiDocs}
               </label>
               <textarea
                 {...register('documentation_markdown')}
                 className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none font-mono"
-                placeholder={`# API 文档
-
-## 概述
-描述您的API功能...
-
-## 认证
-描述认证方式...
-
-## 端点
-### GET /endpoint
-描述端点用法...`}
+                placeholder={t.apiProvider.edit.docsPlaceholder}
               />
             </div>
           </CardContent>
@@ -460,7 +481,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         {/* 提交按钮 */}
         <div className="flex items-center justify-end gap-4">
           <Button type="button" variant="outline" asChild>
-            <Link href="/api-provider">取消</Link>
+            <Link href="/api-provider">{t.apiProvider.edit.cancel}</Link>
           </Button>
           <Button
             type="submit"
@@ -470,12 +491,12 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
             {submitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                保存中...
+                {t.apiProvider.edit.saving}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                保存更改
+                {t.apiProvider.edit.saveChanges}
               </>
             )}
           </Button>

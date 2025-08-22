@@ -165,6 +165,71 @@ export interface Translations {
     loading: string
     noAPIs: string
     noAPIsDescription: string
+    edit: {
+      title: string
+      backToList: string
+      basicInfo: string
+      technicalConfig: string
+      relatedLinks: string
+      tagsAndDocs: string
+      saveChanges: string
+      cancel: string
+      saving: string
+      // Form fields
+      apiName: string
+      apiSlug: string
+      shortDescription: string
+      longDescription: string
+      category: string
+      baseUrl: string
+      healthCheckUrl: string
+      websiteUrl: string
+      documentationUrl: string
+      termsUrl: string
+      tags: string
+      apiDocs: string
+      // Validation messages
+      nameRequired: string
+      nameMaxLength: string
+      slugRequired: string
+      slugFormat: string
+      shortDescRequired: string
+      shortDescMaxLength: string
+      validUrl: string
+      // Form placeholders
+      namePlaceholder: string
+      slugPlaceholder: string
+      slugHelper: string
+      shortDescPlaceholder: string
+      longDescPlaceholder: string
+      baseUrlPlaceholder: string
+      healthUrlPlaceholder: string
+      websiteUrlPlaceholder: string
+      docsUrlPlaceholder: string
+      termsUrlPlaceholder: string
+      tagsPlaceholder: string
+      tagsMaxHelper: string
+      docsPlaceholder: string
+      // Status
+      draft: string
+      published: string
+      editingNote: string
+      // Loading states
+      loadingAPI: string
+      notFound: string
+      noAccess: string
+    }
+    categories: {
+      data: string
+      ai_ml: string
+      finance: string
+      social: string
+      tools: string
+      communication: string
+      entertainment: string
+      business: string
+      other: string
+    }
   }
 
   // API端点管理页面
@@ -399,7 +464,82 @@ export const en: Translations = {
     createFirst: 'Create Your First API',
     loading: 'Loading...',
     noAPIs: 'No APIs yet',
-    noAPIsDescription: 'You haven\'t created any APIs yet. Start by creating your first API to share with the community.'
+    noAPIsDescription: 'You haven\'t created any APIs yet. Start by creating your first API to share with the community.',
+    edit: {
+      title: 'Edit API',
+      backToList: 'Back to List',
+      basicInfo: 'Basic Information',
+      technicalConfig: 'Technical Configuration',
+      relatedLinks: 'Related Links',
+      tagsAndDocs: 'Tags and Documentation',
+      saveChanges: 'Save Changes',
+      cancel: 'Cancel',
+      saving: 'Saving...',
+      // Form fields
+      apiName: 'API Name',
+      apiSlug: 'API Slug',
+      shortDescription: 'Short Description',
+      longDescription: 'Detailed Description',
+      category: 'API Category',
+      baseUrl: 'Base URL',
+      healthCheckUrl: 'Health Check URL',
+      websiteUrl: 'Official Website',
+      documentationUrl: 'Documentation Link',
+      termsUrl: 'Terms of Service Link',
+      tags: 'Tags (max 5)',
+      apiDocs: 'API Documentation (Markdown)',
+      // Validation messages
+      nameRequired: 'API name cannot be empty',
+      nameMaxLength: 'API name cannot exceed 255 characters',
+      slugRequired: 'API slug cannot be empty',
+      slugFormat: 'API slug can only contain lowercase letters, numbers and hyphens',
+      shortDescRequired: 'Short description cannot be empty',
+      shortDescMaxLength: 'Short description cannot exceed 100 characters',
+      validUrl: 'Please enter a valid URL',
+      // Form placeholders
+      namePlaceholder: 'e.g., Weather Forecast API',
+      slugPlaceholder: 'e.g., weather-forecast',
+      slugHelper: 'Used to generate API access URL, only lowercase letters, numbers and hyphens allowed',
+      shortDescPlaceholder: 'Briefly describe your API functionality...',
+      longDescPlaceholder: 'Detailed introduction of your API functionality, use cases, etc...',
+      baseUrlPlaceholder: 'https://api.example.com',
+      healthUrlPlaceholder: 'https://api.example.com/health',
+      websiteUrlPlaceholder: 'https://example.com',
+      docsUrlPlaceholder: 'https://docs.example.com',
+      termsUrlPlaceholder: 'https://example.com/terms',
+      tagsPlaceholder: 'Enter tag...',
+      tagsMaxHelper: 'Tags (max 5)',
+      docsPlaceholder: `# API Documentation
+
+## Overview
+Describe your API functionality...
+
+## Authentication
+Describe authentication method...
+
+## Endpoints
+### GET /endpoint
+Describe endpoint usage...`,
+      // Status
+      draft: 'Draft',
+      published: 'Published',
+      editingNote: 'Edit your API information. After saving, if the API is in draft status, it will remain in draft status.',
+      // Loading states
+      loadingAPI: 'Loading API information...',
+      notFound: 'API not found or you do not have access',
+      noAccess: 'Back to List'
+    },
+    categories: {
+      data: 'Data',
+      ai_ml: 'AI/ML',
+      finance: 'Finance',
+      social: 'Social',
+      tools: 'Tools',
+      communication: 'Communication',
+      entertainment: 'Entertainment',
+      business: 'Business',
+      other: 'Other'
+    }
   },
 
   endpoints: {
@@ -631,7 +771,82 @@ export const zh: Translations = {
     createFirst: '创建您的第一个API',
     loading: '加载中...',
     noAPIs: '暂无API',
-    noAPIsDescription: '您还没有创建任何API。开始创建您的第一个API来与社区分享吧。'
+    noAPIsDescription: '您还没有创建任何API。开始创建您的第一个API来与社区分享吧。',
+    edit: {
+      title: '编辑API',
+      backToList: '返回列表',
+      basicInfo: '基本信息',
+      technicalConfig: '技术配置',
+      relatedLinks: '相关链接',
+      tagsAndDocs: '标签和文档',
+      saveChanges: '保存更改',
+      cancel: '取消',
+      saving: '保存中...',
+      // Form fields
+      apiName: 'API 名称',
+      apiSlug: 'API 标识 (slug)',
+      shortDescription: '简短描述',
+      longDescription: '详细描述',
+      category: 'API 分类',
+      baseUrl: '基础 URL',
+      healthCheckUrl: '健康检查 URL',
+      websiteUrl: '官方网站',
+      documentationUrl: '文档链接',
+      termsUrl: '服务条款链接',
+      tags: '标签 (最多5个)',
+      apiDocs: 'API 文档 (Markdown)',
+      // Validation messages
+      nameRequired: 'API名称不能为空',
+      nameMaxLength: 'API名称不能超过255个字符',
+      slugRequired: 'API标识不能为空',
+      slugFormat: 'API标识只能包含小写字母、数字和连字符',
+      shortDescRequired: '简短描述不能为空',
+      shortDescMaxLength: '简短描述不能超过100个字符',
+      validUrl: '请输入有效的URL',
+      // Form placeholders
+      namePlaceholder: '例如：天气预报API',
+      slugPlaceholder: '例如：weather-forecast',
+      slugHelper: '用于生成API访问URL，只能包含小写字母、数字和连字符',
+      shortDescPlaceholder: '简要描述您的API功能...',
+      longDescPlaceholder: '详细介绍您的API功能、使用场景等...',
+      baseUrlPlaceholder: 'https://api.example.com',
+      healthUrlPlaceholder: 'https://api.example.com/health',
+      websiteUrlPlaceholder: 'https://example.com',
+      docsUrlPlaceholder: 'https://docs.example.com',
+      termsUrlPlaceholder: 'https://example.com/terms',
+      tagsPlaceholder: '输入标签...',
+      tagsMaxHelper: '标签 (最多5个)',
+      docsPlaceholder: `# API 文档
+
+## 概述
+描述您的API功能...
+
+## 认证
+描述认证方式...
+
+## 端点
+### GET /endpoint
+描述端点用法...`,
+      // Status
+      draft: '草稿',
+      published: '已发布',
+      editingNote: '编辑您的API信息。保存后，如果是草稿状态的API将继续保持草稿状态。',
+      // Loading states
+      loadingAPI: '加载API信息中...',
+      notFound: 'API不存在或您没有访问权限',
+      noAccess: '返回列表'
+    },
+    categories: {
+      data: '数据',
+      ai_ml: 'AI/机器学习',
+      finance: '金融',
+      social: '社交',
+      tools: '工具',
+      communication: '通信',
+      entertainment: '娱乐',
+      business: '商业',
+      other: '其他'
+    }
   },
 
   endpoints: {

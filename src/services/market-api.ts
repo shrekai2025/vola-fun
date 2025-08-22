@@ -6,6 +6,7 @@ export interface MarketAPI {
   name: string
   slug: string
   short_description: string
+  long_description?: string
   category: string
   avatar_url?: string
   base_url: string
@@ -94,6 +95,16 @@ export const getMarketAPIs = async (params?: GetMarketAPIsParams): Promise<Marke
     
     return response.data
   } catch (error: unknown) {
+    // 如果是取消的请求，直接重新抛出原始错误
+    const errorObj = error as { name?: string; code?: string; message?: string }
+    if (errorObj.name === 'AbortError' || 
+        errorObj.name === 'CanceledError' || 
+        errorObj.code === 'ECONNABORTED' || 
+        errorObj.code === 'ERR_CANCELED' ||
+        errorObj.message === 'canceled') {
+      throw error
+    }
+    
     console.error('获取市场API列表失败:', error)
     const errorMessage = error instanceof Error && 'response' in error 
       ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
@@ -190,6 +201,16 @@ export const getMarketAPIDetail = async (apiId: string): Promise<MarketAPIDetail
     
     return response.data
   } catch (error: unknown) {
+    // 如果是取消的请求，直接重新抛出原始错误
+    const errorObj = error as { name?: string; code?: string; message?: string }
+    if (errorObj.name === 'AbortError' || 
+        errorObj.name === 'CanceledError' || 
+        errorObj.code === 'ECONNABORTED' || 
+        errorObj.code === 'ERR_CANCELED' ||
+        errorObj.message === 'canceled') {
+      throw error
+    }
+    
     console.error('获取API详情失败:', error)
     const errorMessage = error instanceof Error && 'response' in error 
       ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
@@ -261,6 +282,16 @@ export const getMarketAPIDetailBySlug = async (slug: string): Promise<MarketAPID
     }
     
   } catch (error: unknown) {
+    // 如果是取消的请求，直接重新抛出原始错误
+    const errorObj = error as { name?: string; code?: string; message?: string }
+    if (errorObj.name === 'AbortError' || 
+        errorObj.name === 'CanceledError' || 
+        errorObj.code === 'ECONNABORTED' || 
+        errorObj.code === 'ERR_CANCELED' ||
+        errorObj.message === 'canceled') {
+      throw error
+    }
+    
     console.error('通过slug获取API详情失败:', error)
     const errorMessage = error instanceof Error ? error.message : '获取API详情失败，请稍后重试'
     throw new Error(errorMessage)

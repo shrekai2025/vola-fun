@@ -114,23 +114,27 @@ export default function APIMarketSection() {
         setHasMore(response.pagination.has_next)
         setCurrentPage(response.pagination.page)
       } else {
-        throw new Error(response.message || '获取API列表失败')
+        throw new Error(response.message || t.toast.networkError)
       }
     } catch (error: unknown) {
       // 如果是取消的请求，不显示错误
       const errorObj = error as { name?: string; code?: string; message?: string }
-      if (errorObj.name === 'AbortError' || errorObj.code === 'ECONNABORTED') {
-        console.log('请求已取消')
+      if (errorObj.name === 'AbortError' || 
+          errorObj.name === 'CanceledError' || 
+          errorObj.code === 'ECONNABORTED' || 
+          errorObj.code === 'ERR_CANCELED' ||
+          errorObj.message === 'canceled') {
+        console.log('请求已取消，不显示错误')
         return
       }
       
-      const errorMessage = errorObj.message || '加载失败，请稍后重试'
+      const errorMessage = errorObj.message || t.toast.networkError
       console.error('加载API列表失败:', error)
       setError(errorMessage)
       if (reset) {
         setApis([])
       }
-      toast.error(errorMessage || '加载API列表失败')
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
       setLoadingMore(false)
@@ -283,7 +287,7 @@ export default function APIMarketSection() {
           <div className="text-center py-8">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => loadAPIs(1, true)}>重试</Button>
+            <Button onClick={() => loadAPIs(1, true)}>{t.projectDetail.retry}</Button>
           </div>
         )}
 
@@ -295,7 +299,7 @@ export default function APIMarketSection() {
           <>
             {apis.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">暂无API服务</p>
+                <p className="text-muted-foreground">{t.apiProvider.noAPIs}</p>
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

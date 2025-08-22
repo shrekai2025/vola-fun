@@ -89,7 +89,7 @@ export const Footer = ({ className = '' }: FooterProps) => {
 
   return (
     <footer className={`border-t border-border/40 bg-background ${className}`}>
-      <div className="container mx-auto py-16">
+      <div className="container mx-auto px-4 py-16">
         <div className="flex w-full flex-col justify-between gap-10 lg:flex-row lg:items-start lg:text-left">
           {/* Logo and description section */}
           <div className="flex w-full flex-col justify-between gap-6 lg:items-start lg:max-w-sm">

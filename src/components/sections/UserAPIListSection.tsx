@@ -167,7 +167,12 @@ export default function UserAPIListSection() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-lg font-semibold truncate">
-                      {api.name}
+                      <Link 
+                        href={`/project/${api.slug}`}
+                        className="hover:text-primary transition-colors cursor-pointer"
+                      >
+                        {api.name}
+                      </Link>
                     </CardTitle>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge 

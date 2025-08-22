@@ -46,7 +46,7 @@ export function HeroSection() {
         }}
         className="flex flex-col gap-4 items-center justify-center px-4 text-center max-w-4xl mx-auto"
       >
-        <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight whitespace-pre-line z-10">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight whitespace-pre-line z-10">
           <span className="text-foreground">
             {t.home.heroText.split('\n')[0]}
           </span>
