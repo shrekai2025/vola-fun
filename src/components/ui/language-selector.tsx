@@ -6,7 +6,7 @@ import { languages, SupportedLanguage } from '@/lib/i18n'
 import { Globe } from 'lucide-react'
 
 interface LanguageSelectorProps {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
   variant?: 'default' | 'outline' | 'secondary' | 'ghost'
   showLabel?: boolean
 }

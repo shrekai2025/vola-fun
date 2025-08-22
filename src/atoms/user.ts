@@ -9,15 +9,16 @@ export const isLoggedInAtom = atom(
   (get) => get(userAtom) !== null
 )
 
-// 用户积分余额
+// 用户积分余额（订阅余额 + 一次性余额）
 export const userCreditsAtom = atom(
-  (get) => get(userAtom)?.credits ?? 0
+  (get) => {
+    const user = get(userAtom)
+    return (user?.subscription_balance ?? 0) + (user?.one_time_balance ?? 0)
+  }
 )
 
-// 用户API密钥列表
-export const userApiKeysAtom = atom(
-  (get) => get(userAtom)?.apiKeys ?? []
-)
+// 用户API密钥列表（暂时返回空数组，需要单独获取）
+export const userApiKeysAtom = atom<ApiKey[]>([])
 
 // 主要API密钥（第一个激活的密钥）
 export const primaryApiKeyAtom = atom(

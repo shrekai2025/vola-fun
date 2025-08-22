@@ -73,7 +73,7 @@ export default function PricingPage() {
               <div>
                 <h3 className="text-xl font-semibold mb-2">独立开发者</h3>
                 <p className="text-gray-600">
-                  快速验证想法，需要一个能够轻松调用多种API的"游乐场"。
+                  快速验证想法，需要一个能够轻松调用多种API的&ldquo;游乐场&rdquo;。
                   无需为每个API单独注册和管理密钥。
                 </p>
               </div>

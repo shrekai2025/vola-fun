@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button'
 import { useTheme } from '@/components/providers/ThemeProvider'
 
 interface ThemeToggleProps {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
   variant?: 'default' | 'outline' | 'secondary' | 'ghost'
 }
 
-export function ThemeToggle({ size = 'md', variant = 'outline' }: ThemeToggleProps) {
+export function ThemeToggle({ size = 'default', variant = 'outline' }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme()
 
   return (
@@ -27,7 +27,7 @@ export function ThemeToggle({ size = 'md', variant = 'outline' }: ThemeTogglePro
   )
 }
 
-export function ThemeToggleWithLabel({ size = 'md', variant = 'outline' }: ThemeToggleProps) {
+export function ThemeToggleWithLabel({ size = 'default', variant = 'outline' }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme()
 
   return (

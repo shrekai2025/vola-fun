@@ -44,6 +44,14 @@ export interface MarketAPIListResponse {
   pagination: Pagination
 }
 
+// 单个API详情响应
+export interface MarketAPIDetailResponse {
+  success: boolean
+  code: string
+  message: string
+  data: MarketAPI
+}
+
 // 获取API列表的参数
 export interface GetMarketAPIsParams {
   page?: number
@@ -85,9 +93,12 @@ export const getMarketAPIs = async (params?: GetMarketAPIsParams): Promise<Marke
     })
     
     return response.data
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('获取市场API列表失败:', error)
-    throw new Error(error.response?.data?.message || '获取API列表失败，请稍后重试')
+    const errorMessage = error instanceof Error && 'response' in error 
+      ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+      : undefined
+    throw new Error(errorMessage || '获取API列表失败，请稍后重试')
   }
 }
 
@@ -167,4 +178,91 @@ export const getTopRatedAPIs = async (
     sort_by: 'rating',
     sort_order: 'desc',
   })
+}
+
+/**
+ * 获取单个API详情（通过ID）
+ */
+export const getMarketAPIDetail = async (apiId: string): Promise<MarketAPIDetailResponse> => {
+  try {
+    console.log('🚀 [market-api] 获取API详情 (ID):', apiId)
+    const response = await apiClient.get<MarketAPIDetailResponse>(`/api/v1/apis/${apiId}`)
+    
+    return response.data
+  } catch (error: unknown) {
+    console.error('获取API详情失败:', error)
+    const errorMessage = error instanceof Error && 'response' in error 
+      ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+      : undefined
+    throw new Error(errorMessage || '获取API详情失败，请稍后重试')
+  }
+}
+
+/**
+ * 通过slug获取API详情
+ */
+export const getMarketAPIDetailBySlug = async (slug: string): Promise<MarketAPIDetailResponse> => {
+  try {
+    console.log('🚀 [market-api] 通过slug获取API详情:', slug)
+    
+    // 尝试通过搜索slug来找到对应的API
+    const searchResponse = await getMarketAPIs({
+      search: slug,
+      page_size: 100, // 增加搜索范围
+      page: 1
+    })
+    
+    if (!searchResponse.success) {
+      throw new Error('搜索API失败')
+    }
+    
+    // 在搜索结果中找到完全匹配slug的API
+    const targetApi = searchResponse.data.find(api => api.slug === slug)
+    
+    if (!targetApi) {
+      // 如果搜索没找到，尝试获取更多数据进行查找
+      console.log('在搜索结果中未找到匹配的slug，尝试获取更多数据...')
+      
+      let currentPage = 1
+      const maxPages = 5 // 最多搜索5页，避免无限搜索
+      
+      while (currentPage <= maxPages) {
+        const listResponse = await getMarketAPIs({
+          page: currentPage,
+          page_size: 50
+        })
+        
+        if (!listResponse.success) break
+        
+        const foundApi = listResponse.data.find(api => api.slug === slug)
+        if (foundApi) {
+          // 如果找到了，直接返回该API数据（列表接口已经包含了详情数据）
+          return {
+            success: true,
+            code: 'SUCCESS', 
+            message: 'API详情获取成功',
+            data: foundApi
+          }
+        }
+        
+        if (!listResponse.pagination.has_next) break
+        currentPage++
+      }
+      
+      throw new Error('未找到对应的API')
+    }
+    
+    // 如果在搜索结果中找到了，直接返回（列表接口已经包含了详情数据）
+    return {
+      success: true,
+      code: 'SUCCESS',
+      message: 'API详情获取成功',
+      data: targetApi
+    }
+    
+  } catch (error: unknown) {
+    console.error('通过slug获取API详情失败:', error)
+    const errorMessage = error instanceof Error ? error.message : '获取API详情失败，请稍后重试'
+    throw new Error(errorMessage)
+  }
 }

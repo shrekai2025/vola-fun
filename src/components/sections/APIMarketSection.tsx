@@ -7,36 +7,36 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
-import { getMarketAPIs, searchMarketAPIs, getMarketAPIsByCategory, type MarketAPI, type GetMarketAPIsParams } from '@/services/market-api'
-import { Search, Star, Clock, DollarSign, Loader2, AlertCircle, ExternalLink, FileText } from 'lucide-react'
+import { getMarketAPIs, type MarketAPI, type GetMarketAPIsParams } from '@/services/market-api'
+import { Search, Star, Clock, DollarSign, AlertCircle, ExternalLink, FileText } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { APICardSkeletonGrid, LoadMoreSkeleton } from '@/components/ui/api-card-skeleton'
 
-// 分类映射
-const CATEGORY_MAP = {
-  'data': 'data',
-  'ai_ml': 'ai',
-  'finance': 'finance', 
-  'social': 'social',
-  'tools': 'tools',
-  'communication': 'communication',
-  'entertainment': 'entertainment',
-  'business': 'business',
-  'other': 'other'
-} as const
+// 分类映射和标签（如果将来需要使用）
+// const CATEGORY_MAP = {
+//   'data': 'data',
+//   'ai_ml': 'ai',
+//   'finance': 'finance', 
+//   'social': 'social',
+//   'tools': 'tools',
+//   'communication': 'communication',
+//   'entertainment': 'entertainment',
+//   'business': 'business',
+//   'other': 'other'
+// } as const
 
-const CATEGORY_LABELS = {
-  'all': 'all',
-  'data': 'data',
-  'ai_ml': 'ai',
-  'finance': 'finance',
-  'tools': 'tools',
-  'communication': 'communication',
-  'entertainment': 'entertainment',
-  'business': 'business',
-  'other': 'other'
-} as const
+// const CATEGORY_LABELS = {
+//   'all': 'all',
+//   'data': 'data',
+//   'ai_ml': 'ai',
+//   'finance': 'finance',
+//   'tools': 'tools',
+//   'communication': 'communication',
+//   'entertainment': 'entertainment',
+//   'business': 'business',
+//   'other': 'other'
+// } as const
 
 export default function APIMarketSection() {
   const { t } = useTranslation()
@@ -54,8 +54,8 @@ export default function APIMarketSection() {
   const [sortBy, setSortBy] = useState<'total_calls' | 'rating' | 'created_at'>('total_calls')
   
   // 防抖和请求管理
-  const searchTimeoutRef = useRef<NodeJS.Timeout>()
-  const abortControllerRef = useRef<AbortController>()
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // 加载API列表
   const loadAPIs = useCallback(async (
@@ -119,24 +119,26 @@ export default function APIMarketSection() {
       } else {
         throw new Error(response.message || '获取API列表失败')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // 如果是取消的请求，不显示错误
-      if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
+      const errorObj = error as { name?: string; code?: string; message?: string }
+      if (errorObj.name === 'AbortError' || errorObj.code === 'ECONNABORTED') {
         console.log('请求已取消')
         return
       }
       
+      const errorMessage = errorObj.message || '加载失败，请稍后重试'
       console.error('加载API列表失败:', error)
-      setError(error.message || '加载失败，请稍后重试')
+      setError(errorMessage)
       if (reset) {
         setApis([])
       }
-      toast.error(error.message || '加载API列表失败')
+      toast.error(errorMessage || '加载API列表失败')
     } finally {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [searchTerm, selectedCategory, sortBy, toast])
+  }, [searchTerm, selectedCategory, sortBy])
 
   // 防抖搜索效果
   useEffect(() => {
@@ -155,7 +157,7 @@ export default function APIMarketSection() {
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchTerm, selectedCategory, sortBy])
+  }, [searchTerm, selectedCategory, sortBy, loadAPIs])
 
   // 搜索处理 - 只更新搜索词，实际请求由 useEffect 处理
   const handleSearch = (value: string) => {
@@ -331,79 +333,89 @@ export default function APIMarketSection() {
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {apis.map((api) => (
                   <Card key={api.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center space-x-2">
-                          {api.avatar_url && (
-                            <Image
-                              src={api.avatar_url}
-                              alt={api.name}
-                              width={24}
-                              height={24}
-                              className="rounded"
-                            />
+                    <Link href={`/project/${api.slug}`} className="block">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center space-x-2">
+                            {api.avatar_url && (
+                              <Image
+                                src={api.avatar_url}
+                                alt={api.name}
+                                width={24}
+                                height={24}
+                                className="rounded"
+                              />
+                            )}
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                              {api.name}
+                            </CardTitle>
+                          </div>
+                          {api.rating && api.rating > 0 && (
+                            <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+                              <Star className="h-4 w-4 fill-warning text-warning" />
+                              <span>{api.rating.toFixed(1)}</span>
+                            </div>
                           )}
-                          <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                            {api.name}
-                          </CardTitle>
                         </div>
-                        {api.rating && api.rating > 0 && (
-                          <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                            <Star className="h-4 w-4 fill-warning text-warning" />
-                            <span>{api.rating.toFixed(1)}</span>
-                          </div>
-                        )}
-                      </div>
-                      <CardDescription className="line-clamp-2">
-                        {api.short_description}
-                      </CardDescription>
-                    </CardHeader>
-                  
-                    <CardContent>
-                      {/* 分类标签 */}
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        <Badge variant="secondary" className="text-xs">
-                          {api.category}
-                        </Badge>
-                        {api.tags?.slice(0, 2).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
+                        <CardDescription className="line-clamp-2">
+                          {api.short_description}
+                        </CardDescription>
+                      </CardHeader>
+                    
+                      <CardContent>
+                        {/* 分类标签 */}
+                        <div className="flex flex-wrap gap-1 mb-4">
+                          <Badge variant="secondary" className="text-xs">
+                            {api.category}
                           </Badge>
-                        ))}
-                      </div>
+                          {api.tags?.slice(0, 2).map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
 
-                      {/* 统计信息 */}
-                      <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-1">
-                            <DollarSign className="h-4 w-4" />
-                            <span>{formatPrice(api.total_calls)}</span>
+                        {/* 统计信息 */}
+                        <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-1">
+                              <DollarSign className="h-4 w-4" />
+                              <span>{formatPrice(api.total_calls)}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Clock className="h-4 w-4" />
+                              <span>~200ms</span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
-                            <span>~200ms</span>
+                          <div className="text-xs text-muted-foreground/80">
+                            已调用 {formatUsageCount(api.total_calls)} 次
                           </div>
                         </div>
-                        <div className="text-xs text-muted-foreground/80">
-                          已调用 {formatUsageCount(api.total_calls)} 次
-                        </div>
-                      </div>
 
-                      {/* 操作按钮 */}
-                      <div className="flex space-x-2">
-                        <Button size="sm" className="flex-1">
-                          <FileText className="h-4 w-4 mr-1" />
-                          查看详情
-                        </Button>
-                        {api.documentation_url && (
-                          <Button size="sm" variant="outline" asChild>
-                            <Link href={api.documentation_url} target="_blank">
-                              <ExternalLink className="h-4 w-4" />
-                            </Link>
+                        {/* 操作按钮 */}
+                        <div className="flex space-x-2">
+                          <Button size="sm" className="flex-1" asChild>
+                            <span>
+                              <FileText className="h-4 w-4 mr-1" />
+                              查看详情
+                            </span>
                           </Button>
-                        )}
-                      </div>
-                    </CardContent>
+                          {api.documentation_url && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                window.open(api.documentation_url, '_blank')
+                              }}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Link>
                   </Card>
                 ))}
                 

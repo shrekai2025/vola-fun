@@ -77,6 +77,49 @@ export interface Translations {
     darkMode: string
   }
   
+  // API详情页
+  projectDetail: {
+    backButton: string
+    loading: string
+    loadFailed: string
+    apiNotFound: string
+    retry: string
+    apiDescription: string
+    apiTest: string
+    apiTestDescription: string
+    apiKeyLabel: string
+    apiKeyPlaceholder: string
+    apiKeyNote: string
+    testButton: string
+    testing: string
+    testResult: string
+    statistics: string
+    price: string
+    responseTime: string
+    totalCalls: string
+    totalRevenue: string
+    serviceAvailable: string
+    relatedLinks: string
+    viewDocs: string
+    officialWebsite: string
+    termsOfService: string
+    healthCheck: string
+    basicInfo: string
+    createdAt: string
+    updatedAt: string
+    apiId: string
+    accessPermission: string
+    publicAccess: string
+    privateAccess: string
+    testSuccess: string
+    testFailed: string
+    apiKeyCopied: string
+    copyFailed: string
+    testCompleted: string
+    copy: string
+    copied: string
+  }
+
   // 错误信息
   errors: {
     userInfoFailed: string
@@ -116,7 +159,7 @@ export const en: Translations = {
   },
   
   home: {
-    heroText: 'The intelligent API marketplace.\nCommand a curated ecosystem of APIs with a single, universal key.',
+    heroText: 'The intelligent API marketplace.\nCommand a curated ecosystem of APIs with an universal key.',
     getApiKey: 'Get API Key',
     exploreMarket: 'Explore API Market',
     marketTitle: 'API Market',
@@ -164,6 +207,48 @@ export const en: Translations = {
     theme: 'Theme',
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode'
+  },
+  
+  projectDetail: {
+    backButton: 'Back',
+    loading: 'Loading...',
+    loadFailed: 'Load Failed',
+    apiNotFound: 'API details not found',
+    retry: 'Retry',
+    apiDescription: 'API Description',
+    apiTest: 'API Test',
+    apiTestDescription: 'Test this API service with your API key',
+    apiKeyLabel: 'API Key',
+    apiKeyPlaceholder: 'Please enter your API key',
+    apiKeyNote: 'Currently using test key, please replace with your real API key for production',
+    testButton: 'Test API',
+    testing: 'Testing...',
+    testResult: 'Test Result',
+    statistics: 'Statistics',
+    price: 'Price',
+    responseTime: 'Response Time',
+    totalCalls: 'Total Calls',
+    totalRevenue: 'Total Revenue',
+    serviceAvailable: '✅ Service Available',
+    relatedLinks: 'Related Links',
+    viewDocs: 'View Documentation',
+    officialWebsite: 'Official Website',
+    termsOfService: 'Terms of Service',
+    healthCheck: 'Health Check',
+    basicInfo: 'Basic Information',
+    createdAt: 'Created At',
+    updatedAt: 'Updated At',
+    apiId: 'API ID',
+    accessPermission: 'Access Permission',
+    publicAccess: 'Public',
+    privateAccess: 'Private',
+    testSuccess: 'API test successful',
+    testFailed: 'API test failed',
+    apiKeyCopied: 'API key copied to clipboard',
+    copyFailed: 'Copy failed, please select and copy text manually',
+    testCompleted: 'API test completed',
+    copy: 'Copy',
+    copied: 'Copied'
   },
   
   errors: {
@@ -251,6 +336,48 @@ export const zh: Translations = {
     theme: '主题',
     lightMode: '明亮模式',
     darkMode: '暗色模式'
+  },
+  
+  projectDetail: {
+    backButton: '返回',
+    loading: '加载中...',
+    loadFailed: '加载失败',
+    apiNotFound: 'API详情不存在',
+    retry: '重试',
+    apiDescription: 'API 描述',
+    apiTest: 'API 测试',
+    apiTestDescription: '使用您的API密钥测试此API服务',
+    apiKeyLabel: 'API 密钥',
+    apiKeyPlaceholder: '请输入您的API密钥',
+    apiKeyNote: '当前使用测试密钥，正式使用请替换为您的真实API密钥',
+    testButton: '测试 API',
+    testing: '测试中...',
+    testResult: '测试结果',
+    statistics: '统计信息',
+    price: '价格',
+    responseTime: '响应时间',
+    totalCalls: '总调用次数',
+    totalRevenue: '总收入',
+    serviceAvailable: '✅ 服务可用',
+    relatedLinks: '相关链接',
+    viewDocs: '查看文档',
+    officialWebsite: '官方网站',
+    termsOfService: '服务条款',
+    healthCheck: '健康检查',
+    basicInfo: '基本信息',
+    createdAt: '创建时间',
+    updatedAt: '更新时间',
+    apiId: 'API ID',
+    accessPermission: '访问权限',
+    publicAccess: '公开',
+    privateAccess: '私有',
+    testSuccess: 'API测试成功',
+    testFailed: 'API测试失败',
+    apiKeyCopied: 'API密钥已复制到剪贴板',
+    copyFailed: '复制失败，请手动选择文本复制',
+    testCompleted: 'API测试完成',
+    copy: '复制',
+    copied: '已复制'
   },
   
   errors: {

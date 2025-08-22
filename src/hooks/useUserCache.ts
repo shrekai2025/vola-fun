@@ -78,7 +78,7 @@ export const useUserCache = (): UseUserCacheReturn => {
       // 保存头像缓存
       const existingAvatar = globalUserCache.avatar
       const shouldUseAvatarCache = existingAvatar && 
-        globalUserCache.user?.avatar === userInfo.avatar &&
+        globalUserCache.user?.avatar_url === userInfo.avatar_url &&
         (now - globalUserCache.timestamp) < AVATAR_CACHE_EXPIRY_TIME
       
       // 更新全局缓存

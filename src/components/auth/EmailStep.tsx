@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useAtom } from 'jotai'
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/config/firebase'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

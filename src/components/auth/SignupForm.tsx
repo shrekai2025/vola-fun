@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useAtom } from 'jotai'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '@/config/firebase'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -122,7 +123,7 @@ export function SignupForm() {
     <div className="space-y-6">
       {/* 隐私政策提示 */}
       <div className="text-sm text-gray-600 text-center leading-relaxed">
-        By clicking "Continue with Google" or "Create account", you agree to the{' '}
+        By clicking &ldquo;Continue with Google&rdquo; or &ldquo;Create account&rdquo;, you agree to the{' '}
         <a href="#" className="text-blue-600 hover:underline">
           Privacy Policy
         </a>
