@@ -80,6 +80,7 @@ export interface Translations {
     viewDetails: string
     totalCount: string
     apiMarketIntro: string
+    usageCount: string
   }
   
   // Profile页面
@@ -165,6 +166,13 @@ export interface Translations {
     loading: string
     noAPIs: string
     noAPIsDescription: string
+    // Actions and labels
+    totalCalls: string
+    createdAt: string
+    editProject: string
+    viewEndpoints: string
+    deleteAPI: string
+    deleting: string
     edit: {
       title: string
       backToList: string
@@ -291,10 +299,19 @@ export interface Translations {
     editConfirmMessage: string
   }
 
-  // 错误信息
-  errors: {
-    userInfoFailed: string
-    userNotFound: string
+  // 表单验证消息
+  validation: {
+    required: string
+    emailInvalid: string
+    passwordMinLength: string
+    passwordMismatch: string
+    urlInvalid: string
+    apiNameRequired: string
+    apiNameMaxLength: string
+    apiSlugRequired: string
+    apiSlugFormat: string
+    shortDescRequired: string
+    shortDescMaxLength: string
   }
 
   // Toast消息
@@ -304,6 +321,85 @@ export interface Translations {
     loginSuccess: string
     signupSuccess: string
     logoutSuccess: string
+    // API相关
+    apiDeleteSuccess: string
+    apiCreateSuccess: string
+    apiCreateSuccessDraft: string
+    apiApprovalSuccess: string
+    // 认证相关
+    emailAlreadyExists: string
+    passwordWeak: string
+    passwordIncorrect: string
+    userNotExists: string
+    accountDisabled: string
+    tooManyAttempts: string
+    checkEmailError: string
+    logoutError: string
+  }
+
+  // 确认对话框
+  confirmDialog: {
+    deleteAPI: string
+    deleteAPIMessage: string
+  }
+
+  // Admin相关
+  admin: {
+    title: string
+    createAPI: string
+    reviewAPIs: string
+    loading: string
+    loadingAPIs: string
+    noAPIsToReview: string
+    loadFailed: string
+    retry: string
+    approve: string
+    approving: string
+    createSuccess: string
+    approvalSuccess: string
+    // 表单相关
+    apiName: string
+    apiSlug: string
+    shortDescription: string
+    longDescription: string
+    category: string
+    baseUrl: string
+    healthCheckUrl: string
+    websiteUrl: string
+    documentationUrl: string
+    termsUrl: string
+    isPublic: string
+    gatewayKey: string
+    documentation: string
+    tags: string
+    estimatedResponseTime: string
+    // Placeholder
+    apiNamePlaceholder: string
+    apiSlugPlaceholder: string
+    shortDescPlaceholder: string
+    longDescPlaceholder: string
+    baseUrlPlaceholder: string
+    healthUrlPlaceholder: string
+    websiteUrlPlaceholder: string
+    docsUrlPlaceholder: string
+    termsUrlPlaceholder: string
+    gatewayKeyPlaceholder: string
+    tagsPlaceholder: string
+    estimatedResponseTimePlaceholder: string
+    addTag: string
+    removeTag: string
+    save: string
+    cancel: string
+    close: string
+  }
+
+  // 错误信息
+  errors: {
+    userInfoFailed: string
+    userNotFound: string
+    loadAPIsFailed: string
+    deleteAPIFailed: string
+    logoutFailed: string
   }
 }
 
@@ -382,7 +478,8 @@ export const en: Translations = {
     },
     viewDetails: 'View Details',
     totalCount: 'Showing all {count} API services',
-    apiMarketIntro: 'Discover and integrate powerful APIs to accelerate your development'
+    apiMarketIntro: 'Discover and integrate powerful APIs to accelerate your development',
+    usageCount: 'Called {count} times'
   },
   
   profile: {
@@ -459,12 +556,19 @@ export const en: Translations = {
 
   apiProvider: {
     title: 'API Provider',
-    description: 'Manage and publish your API services to the Vola marketplace',
+    description: 'Publish your API service and start earning service fees right away',
     createNew: 'Create New API',
     createFirst: 'Create Your First API',
     loading: 'Loading...',
     noAPIs: 'No APIs yet',
     noAPIsDescription: 'You haven\'t created any APIs yet. Start by creating your first API to share with the community.',
+    // Actions and labels
+    totalCalls: 'Total Calls',
+    createdAt: 'Created At',
+    editProject: 'Edit Project',
+    viewEndpoints: 'View Endpoints',
+    deleteAPI: 'Delete API',
+    deleting: 'Deleting...',
     edit: {
       title: 'Edit API',
       backToList: 'Back to List',
@@ -599,10 +703,19 @@ Describe endpoint usage...`,
     editConfirmTitle: 'Save Changes',
     editConfirmMessage: 'Are you sure you want to save these changes?'
   },
-  
-  errors: {
-    userInfoFailed: 'Failed to load user information:',
-    userNotFound: 'User information not found'
+
+  validation: {
+    required: 'This field is required',
+    emailInvalid: 'Please enter a valid email address',
+    passwordMinLength: 'Password must be at least 6 characters',
+    passwordMismatch: 'Passwords do not match',
+    urlInvalid: 'Please enter a valid URL',
+    apiNameRequired: 'API name cannot be empty',
+    apiNameMaxLength: 'API name cannot exceed 255 characters',
+    apiSlugRequired: 'API slug cannot be empty',
+    apiSlugFormat: 'API slug can only contain lowercase letters, numbers and hyphens',
+    shortDescRequired: 'Short description cannot be empty',
+    shortDescMaxLength: 'Short description cannot exceed 100 characters'
   },
 
   toast: {
@@ -610,7 +723,83 @@ Describe endpoint usage...`,
     authError: 'Authentication failed, please log in again',
     loginSuccess: 'Login successful!',
     signupSuccess: 'Registration successful!',
-    logoutSuccess: 'Safely logged out'
+    logoutSuccess: 'Safely logged out',
+    // API related
+    apiDeleteSuccess: 'API deleted successfully',
+    apiCreateSuccess: 'API created successfully!',
+    apiCreateSuccessDraft: 'API created successfully! API is in draft status, can be further edited.',
+    apiApprovalSuccess: 'API approved successfully!',
+    // Auth related
+    emailAlreadyExists: 'This email is already registered, please use another email or try logging in',
+    passwordWeak: 'Password is too weak, please choose a stronger password',
+    passwordIncorrect: 'Incorrect password, please try again',
+    userNotExists: 'User does not exist',
+    accountDisabled: 'This account has been disabled',
+    tooManyAttempts: 'Too many login attempts, please try again later',
+    checkEmailError: 'Error occurred while checking email, please try again',
+    logoutError: 'Logout failed, please try again'
+  },
+
+  confirmDialog: {
+    deleteAPI: 'Delete API',
+    deleteAPIMessage: 'Are you sure you want to delete this API? This action cannot be undone.'
+  },
+
+  admin: {
+    title: 'Admin Dashboard',
+    createAPI: 'Create API',
+    reviewAPIs: 'Review APIs',
+    loading: 'Loading...',
+    loadingAPIs: 'Loading APIs to review...',
+    noAPIsToReview: 'No APIs to review',
+    loadFailed: 'Load failed, please try again later',
+    retry: 'Retry',
+    approve: 'Approve',
+    approving: 'Approving...',
+    createSuccess: 'API created successfully!',
+    approvalSuccess: 'API approved successfully!',
+    // Form related
+    apiName: 'API Name',
+    apiSlug: 'API Slug',
+    shortDescription: 'Short Description',
+    longDescription: 'Long Description',
+    category: 'Category',
+    baseUrl: 'Base URL',
+    healthCheckUrl: 'Health Check URL',
+    websiteUrl: 'Website URL',
+    documentationUrl: 'Documentation URL',
+    termsUrl: 'Terms URL',
+    isPublic: 'Public Access',
+    gatewayKey: 'Gateway Key',
+    documentation: 'Documentation',
+    tags: 'Tags',
+    estimatedResponseTime: 'Estimated Response Time (ms)',
+    // Placeholders
+    apiNamePlaceholder: 'e.g., Weather API',
+    apiSlugPlaceholder: 'e.g., weather-api',
+    shortDescPlaceholder: 'e.g., Provides global weather information query service',
+    longDescPlaceholder: 'Detailed description of API functionality...',
+    baseUrlPlaceholder: 'https://api.example.com',
+    healthUrlPlaceholder: 'https://api.example.com/health',
+    websiteUrlPlaceholder: 'https://example.com',
+    docsUrlPlaceholder: 'https://docs.example.com',
+    termsUrlPlaceholder: 'https://example.com/terms',
+    gatewayKeyPlaceholder: 'Optional gateway key',
+    tagsPlaceholder: 'Enter tag...',
+    estimatedResponseTimePlaceholder: 'e.g., 200',
+    addTag: 'Add Tag',
+    removeTag: 'Remove Tag',
+    save: 'Save',
+    cancel: 'Cancel',
+    close: 'Close'
+  },
+  
+  errors: {
+    userInfoFailed: 'Failed to load user information:',
+    userNotFound: 'User information not found',
+    loadAPIsFailed: 'Failed to load API list',
+    deleteAPIFailed: 'Failed to delete API',
+    logoutFailed: 'Logout failed'
   }
 }
 
@@ -689,7 +878,8 @@ export const zh: Translations = {
     },
     viewDetails: '查看详情',
     totalCount: '已显示全部 {count} 个API服务',
-    apiMarketIntro: '发现和集成强大的API，加速您的开发进程'
+    apiMarketIntro: '发现和集成强大的API，加速您的开发进程',
+    usageCount: '已调用 {count} 次'
   },
   
   profile: {
@@ -766,12 +956,19 @@ export const zh: Translations = {
 
   apiProvider: {
     title: 'API 提供商',
-    description: '管理并发布您的API服务到Vola市场',
+    description: '发布您的API服务，立即开始赚取服务费',
     createNew: '创建新API',
     createFirst: '创建您的第一个API',
     loading: '加载中...',
     noAPIs: '暂无API',
     noAPIsDescription: '您还没有创建任何API。开始创建您的第一个API来与社区分享吧。',
+    // Actions and labels
+    totalCalls: '调用量',
+    createdAt: '创建时间',
+    editProject: '编辑Project',
+    viewEndpoints: '查看Endpoints',
+    deleteAPI: '删除API',
+    deleting: '删除中...',
     edit: {
       title: '编辑API',
       backToList: '返回列表',
@@ -906,10 +1103,19 @@ export const zh: Translations = {
     editConfirmTitle: '保存更改',
     editConfirmMessage: '确定要保存这些更改吗？'
   },
-  
-  errors: {
-    userInfoFailed: '加载用户信息时出错：',
-    userNotFound: '未找到用户信息'
+
+  validation: {
+    required: '此字段为必填项',
+    emailInvalid: '请输入有效的邮箱地址',
+    passwordMinLength: '密码至少需要6个字符',
+    passwordMismatch: '密码不匹配',
+    urlInvalid: '请输入有效的URL',
+    apiNameRequired: 'API名称不能为空',
+    apiNameMaxLength: 'API名称不能超过255个字符',
+    apiSlugRequired: 'API标识不能为空',
+    apiSlugFormat: 'API标识只能包含小写字母、数字和连字符',
+    shortDescRequired: '简短描述不能为空',
+    shortDescMaxLength: '简短描述不能超过100个字符'
   },
 
   toast: {
@@ -917,7 +1123,83 @@ export const zh: Translations = {
     authError: '认证失败，请重新登录',
     loginSuccess: '登录成功！',
     signupSuccess: '注册成功！',
-    logoutSuccess: '已安全退出'
+    logoutSuccess: '已安全退出',
+    // API相关
+    apiDeleteSuccess: 'API删除成功',
+    apiCreateSuccess: 'API创建成功！',
+    apiCreateSuccessDraft: 'API创建成功！API处于草稿状态，可以进一步编辑完善。',
+    apiApprovalSuccess: 'API审核通过成功!',
+    // 认证相关
+    emailAlreadyExists: '该邮箱已被注册，请使用其他邮箱或尝试登录',
+    passwordWeak: '密码强度不够，请选择更强的密码',
+    passwordIncorrect: '密码错误，请重试',
+    userNotExists: '用户不存在',
+    accountDisabled: '该账户已被禁用',
+    tooManyAttempts: '登录尝试次数过多，请稍后重试',
+    checkEmailError: '检查邮箱时出现错误，请重试',
+    logoutError: '登出失败，请重试'
+  },
+
+  confirmDialog: {
+    deleteAPI: '删除API',
+    deleteAPIMessage: '确定要删除API "{name}" 吗？此操作不可撤销。'
+  },
+
+  admin: {
+    title: '管理员面板',
+    createAPI: '创建API',
+    reviewAPIs: '审核API',
+    loading: '加载中...',
+    loadingAPIs: '正在加载待审核API...',
+    noAPIsToReview: '暂无需要审核的API',
+    loadFailed: '加载失败，请稍后重试',
+    retry: '重试',
+    approve: '审核通过',
+    approving: '审核中...',
+    createSuccess: 'API创建成功！',
+    approvalSuccess: 'API审核通过成功!',
+    // 表单相关
+    apiName: 'API名称',
+    apiSlug: 'API标识',
+    shortDescription: '简短描述',
+    longDescription: '详细描述',
+    category: '分类',
+    baseUrl: '基础URL',
+    healthCheckUrl: '健康检查URL',
+    websiteUrl: '官方网站',
+    documentationUrl: '文档链接',
+    termsUrl: '服务条款链接',
+    isPublic: '公开访问',
+    gatewayKey: '网关密钥',
+    documentation: '文档',
+    tags: '标签',
+    estimatedResponseTime: '预估响应时间 (毫秒)',
+    // 占位符
+    apiNamePlaceholder: '例如：天气预报API',
+    apiSlugPlaceholder: '例如：weather-forecast',
+    shortDescPlaceholder: '例如：提供全球天气信息查询服务',
+    longDescPlaceholder: '详细描述API功能...',
+    baseUrlPlaceholder: 'https://api.example.com',
+    healthUrlPlaceholder: 'https://api.example.com/health',
+    websiteUrlPlaceholder: 'https://example.com',
+    docsUrlPlaceholder: 'https://docs.example.com',
+    termsUrlPlaceholder: 'https://example.com/terms',
+    gatewayKeyPlaceholder: '可选的网关密钥',
+    tagsPlaceholder: '输入标签...',
+    estimatedResponseTimePlaceholder: '例如：200',
+    addTag: '添加标签',
+    removeTag: '移除标签',
+    save: '保存',
+    cancel: '取消',
+    close: '关闭'
+  },
+  
+  errors: {
+    userInfoFailed: '加载用户信息时出错：',
+    userNotFound: '未找到用户信息',
+    loadAPIsFailed: '加载用户API列表失败',
+    deleteAPIFailed: '删除API失败',
+    logoutFailed: '登出失败'
   }
 }
 

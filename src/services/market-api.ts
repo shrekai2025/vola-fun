@@ -20,6 +20,7 @@ export interface MarketAPI {
   total_calls: number
   total_revenue: number
   rating?: number
+  estimated_response_time?: number
   owner_id: string
   created_at: string
   updated_at: string
@@ -87,7 +88,7 @@ export const getMarketAPIs = async (params?: GetMarketAPIsParams): Promise<Marke
       ...requestParams,
     }
 
-    console.log('🚀 [market-api] 修复后的端点: /api/v1/apis/ (已添加尾部斜杠)')
+
     const response = await apiClient.get<MarketAPIListResponse>('/api/v1/apis/', { 
       params: finalParams,
       signal
@@ -196,7 +197,7 @@ export const getTopRatedAPIs = async (
  */
 export const getMarketAPIDetail = async (apiId: string): Promise<MarketAPIDetailResponse> => {
   try {
-    console.log('🚀 [market-api] 获取API详情 (ID):', apiId)
+
     const response = await apiClient.get<MarketAPIDetailResponse>(`/api/v1/apis/${apiId}`)
     
     return response.data
@@ -224,7 +225,7 @@ export const getMarketAPIDetail = async (apiId: string): Promise<MarketAPIDetail
  */
 export const getMarketAPIDetailBySlug = async (slug: string): Promise<MarketAPIDetailResponse> => {
   try {
-    console.log('🚀 [market-api] 通过slug获取API详情:', slug)
+
     
     // 尝试通过搜索slug来找到对应的API
     const searchResponse = await getMarketAPIs({
@@ -242,7 +243,7 @@ export const getMarketAPIDetailBySlug = async (slug: string): Promise<MarketAPID
     
     if (!targetApi) {
       // 如果搜索没找到，尝试获取更多数据进行查找
-      console.log('在搜索结果中未找到匹配的slug，尝试获取更多数据...')
+
       
       let currentPage = 1
       const maxPages = 5 // 最多搜索5页，避免无限搜索

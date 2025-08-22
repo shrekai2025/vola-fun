@@ -27,7 +27,7 @@ export default function CreateAPIPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">加载中...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </div>
         </div>

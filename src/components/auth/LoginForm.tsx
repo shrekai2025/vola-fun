@@ -14,12 +14,13 @@ import { authModalAtom, setAuthModalAtom, authLoadingAtom, setAuthLoadingAtom } 
 import { AuthAPI } from '@/services/auth-api'
 import { TokenManager } from '@/lib/cookie'
 import { useToast } from '@/components/ui/toast'
+import { useTranslation } from '@/components/providers/LanguageProvider'
 import type { LoginFormData, FirebaseAuthError } from '@/types/auth'
 
-// 表单验证 Schema
-const loginSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符')
+// 表单验证 Schema - 使用函数创建以获取翻译  
+const createLoginSchema = (t: any) => z.object({
+  email: z.string().email(t.validation.emailInvalid),
+  password: z.string().min(6, t.validation.passwordMinLength)
 })
 
 /**
@@ -30,6 +31,7 @@ export function LoginForm() {
   const [, setAuthModal] = useAtom(setAuthModalAtom)
   const [isLoading] = useAtom(authLoadingAtom)
   const [, setLoading] = useAtom(setAuthLoadingAtom)
+  const { t } = useTranslation()
   const toast = useToast()
 
   const {
@@ -37,7 +39,7 @@ export function LoginForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(createLoginSchema(t)),
     defaultValues: {
       email: authModal.email || ''
     }
@@ -76,16 +78,16 @@ export function LoginForm() {
       const firebaseError = error as FirebaseAuthError
       
       if (firebaseError.code === 'auth/wrong-password') {
-        toast.error('密码错误，请重试')
+        toast.error(t.toast.passwordIncorrect)
       } else if (firebaseError.code === 'auth/user-not-found') {
-        toast.error('用户不存在')
+        toast.error(t.toast.userNotExists)
       } else if (firebaseError.code === 'auth/user-disabled') {
-        toast.error('该账户已被禁用')
+        toast.error(t.toast.accountDisabled)
       } else if (firebaseError.code === 'auth/too-many-requests') {
-        toast.error('登录尝试次数过多，请稍后重试')
+        toast.error(t.toast.tooManyAttempts)
       } else {
         console.error('Email login error:', error)
-        toast.authError('登录失败，请重试')
+        toast.error(t.toast.authError)
       }
     } finally {
       setLoading(false)

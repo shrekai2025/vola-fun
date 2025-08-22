@@ -180,6 +180,16 @@ export default function APIMarketSection() {
     return `${(count / 1000000).toFixed(1)}M`
   }
 
+  // 格式化响应时间显示
+  const formatResponseTime = (time?: number): string => {
+    if (!time || time <= 0) return '~200ms' // 默认值
+    if (time >= 1000) {
+      return `~${(time / 1000).toFixed(1)}s`
+    } else {
+      return `~${Math.round(time)}ms`
+    }
+  }
+
   // 组件清理
   useEffect(() => {
     return () => {
@@ -347,11 +357,11 @@ export default function APIMarketSection() {
                           <div className="flex items-center justify-center">
                             <div className="flex items-center space-x-1">
                               <Clock className="h-4 w-4" />
-                              <span>~200ms</span>
+                              <span>{formatResponseTime(api.estimated_response_time)}</span>
                             </div>
                           </div>
                           <div className="text-xs text-muted-foreground/80 text-center">
-                            已调用 {formatUsageCount(api.total_calls)} 次
+                            {t.home.usageCount.replace('{count}', formatUsageCount(api.total_calls))}
                           </div>
                         </div>
 

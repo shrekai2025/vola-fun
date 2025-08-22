@@ -14,15 +14,16 @@ import { authModalAtom, setAuthModalAtom, authLoadingAtom, setAuthLoadingAtom, s
 import { AuthAPI } from '@/services/auth-api'
 import { TokenManager } from '@/lib/cookie'
 import { useToast } from '@/components/ui/toast'
+import { useTranslation } from '@/components/providers/LanguageProvider'
 import type { SignupFormData, FirebaseAuthError } from '@/types/auth'
 
-// 表单验证 Schema
-const signupSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符'),
-  confirmPassword: z.string().min(6, '确认密码至少需要6个字符')
+// 表单验证 Schema - 使用函数创建以获取翻译
+const createSignupSchema = (t: any) => z.object({
+  email: z.string().email(t.validation.emailInvalid),
+  password: z.string().min(6, t.validation.passwordMinLength),
+  confirmPassword: z.string().min(6, t.validation.passwordMinLength)
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "密码不匹配",
+  message: t.validation.passwordMismatch,
   path: ["confirmPassword"],
 })
 
@@ -35,6 +36,7 @@ export function SignupForm() {
   const [isLoading] = useAtom(authLoadingAtom)
   const [, setLoading] = useAtom(setAuthLoadingAtom)
   const [, setWelcomeModal] = useAtom(setWelcomeModalAtom)
+  const { t } = useTranslation()
   const toast = useToast()
 
   const {
@@ -42,7 +44,7 @@ export function SignupForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+    resolver: zodResolver(createSignupSchema(t)),
     defaultValues: {
       email: authModal.email || ''
     }
@@ -100,14 +102,14 @@ export function SignupForm() {
       const firebaseError = error as FirebaseAuthError
       
       if (firebaseError.code === 'auth/email-already-in-use') {
-        toast.error('该邮箱已被注册，请使用其他邮箱或尝试登录')
+        toast.error(t.toast.emailAlreadyExists)
       } else if (firebaseError.code === 'auth/weak-password') {
-        toast.error('密码强度不够，请选择更强的密码')
+        toast.error(t.toast.passwordWeak)
       } else if (firebaseError.code === 'auth/invalid-email') {
-        toast.error('邮箱格式不正确')
+        toast.error(t.validation.emailInvalid)
       } else {
         console.error('Email signup error:', error)
-        toast.authError('注册失败，请重试')
+        toast.error(t.toast.authError)
       }
     } finally {
       setLoading(false)

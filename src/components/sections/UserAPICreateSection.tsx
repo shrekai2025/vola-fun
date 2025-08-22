@@ -15,36 +15,25 @@ import { useToast } from '@/components/ui/toast'
 import { createUserAPI } from '@/services/user-api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 
-// 表单验证模式 (复用admin的模式，但适配用户创建)
-const createUserAPISchema = z.object({
-  name: z.string().min(1, 'API名称不能为空').max(255, 'API名称不能超过255个字符'),
+// 表单验证模式 - 使用函数创建以获取翻译
+const createUserAPISchema = (t: any) => z.object({
+  name: z.string().min(1, t.validation.apiNameRequired).max(255, t.validation.apiNameMaxLength),
   slug: z.string()
-    .min(1, 'API标识不能为空')
-    .regex(/^[a-z0-9-]+$/, 'API标识只能包含小写字母、数字和连字符'),
-  short_description: z.string().min(1, '简短描述不能为空').max(100, '简短描述不能超过100个字符'),
+    .min(1, t.validation.apiSlugRequired)
+    .regex(/^[a-z0-9-]+$/, t.validation.apiSlugFormat),
+  short_description: z.string().min(1, t.validation.shortDescRequired).max(100, t.validation.shortDescMaxLength),
   long_description: z.string().optional(),
   category: z.enum(['data', 'ai_ml', 'finance', 'social', 'tools', 'communication', 'entertainment', 'business', 'other']),
-  base_url: z.string().url('请输入有效的URL'),
-  health_check_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
-  website_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
-  documentation_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
-  terms_url: z.string().url('请输入有效的URL').optional().or(z.literal('')),
+  base_url: z.string().url(t.validation.urlInvalid),
+  health_check_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
+  website_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
+  documentation_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
+  terms_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
+  estimated_response_time: z.number().min(1, '预估响应时间必须大于0').max(600000, '预估响应时间不能超过10分钟').optional(),
   documentation_markdown: z.string().optional(),
 })
 
-type CreateUserAPIFormData = z.infer<typeof createUserAPISchema>
-
-const CATEGORIES = [
-  { value: 'data', label: '数据' },
-  { value: 'ai_ml', label: 'AI/机器学习' },
-  { value: 'finance', label: '金融' },
-  { value: 'social', label: '社交' },
-  { value: 'tools', label: '工具' },
-  { value: 'communication', label: '通信' },
-  { value: 'entertainment', label: '娱乐' },
-  { value: 'business', label: '商业' },
-  { value: 'other', label: '其他' },
-]
+type CreateUserAPIFormData = z.infer<ReturnType<typeof createUserAPISchema>>
 
 export default function UserAPICreateSection() {
   const [submitting, setSubmitting] = useState(false)
@@ -65,7 +54,7 @@ export default function UserAPICreateSection() {
     watch,
     reset,
   } = useForm<CreateUserAPIFormData>({
-    resolver: zodResolver(createUserAPISchema),
+    resolver: zodResolver(createUserAPISchema(t)),
     defaultValues: {
       category: 'other',
     },
@@ -102,7 +91,7 @@ export default function UserAPICreateSection() {
       
       const response = await createUserAPI(submitData)
       
-      toast.success('API创建成功！API处于草稿状态，可以进一步编辑完善。')
+      toast.success(t.toast.apiCreateSuccessDraft)
       
       // 返回到API Provider页面
       router.push('/api-provider')
@@ -110,7 +99,7 @@ export default function UserAPICreateSection() {
     } catch (error: unknown) {
       console.error('创建API失败:', error)
       const errorMessage = error instanceof Error ? error.message : '创建失败'
-      toast.error(`创建失败：${errorMessage}`)
+      toast.error(`API创建失败：${errorMessage}`)
     } finally {
       setSubmitting(false)
     }
@@ -124,7 +113,7 @@ export default function UserAPICreateSection() {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/api-provider" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              返回列表
+              {t.apiProvider.edit.backToList}
             </Link>
           </Button>
         </div>
@@ -151,7 +140,7 @@ export default function UserAPICreateSection() {
                 </label>
                 <Input
                   {...register('name')}
-                  placeholder="例如：天气预报API"
+                  placeholder={t.admin.apiNamePlaceholder}
                   className={errors.name ? 'border-destructive' : ''}
                 />
                 {errors.name && (
@@ -164,7 +153,7 @@ export default function UserAPICreateSection() {
                 </label>
                 <Input
                   {...register('slug')}
-                  placeholder="例如：weather-forecast"
+                  placeholder={t.admin.apiSlugPlaceholder}
                   className={errors.slug ? 'border-destructive' : ''}
                 />
                 {errors.slug && (
@@ -183,7 +172,7 @@ export default function UserAPICreateSection() {
               </label>
               <Input
                 {...register('short_description')}
-                placeholder="简要描述您的API功能..."
+                placeholder={t.admin.shortDescPlaceholder}
                 className={errors.short_description ? 'border-destructive' : ''}
               />
               {errors.short_description && (
@@ -198,7 +187,7 @@ export default function UserAPICreateSection() {
               <textarea
                 {...register('long_description')}
                 className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder="详细介绍您的API功能、使用场景等..."
+                placeholder={t.admin.longDescPlaceholder}
               />
             </div>
 
@@ -253,6 +242,24 @@ export default function UserAPICreateSection() {
               {errors.health_check_url && (
                 <p className="text-destructive text-sm mt-1">{errors.health_check_url.message}</p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                {t.admin.estimatedResponseTime}
+              </label>
+              <Input
+                type="number"
+                {...register('estimated_response_time', { valueAsNumber: true })}
+                placeholder={t.admin.estimatedResponseTimePlaceholder}
+                className={errors.estimated_response_time ? 'border-destructive' : ''}
+              />
+              {errors.estimated_response_time && (
+                <p className="text-destructive text-sm mt-1">{errors.estimated_response_time.message}</p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                API预期响应时间，单位为毫秒（可选）
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -323,7 +330,7 @@ export default function UserAPICreateSection() {
                 <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="输入标签..."
+                  placeholder={t.admin.tagsPlaceholder}
                   className="flex-1"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {

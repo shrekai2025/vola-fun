@@ -30,6 +30,7 @@ const createUpdateUserAPISchema = (t: any) => z.object({
   website_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
   documentation_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
   terms_url: z.string().url(t.apiProvider.edit.validUrl).optional().or(z.literal('')),
+  estimated_response_time: z.number().min(1, '预估响应时间必须大于0').max(600000, '预估响应时间不能超过10分钟').optional(),
   documentation_markdown: z.string().optional(),
 })
 
@@ -93,6 +94,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         long_description: apiData.long_description || '', // 现在MarketAPI包含此字段
         category: apiData.category as any,
         base_url: apiData.base_url,
+        estimated_response_time: apiData.estimated_response_time || undefined,
         health_check_url: apiData.health_check_url || '',
         website_url: apiData.website_url || '',
         documentation_url: apiData.documentation_url || '',
@@ -147,6 +149,10 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
       
       if (data.health_check_url && data.health_check_url.trim()) {
         updateData.health_check_url = data.health_check_url
+      }
+
+      if (data.estimated_response_time && data.estimated_response_time > 0) {
+        updateData.estimated_response_time = data.estimated_response_time
       }
       
       if (data.website_url && data.website_url.trim()) {
@@ -346,6 +352,24 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
               {errors.base_url && (
                 <p className="text-destructive text-sm mt-1">{errors.base_url.message}</p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                {t.admin.estimatedResponseTime}
+              </label>
+              <Input
+                type="number"
+                {...register('estimated_response_time', { valueAsNumber: true })}
+                placeholder={t.admin.estimatedResponseTimePlaceholder}
+                className={errors.estimated_response_time ? 'border-destructive' : ''}
+              />
+              {errors.estimated_response_time && (
+                <p className="text-destructive text-sm mt-1">{errors.estimated_response_time.message}</p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                API预期响应时间，单位为毫秒（可选）
+              </p>
             </div>
 
             <div>

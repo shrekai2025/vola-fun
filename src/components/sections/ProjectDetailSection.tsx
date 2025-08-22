@@ -57,6 +57,16 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
   } | null>(null)
   const [copied, setCopied] = useState(false)
 
+  // 格式化响应时间显示
+  const formatResponseTime = useCallback((time?: number): string => {
+    if (!time || time <= 0) return '~200ms' // 默认值
+    if (time >= 1000) {
+      return `~${(time / 1000).toFixed(1)}s`
+    } else {
+      return `~${Math.round(time)}ms`
+    }
+  }, [])
+
   // 提取翻译文本，减少useCallback依赖
   const translations = useMemo(() => ({
     apiKeyCopied: t.projectDetail.apiKeyCopied,
@@ -393,7 +403,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">{t.projectDetail.responseTime}</span>
                 </div>
-                <span className="font-medium">~200ms</span>
+                <span className="font-medium">{formatResponseTime(api.estimated_response_time)}</span>
               </div>
 
               <div className="flex items-center justify-between">

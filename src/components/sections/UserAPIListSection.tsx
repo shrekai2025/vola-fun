@@ -9,7 +9,7 @@ import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
 import { getUserAPIs, deleteUserAPI } from '@/services/user-api'
 import type { MarketAPI } from '@/services/market-api'
-import { Plus, Eye, Edit, Trash2 } from 'lucide-react'
+import { Plus, Eye, Edit, Trash2, Info } from 'lucide-react'
 
 export default function UserAPIListSection() {
   const [apis, setApis] = useState<MarketAPI[]>([])
@@ -34,17 +34,17 @@ export default function UserAPIListSection() {
       
       setApis(response.data || [])
     } catch (error: unknown) {
-      console.error('加载用户API列表失败:', error)
-      const errorMessage = error instanceof Error ? error.message : '加载失败'
+      console.error(t.errors.loadAPIsFailed, error)
+      const errorMessage = error instanceof Error ? error.message : t.errors.loadAPIsFailed
       toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
-  }, []) // 移除toast依赖避免无限循环
+  }, [t]) // 添加t依赖
 
   // 删除API
   const handleDeleteAPI = useCallback(async (apiId: string, apiName: string) => {
-    if (!confirm(`确定要删除API "${apiName}" 吗？此操作不可撤销。`)) {
+    if (!confirm(t.confirmDialog.deleteAPIMessage.replace('{name}', apiName))) {
       return
     }
 
@@ -54,15 +54,15 @@ export default function UserAPIListSection() {
       
       // 从列表中移除已删除的API
       setApis(prev => prev.filter(api => api.id !== apiId))
-      toast.success('API删除成功')
+      toast.success(t.toast.apiDeleteSuccess)
     } catch (error: unknown) {
-      console.error('删除API失败:', error)
-      const errorMessage = error instanceof Error ? error.message : '删除失败'
+      console.error(t.errors.deleteAPIFailed, error)
+      const errorMessage = error instanceof Error ? error.message : t.errors.deleteAPIFailed
       toast.error(errorMessage)
     } finally {
       setDeleting(null)
     }
-  }, []) // 移除toast依赖
+  }, [t]) // 修正依赖
 
   // 格式化日期
   const formatDate = useCallback((dateString: string) => {
@@ -95,17 +95,17 @@ export default function UserAPIListSection() {
   const getStatusText = useCallback((status: string) => {
     switch (status) {
       case 'draft':
-        return '草稿'
+        return t.apiProvider.edit.draft
       case 'published':
-        return '已发布'
+        return t.apiProvider.edit.published
       case 'deprecated':
-        return '已弃用'
+        return '已弃用' // TODO: Add translation
       case 'suspended':
-        return '已暂停'
+        return '已暂停' // TODO: Add translation  
       default:
         return status
     }
-  }, [])
+  }, [t.apiProvider.edit.draft, t.apiProvider.edit.published])
 
   useEffect(() => {
     loadUserAPIs()
@@ -119,9 +119,27 @@ export default function UserAPIListSection() {
           <h1 className="text-3xl font-bold text-foreground mb-2">
             {translations.title}
           </h1>
-          <p className="text-muted-foreground">
-            {translations.description}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-muted-foreground">
+              {translations.description}
+            </p>
+            <div className="relative group">
+              <Info className="w-4 h-4 text-muted-foreground hover:text-foreground cursor-help transition-colors" />
+              <div className="absolute left-0 top-6 w-80 p-3 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <p className="text-sm text-foreground">
+                  Vola.fun shares revenue with API providers based on the credits consumed when their APIs are used.{' '}
+                  <a 
+                    href="/docs" 
+                    className="text-primary hover:text-primary/80 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View the DOCs
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
         <Button asChild size="default">
           <Link href="/api-provider/create" className="flex items-center gap-2">
@@ -196,11 +214,11 @@ export default function UserAPIListSection() {
                 
                 <div className="space-y-2 text-xs text-muted-foreground mb-4">
                   <div className="flex justify-between">
-                    <span>调用量：</span>
+                    <span>{translations.totalCalls}：</span>
                     <span>{api.total_calls?.toLocaleString() || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>创建时间：</span>
+                    <span>{translations.createdAt}：</span>
                     <span>{formatDate(api.created_at)}</span>
                   </div>
                 </div>
@@ -215,7 +233,7 @@ export default function UserAPIListSection() {
                     >
                       <Link href={`/api-provider/edit/${api.id}`}>
                         <Edit className="w-3 h-3 mr-1" />
-                        编辑Project
+{translations.editProject}
                       </Link>
                     </Button>
                     <Button
@@ -226,7 +244,7 @@ export default function UserAPIListSection() {
                     >
                       <Link href={`/api-provider/${api.id}/endpoints`}>
                         <Eye className="w-3 h-3 mr-1" />
-                        查看Endpoints
+{translations.viewEndpoints}
                       </Link>
                     </Button>
                   </div>
@@ -238,7 +256,7 @@ export default function UserAPIListSection() {
                     className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="w-3 h-3 mr-1" />
-                    {deleting === api.id ? '删除中...' : '删除API'}
+{deleting === api.id ? translations.deleting : translations.deleteAPI}
                   </Button>
                 </div>
               </CardContent>
