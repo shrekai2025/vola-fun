@@ -7,11 +7,11 @@ import Toast from '@/components/ui/toast'
 
 // API 基础配置
 // 🔧 调试开关：设置为true直接请求后端，false使用代理
-const USE_DIRECT_API = true // 按用户要求改为直接请求服务器
+const USE_DIRECT_API = true // 开发环境调试开关
 
 const API_BASE_URL = process.env.NODE_ENV === 'development' 
   ? (USE_DIRECT_API ? 'https://api.vola.fun' : '/api/proxy') // 开发环境：直接访问或使用代理
-  : 'https://api.vola.fun' // 生产环境直接访问
+  : '/api/proxy' // 🔧 生产环境使用代理避免CORS问题
 const REQUEST_TIMEOUT = 30000 // 30秒超时
 
 // 创建 Axios 实例

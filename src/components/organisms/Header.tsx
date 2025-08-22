@@ -43,12 +43,14 @@ export function Header() {
 
       {/* Navigation */}
       <nav className="flex items-center gap-4">
+        {/* 
         <Link 
           href="/docs" 
           className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 px-2 py-1.5 rounded-md hover:bg-accent/10"
         >
           {t.nav.docs}
         </Link>
+        */}
         <Link 
           href="/pricing" 
           className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 px-2 py-1.5 rounded-md hover:bg-accent/10"
