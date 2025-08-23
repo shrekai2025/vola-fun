@@ -19,6 +19,8 @@ import { TokenManager } from '@/lib/cookie'
 import { AuthAPI } from '@/services/auth-api'
 import FirebaseAuthService from '@/services/firebase-auth'
 import { useToast } from '@/components/ui/toast'
+import { clearUserIdCache } from '@/services/user-api'
+import { dataManager } from '@/lib/data-manager'
 
 /**
  * 认证相关 Hook
@@ -114,9 +116,13 @@ export function useAuth() {
       // 3. 清除本地状态
       clearAuth()
 
+      // 4. 清除所有缓存数据
+      clearUserIdCache()
+      dataManager.secureCleanup()
+
       toast.logoutSuccess()
       
-      // 4. 刷新页面
+      // 5. 刷新页面
       window.location.reload()
     } catch (error) {
       console.error('Logout error:', error)

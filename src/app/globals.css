@@ -179,5 +179,65 @@
     -webkit-mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
   }
   
+  /* 骨架屏闪光动画 */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
   /* Aurora动画已移除以优化性能 */
+}
+
+/* 自定义滚动条样式 - 低调美观 */
+@layer base {
+  /* Webkit滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(189, 189, 189, 0.3);
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(189, 189, 189, 0.5);
+    background-clip: content-box;
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  
+  /* 暗色主题下的滚动条 */
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    background-clip: content-box;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+    background-clip: content-box;
+  }
+  
+  /* Firefox滚动条样式 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(189, 189, 189, 0.3) transparent;
+  }
+  
+  .dark * {
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
 }

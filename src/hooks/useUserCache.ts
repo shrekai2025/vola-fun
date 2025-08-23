@@ -15,7 +15,7 @@ interface UseUserCacheReturn {
 }
 
 // 全局缓存（包含用户信息、头像和主题）
-let globalUserCache: {
+export let globalUserCache: {
   user: User | null
   isLoggedIn: boolean
   timestamp: number
@@ -29,8 +29,11 @@ let globalUserCache: {
   theme: undefined
 }
 
+// 防止并发请求的全局状态
+let ongoingRequest: Promise<void> | null = null
+
 // 缓存有效期（5分钟）
-const CACHE_EXPIRY_TIME = 5 * 60 * 1000
+export const CACHE_EXPIRY_TIME = 5 * 60 * 1000
 
 // 头像缓存有效期（30分钟）
 const AVATAR_CACHE_EXPIRY_TIME = 30 * 60 * 1000
@@ -70,47 +73,76 @@ export const useUserCache = (): UseUserCacheReturn => {
       return
     }
 
+    // 如果有正在进行的请求，等待它完成
+    if (ongoingRequest) {
+      console.log('⏳ 等待正在进行的用户信息请求...')
+      try {
+        await ongoingRequest
+        // 请求完成后，使用最新的缓存数据
+        setUser(globalUserCache.user)
+        setIsLoggedIn(globalUserCache.isLoggedIn)
+        setError(null)
+        return
+      } catch (err) {
+        // 如果等待的请求失败了，继续执行新的请求
+        console.log('⚠️ 等待的请求失败，发起新请求')
+      }
+    }
+
+    // 创建新的请求
+    ongoingRequest = (async () => {
+      try {
+        setError(null)
+        console.log('🔄 刷新用户信息...')
+        const userInfo = await AuthAPI.getUserInfo()
+        
+        // 保存头像缓存
+        const existingAvatar = globalUserCache.avatar
+        const shouldUseAvatarCache = existingAvatar && 
+          globalUserCache.user?.avatar_url === userInfo.avatar_url &&
+          (now - globalUserCache.timestamp) < AVATAR_CACHE_EXPIRY_TIME
+        
+        // 更新全局缓存
+        globalUserCache = {
+          user: userInfo,
+          isLoggedIn: true,
+          timestamp: now,
+          avatar: shouldUseAvatarCache ? existingAvatar : userInfo.avatar
+        }
+        
+        // 如果使用头像缓存，临时替换头像URL
+        if (shouldUseAvatarCache && userInfo.avatar) {
+          userInfo.avatar = existingAvatar
+        }
+        
+        setUser(userInfo)
+        setIsLoggedIn(true)
+        console.log('✅ 用户信息刷新成功', shouldUseAvatarCache ? '(使用头像缓存)' : '')
+      } catch (err: any) {
+        console.error('❌ 获取用户信息失败:', err)
+        
+        // 如果是 401 错误，说明 token 已过期，清除本地状态
+        if (err.response?.status === 401) {
+          console.log('🔑 Token 已过期，清除本地状态')
+          TokenManager.clearTokens()
+          setUser(null)
+          setIsLoggedIn(false)
+          setError('登录已过期，请重新登录')
+          globalUserCache = { user: null, isLoggedIn: false, timestamp: 0, avatar: undefined }
+        } else {
+          setError(err.message || '获取用户信息失败')
+        }
+        throw err // 重新抛出错误以便其他等待的组件知道请求失败
+      } finally {
+        ongoingRequest = null // 清除正在进行的请求状态
+      }
+    })()
+
+    // 等待当前请求完成
     try {
-      setError(null)
-      console.log('🔄 刷新用户信息...')
-      const userInfo = await AuthAPI.getUserInfo()
-      
-      // 保存头像缓存
-      const existingAvatar = globalUserCache.avatar
-      const shouldUseAvatarCache = existingAvatar && 
-        globalUserCache.user?.avatar_url === userInfo.avatar_url &&
-        (now - globalUserCache.timestamp) < AVATAR_CACHE_EXPIRY_TIME
-      
-      // 更新全局缓存
-      globalUserCache = {
-        user: userInfo,
-        isLoggedIn: true,
-        timestamp: now,
-        avatar: shouldUseAvatarCache ? existingAvatar : userInfo.avatar
-      }
-      
-      // 如果使用头像缓存，临时替换头像URL
-      if (shouldUseAvatarCache && userInfo.avatar) {
-        userInfo.avatar = existingAvatar
-      }
-      
-      setUser(userInfo)
-      setIsLoggedIn(true)
-      console.log('✅ 用户信息刷新成功', shouldUseAvatarCache ? '(使用头像缓存)' : '')
-    } catch (err: any) {
-      console.error('❌ 获取用户信息失败:', err)
-      
-      // 如果是 401 错误，说明 token 已过期，清除本地状态
-      if (err.response?.status === 401) {
-        console.log('🔑 Token 已过期，清除本地状态')
-        TokenManager.clearTokens()
-        setUser(null)
-        setIsLoggedIn(false)
-        setError('登录已过期，请重新登录')
-        globalUserCache = { user: null, isLoggedIn: false, timestamp: 0, avatar: undefined }
-      } else {
-        setError(err.message || '获取用户信息失败')
-      }
+      await ongoingRequest
+    } catch (err) {
+      // 错误已经在上面处理过了
     }
   }, [])
 
@@ -121,6 +153,7 @@ export const useUserCache = (): UseUserCacheReturn => {
     setError(null)
     TokenManager.clearTokens()
     globalUserCache = { user: null, isLoggedIn: false, timestamp: 0, avatar: undefined, theme: globalUserCache.theme }
+    ongoingRequest = null // 清除正在进行的请求
     console.log('🗑️ 用户信息已清除')
   }, [])
 

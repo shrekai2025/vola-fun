@@ -29,11 +29,24 @@ const createUserAPISchema = (t: any) => z.object({
   website_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
   documentation_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
   terms_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
-  estimated_response_time: z.number().min(1, '预估响应时间必须大于0').max(600000, '预估响应时间不能超过10分钟').optional(),
+  estimated_response_time: z.number().min(1, t.validation.responseTimeRequired).max(600000, t.validation.responseTimeRange).optional(),
   documentation_markdown: z.string().optional(),
 })
 
 type CreateUserAPIFormData = z.infer<ReturnType<typeof createUserAPISchema>>
+
+// API分类选项 - 动态获取翻译
+const getCategoryOptions = (t: any) => [
+  { value: 'data', label: t.apiProvider.categories.data },
+  { value: 'ai_ml', label: t.apiProvider.categories.ai_ml },
+  { value: 'finance', label: t.apiProvider.categories.finance },
+  { value: 'social', label: t.apiProvider.categories.social },
+  { value: 'tools', label: t.apiProvider.categories.tools },
+  { value: 'communication', label: t.apiProvider.categories.communication },
+  { value: 'entertainment', label: t.apiProvider.categories.entertainment },
+  { value: 'business', label: t.apiProvider.categories.business },
+  { value: 'other', label: t.apiProvider.categories.other },
+]
 
 export default function UserAPICreateSection() {
   const [submitting, setSubmitting] = useState(false)
@@ -118,10 +131,10 @@ export default function UserAPICreateSection() {
           </Button>
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          发布新API
+          {t.apiProvider.create.title}
         </h1>
         <p className="text-muted-foreground">
-          发布您的API并提交到Vola市场。API将首先保存为草稿状态，您可以随时编辑和完善。
+          {t.apiProvider.create.description}
         </p>
       </div>
 
@@ -129,14 +142,14 @@ export default function UserAPICreateSection() {
         {/* 基本信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>基本信息</CardTitle>
+            <CardTitle>{t.apiProvider.create.basicInfo}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* API名称和标识 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  API 名称 <span className="text-destructive">*</span>
+                  {t.apiProvider.create.apiName} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   {...register('name')}
@@ -149,7 +162,7 @@ export default function UserAPICreateSection() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  API 标识 (slug) <span className="text-destructive">*</span>
+                  {t.apiProvider.create.apiSlug} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   {...register('slug')}
@@ -160,7 +173,7 @@ export default function UserAPICreateSection() {
                   <p className="text-destructive text-sm mt-1">{errors.slug.message}</p>
                 )}
                 <p className="text-muted-foreground text-xs mt-1">
-                  用于生成API访问URL，只能包含小写字母、数字和连字符
+                  {t.apiProvider.create.slugHelper}
                 </p>
               </div>
             </div>
@@ -168,7 +181,7 @@ export default function UserAPICreateSection() {
             {/* 描述 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                简短描述 <span className="text-destructive">*</span>
+                {t.apiProvider.create.shortDescription} <span className="text-destructive">*</span>
               </label>
               <Input
                 {...register('short_description')}
@@ -182,7 +195,7 @@ export default function UserAPICreateSection() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                详细描述
+                {t.apiProvider.create.longDescription}
               </label>
               <textarea
                 {...register('long_description')}
@@ -194,13 +207,13 @@ export default function UserAPICreateSection() {
             {/* 分类 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                API 分类 <span className="text-destructive">*</span>
+                {t.apiProvider.create.category} <span className="text-destructive">*</span>
               </label>
               <select
                 {...register('category')}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {CATEGORIES.map((category) => (
+                {getCategoryOptions(t).map((category) => (
                   <option key={category.value} value={category.value}>
                     {category.label}
                   </option>
@@ -213,12 +226,12 @@ export default function UserAPICreateSection() {
         {/* 技术配置 */}
         <Card>
           <CardHeader>
-            <CardTitle>技术配置</CardTitle>
+            <CardTitle>{t.apiProvider.create.technicalConfig}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-2">
-                基础 URL <span className="text-destructive">*</span>
+                {t.apiProvider.create.baseUrl} <span className="text-destructive">*</span>
               </label>
               <Input
                 {...register('base_url')}
@@ -232,7 +245,7 @@ export default function UserAPICreateSection() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                健康检查 URL
+                {t.apiProvider.create.healthCheckUrl}
               </label>
               <Input
                 {...register('health_check_url')}
@@ -246,7 +259,7 @@ export default function UserAPICreateSection() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                {t.admin.estimatedResponseTime}
+                {t.apiProvider.create.estimatedResponseTime}
               </label>
               <Input
                 type="number"
@@ -258,7 +271,7 @@ export default function UserAPICreateSection() {
                 <p className="text-destructive text-sm mt-1">{errors.estimated_response_time.message}</p>
               )}
               <p className="text-xs text-muted-foreground mt-1">
-                API预期响应时间，单位为毫秒（可选）
+                {t.apiProvider.create.responseTimeHelper}
               </p>
             </div>
           </CardContent>
@@ -267,13 +280,13 @@ export default function UserAPICreateSection() {
         {/* 链接信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>相关链接</CardTitle>
+            <CardTitle>{t.apiProvider.create.relatedLinks}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  官方网站
+                  {t.apiProvider.create.websiteUrl}
                 </label>
                 <Input
                   {...register('website_url')}
@@ -286,7 +299,7 @@ export default function UserAPICreateSection() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  文档链接
+                  {t.apiProvider.create.documentationUrl}
                 </label>
                 <Input
                   {...register('documentation_url')}
@@ -301,7 +314,7 @@ export default function UserAPICreateSection() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                服务条款链接
+                {t.apiProvider.create.termsUrl}
               </label>
               <Input
                 {...register('terms_url')}
@@ -318,13 +331,13 @@ export default function UserAPICreateSection() {
         {/* 标签和文档 */}
         <Card>
           <CardHeader>
-            <CardTitle>标签和文档</CardTitle>
+            <CardTitle>{t.apiProvider.create.tagsAndDocs}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 标签 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                标签 (最多5个)
+                {t.apiProvider.create.tags}
               </label>
               <div className="flex gap-2 mb-2">
                 <Input
@@ -367,7 +380,7 @@ export default function UserAPICreateSection() {
             {/* Markdown文档 */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                API 文档 (Markdown)
+                {t.apiProvider.create.apiDocs}
               </label>
               <textarea
                 {...register('documentation_markdown')}
@@ -391,7 +404,7 @@ export default function UserAPICreateSection() {
         {/* 提交按钮 */}
         <div className="flex items-center justify-end gap-4">
           <Button type="button" variant="outline" asChild>
-            <Link href="/api-provider">取消</Link>
+            <Link href="/api-provider">{t.apiProvider.create.cancel}</Link>
           </Button>
           <Button
             type="submit"
@@ -401,12 +414,12 @@ export default function UserAPICreateSection() {
             {submitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                发布中...
+                {t.apiProvider.create.publishing}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                发布 API
+                {t.apiProvider.create.publishAPI}
               </>
             )}
           </Button>

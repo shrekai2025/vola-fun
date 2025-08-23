@@ -138,7 +138,7 @@ export const publishAPI = async (data: PublishAPIRequest): Promise<PublishAPIRes
     console.log('📤 [admin-api] 请求数据:', JSON.stringify(data, null, 2))
     
     const startTime = Date.now()
-    const response = await apiClient.post<CreateAPIResponse>('/api/v1/apis/', data)
+    const response = await apiClient.post<PublishAPIResponse>('/api/v1/apis/', data)
     const endTime = Date.now()
     
     console.log('✅ [admin-api] API发布请求成功')

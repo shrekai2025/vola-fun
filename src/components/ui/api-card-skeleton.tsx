@@ -3,49 +3,51 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function APICardSkeleton() {
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full border-border/50 dark:border-border/30 bg-card/50 dark:bg-card/30">
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex items-center space-x-2 flex-1">
-            <Skeleton className="h-6 w-6 rounded" />
-            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-6 w-6 rounded shrink-0" />
+            <Skeleton className="h-5 w-32 max-w-[50%]" />
           </div>
           <div className="flex items-center space-x-1">
-            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-4 w-4 rounded-full" />
             <Skeleton className="h-4 w-8" />
           </div>
         </div>
-        <Skeleton className="h-4 w-full mt-2" />
-        <Skeleton className="h-4 w-3/4" />
+        <div className="space-y-2 mt-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
       </CardHeader>
     
-      <CardContent>
+      <CardContent className="pt-0">
         {/* 分类标签骨架 */}
         <div className="flex flex-wrap gap-1 mb-4">
-          <Skeleton className="h-6 w-16 rounded-full" />
-          <Skeleton className="h-6 w-12 rounded-full" />
-          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-12 rounded-full" />
+          <Skeleton className="h-5 w-20 rounded-full" />
         </div>
 
         {/* 统计信息骨架 */}
-        <div className="space-y-2 text-sm mb-4">
+        <div className="space-y-3 mb-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1">
-              <Skeleton className="h-4 w-4" />
-              <Skeleton className="h-4 w-16" />
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-4 w-4 rounded" />
+              <Skeleton className="h-3 w-16" />
             </div>
-            <div className="flex items-center space-x-1">
-              <Skeleton className="h-4 w-4" />
-              <Skeleton className="h-4 w-12" />
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-4 w-4 rounded" />
+              <Skeleton className="h-3 w-12" />
             </div>
           </div>
-          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-3 w-28" />
         </div>
 
         {/* 操作按钮骨架 */}
         <div className="flex space-x-2">
-          <Skeleton className="h-8 flex-1" />
-          <Skeleton className="h-8 w-8" />
+          <Skeleton className="h-8 flex-1 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
         </div>
       </CardContent>
     </Card>
@@ -59,8 +61,11 @@ export function APICardSkeletonGrid({ count = 9 }: { count?: number }) {
       {Array.from({ length: count }).map((_, index) => (
         <div 
           key={index} 
-          className="animate-in fade-in slide-in-from-bottom-4 duration-300"
-          style={{ animationDelay: `${index * 50}ms` }}
+          className="animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out"
+          style={{ 
+            animationDelay: `${Math.min(index * 80, 800)}ms`,
+            animationFillMode: 'both'
+          }}
         >
           <APICardSkeleton />
         </div>
@@ -74,7 +79,16 @@ export function LoadMoreSkeleton({ count = 6 }: { count?: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <APICardSkeleton key={`loadmore-${index}`} />
+        <div 
+          key={`loadmore-${index}`}
+          className="animate-in fade-in slide-in-from-bottom-2 duration-400 ease-out"
+          style={{ 
+            animationDelay: `${index * 60}ms`,
+            animationFillMode: 'both'
+          }}
+        >
+          <APICardSkeleton />
+        </div>
       ))}
     </>
   )

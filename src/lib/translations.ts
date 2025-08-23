@@ -5,6 +5,7 @@ export interface Translations {
   // 通用
   common: {
     loading: string
+    verifying: string
     error: string
     success: string
     cancel: string
@@ -173,6 +174,48 @@ export interface Translations {
     viewEndpoints: string
     deleteAPI: string
     deleting: string
+    // Create page
+    create: {
+      title: string
+      description: string
+      basicInfo: string
+      technicalConfig: string
+      relatedLinks: string
+      tagsAndDocs: string
+      cancel: string
+      publishing: string
+      publishAPI: string
+      // Form labels
+      apiName: string
+      apiSlug: string
+      shortDescription: string
+      longDescription: string
+      category: string
+      baseUrl: string
+      healthCheckUrl: string
+      websiteUrl: string
+      documentationUrl: string
+      termsUrl: string
+      tags: string
+      apiDocs: string
+      estimatedResponseTime: string
+      // Validation messages
+      nameRequired: string
+      nameMaxLength: string
+      slugRequired: string
+      slugFormat: string
+      shortDescRequired: string
+      shortDescMaxLength: string
+      validUrl: string
+      responseTimeRequired: string
+      responseTimeRange: string
+      // Placeholders
+      slugHelper: string
+      responseTimeHelper: string
+      tagsHelper: string
+      // Auth messages
+      loginPrompt: string
+    }
     edit: {
       title: string
       backToList: string
@@ -312,6 +355,8 @@ export interface Translations {
     apiSlugFormat: string
     shortDescRequired: string
     shortDescMaxLength: string
+    responseTimeRequired: string
+    responseTimeRange: string
   }
 
   // Toast消息
@@ -407,6 +452,7 @@ export interface Translations {
 export const en: Translations = {
   common: {
     loading: 'Loading',
+    verifying: 'Verifying identity...',
     error: 'Error',
     success: 'Success',
     cancel: 'Cancel',
@@ -569,6 +615,48 @@ export const en: Translations = {
     viewEndpoints: 'View Endpoints',
     deleteAPI: 'Delete API',
     deleting: 'Deleting...',
+    // Create page
+    create: {
+      title: 'Publish New API',
+      description: 'Publish your API to the Vola marketplace. Your API will first be saved as a draft, and you can edit and refine it at any time.',
+      basicInfo: 'Basic Information',
+      technicalConfig: 'Technical Configuration',
+      relatedLinks: 'Related Links',
+      tagsAndDocs: 'Tags and Documentation',
+      cancel: 'Cancel',
+      publishing: 'Publishing...',
+      publishAPI: 'Publish API',
+      // Form labels
+      apiName: 'API Name',
+      apiSlug: 'API Slug',
+      shortDescription: 'Short Description',
+      longDescription: 'Detailed Description',
+      category: 'API Category',
+      baseUrl: 'Base URL',
+      healthCheckUrl: 'Health Check URL',
+      websiteUrl: 'Official Website',
+      documentationUrl: 'Documentation Link',
+      termsUrl: 'Terms of Service Link',
+      tags: 'Tags (max 5)',
+      apiDocs: 'API Documentation (Markdown)',
+      estimatedResponseTime: 'Estimated Response Time (ms)',
+      // Validation messages
+      nameRequired: 'API name cannot be empty',
+      nameMaxLength: 'API name cannot exceed 255 characters',
+      slugRequired: 'API slug cannot be empty',
+      slugFormat: 'API slug can only contain lowercase letters, numbers and hyphens',
+      shortDescRequired: 'Short description cannot be empty',
+      shortDescMaxLength: 'Short description cannot exceed 100 characters',
+      validUrl: 'Please enter a valid URL',
+      responseTimeRequired: 'Estimated response time must be greater than 0',
+      responseTimeRange: 'Estimated response time cannot exceed 10 minutes',
+      // Placeholders
+      slugHelper: 'Used to generate API access URL, only lowercase letters, numbers and hyphens allowed',
+      responseTimeHelper: 'Expected API response time in milliseconds (optional)',
+      tagsHelper: 'Tags (max 5)',
+      // Auth messages
+      loginPrompt: 'Please log in first to publish API'
+    },
     edit: {
       title: 'Edit API',
       backToList: 'Back to List',
@@ -715,7 +803,9 @@ Describe endpoint usage...`,
     apiSlugRequired: 'API slug cannot be empty',
     apiSlugFormat: 'API slug can only contain lowercase letters, numbers and hyphens',
     shortDescRequired: 'Short description cannot be empty',
-    shortDescMaxLength: 'Short description cannot exceed 100 characters'
+    shortDescMaxLength: 'Short description cannot exceed 100 characters',
+    responseTimeRequired: 'Estimated response time must be greater than 0',
+    responseTimeRange: 'Estimated response time cannot exceed 10 minutes'
   },
 
   toast: {
@@ -807,6 +897,7 @@ Describe endpoint usage...`,
 export const zh: Translations = {
   common: {
     loading: '加载中',
+    verifying: '正在验证身份...',
     error: '错误',
     success: '成功',
     cancel: '取消',
@@ -969,6 +1060,48 @@ export const zh: Translations = {
     viewEndpoints: '查看Endpoints',
     deleteAPI: '删除API',
     deleting: '删除中...',
+    // Create page
+    create: {
+      title: '发布新API',
+      description: '发布您的API并提交到Vola市场。API将首先保存为草稿状态，您可以随时编辑和完善。',
+      basicInfo: '基本信息',
+      technicalConfig: '技术配置',
+      relatedLinks: '相关链接',
+      tagsAndDocs: '标签和文档',
+      cancel: '取消',
+      publishing: '发布中...',
+      publishAPI: '发布 API',
+      // Form labels
+      apiName: 'API 名称',
+      apiSlug: 'API 标识 (slug)',
+      shortDescription: '简短描述',
+      longDescription: '详细描述',
+      category: 'API 分类',
+      baseUrl: '基础 URL',
+      healthCheckUrl: '健康检查 URL',
+      websiteUrl: '官方网站',
+      documentationUrl: '文档链接',
+      termsUrl: '服务条款链接',
+      tags: '标签 (最多5个)',
+      apiDocs: 'API 文档 (Markdown)',
+      estimatedResponseTime: '预估响应时间 (毫秒)',
+      // Validation messages
+      nameRequired: 'API名称不能为空',
+      nameMaxLength: 'API名称不能超过255个字符',
+      slugRequired: 'API标识不能为空',
+      slugFormat: 'API标识只能包含小写字母、数字和连字符',
+      shortDescRequired: '简短描述不能为空',
+      shortDescMaxLength: '简短描述不能超过100个字符',
+      validUrl: '请输入有效的URL',
+      responseTimeRequired: '预估响应时间必须大于0',
+      responseTimeRange: '预估响应时间不能超过10分钟',
+      // Placeholders
+      slugHelper: '用于生成API访问URL，只能包含小写字母、数字和连字符',
+      responseTimeHelper: 'API预期响应时间，单位为毫秒（可选）',
+      tagsHelper: '标签 (最多5个)',
+      // Auth messages
+      loginPrompt: '请先登录以发布API'
+    },
     edit: {
       title: '编辑API',
       backToList: '返回列表',
@@ -1115,7 +1248,9 @@ export const zh: Translations = {
     apiSlugRequired: 'API标识不能为空',
     apiSlugFormat: 'API标识只能包含小写字母、数字和连字符',
     shortDescRequired: '简短描述不能为空',
-    shortDescMaxLength: '简短描述不能超过100个字符'
+    shortDescMaxLength: '简短描述不能超过100个字符',
+    responseTimeRequired: '预估响应时间必须大于0',
+    responseTimeRange: '预估响应时间不能超过10分钟'
   },
 
   toast: {

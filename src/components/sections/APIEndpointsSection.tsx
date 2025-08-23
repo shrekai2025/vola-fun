@@ -12,11 +12,11 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { 
   getAPIEndpoints, 
-  createAPIEndpoint, 
+  publishAPIEndpoint, 
   updateAPIEndpoint, 
   deleteAPIEndpoint,
   type APIEndpoint,
-  type CreateEndpointRequest,
+  type PublishEndpointRequest,
   type UpdateEndpointRequest 
 } from '@/services/api-endpoints'
 import { getUserAPI } from '@/services/user-api'
@@ -264,7 +264,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
               isCreating={true}
               onSave={async (data) => {
                 try {
-                  const response = await createAPIEndpoint(apiId, data)
+                  const response = await publishAPIEndpoint(apiId, data)
                   setEndpoints(prev => [...prev, response.data])
                   setCreatingNew(false)
                   toast.success(translations.createSuccess)

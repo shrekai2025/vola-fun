@@ -1,163 +1,57 @@
+/**
+ * APIMarketSection V2 - 使用统一数据管理器
+ * 优化网络请求、避免重复加载、提升性能
+ */
+
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
-import { getMarketAPIs, type MarketAPI, type GetMarketAPIsParams } from '@/services/market-api'
+import { useMarketAPIList } from '@/hooks/useUnifiedData'
+import type { GetMarketAPIsParams } from '@/services/market-api'
 import { Clock, AlertCircle, FileText } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { APICardSkeletonGrid, LoadMoreSkeleton } from '@/components/ui/api-card-skeleton'
+import { APICardSkeletonGrid } from '@/components/ui/api-card-skeleton'
 
-// 分类映射和标签（如果将来需要使用）
-// const CATEGORY_MAP = {
-//   'data': 'data',
-//   'ai_ml': 'ai',
-//   'finance': 'finance', 
-//   'social': 'social',
-//   'tools': 'tools',
-//   'communication': 'communication',
-//   'entertainment': 'entertainment',
-//   'business': 'business',
-//   'other': 'other'
-// } as const
-
-// const CATEGORY_LABELS = {
-//   'all': 'all',
-//   'data': 'data',
-//   'ai_ml': 'ai',
-//   'finance': 'finance',
-//   'tools': 'tools',
-//   'communication': 'communication',
-//   'entertainment': 'entertainment',
-//   'business': 'business',
-//   'other': 'other'
-// } as const
-
-export default function APIMarketSection() {
+export default function APIMarketSectionV2() {
   const { t } = useTranslation()
   const toast = useToast()
 
-  // 状态管理
-  const [apis, setApis] = useState<MarketAPI[]>([])
-  const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [hasMore, setHasMore] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
-
+  // 筛选和排序状态
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'total_calls' | 'created_at'>('total_calls')
+  const [currentPage, setCurrentPage] = useState(1)
+
+  // 构建查询参数
+  const queryParams = useMemo((): GetMarketAPIsParams => {
+    const params: GetMarketAPIsParams = {
+      page: currentPage,
+      page_size: 50,
+      sort_by: sortBy,
+      sort_order: 'desc',
+      status: 'published',
+      is_public: true,
+    }
+
+    if (selectedCategory && selectedCategory !== 'all') {
+      params.category = selectedCategory
+    }
+
+    return params
+  }, [currentPage, sortBy, selectedCategory])
+
+  // 使用统一数据管理Hook，启用页面级强制刷新
+  const { data: apiResponse, loading, error, refresh } = useMarketAPIList(queryParams, true)
   
-  // 防抖和请求管理
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const abortControllerRef = useRef<AbortController | null>(null)
-
-  // 加载API列表
-  const loadAPIs = useCallback(async (
-    page: number = 1, 
-    reset: boolean = false,
-    params?: Partial<GetMarketAPIsParams>
-  ) => {
-    try {
-      // 取消之前的请求
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      
-      // 创建新的 AbortController
-      abortControllerRef.current = new AbortController()
-      
-      if (reset) {
-        setLoading(true)
-        // 不立即清空现有数据，让骨架屏先显示，数据会在请求成功后被替换
-      } else {
-        setLoadingMore(true)
-      }
-      setError(null)
-
-      const requestParams: GetMarketAPIsParams = {
-        page,
-        page_size: 50,
-        sort_by: sortBy,
-        sort_order: 'desc',
-        ...params
-      }
-
-
-
-      // 如果选择了分类，添加分类过滤
-      if (selectedCategory && selectedCategory !== 'all') {
-        requestParams.category = selectedCategory
-      }
-
-      const response = await getMarketAPIs({
-        ...requestParams,
-        signal: abortControllerRef.current?.signal
-      })
-
-      // 完整打印API响应数据
-      console.log('=== API Market 完整响应数据 ===')
-      console.log(JSON.stringify(response, null, 2))
-      console.log('===============================')
-
-      if (response.success) {
-        if (reset) {
-          setApis(response.data)
-        } else {
-          setApis(prev => [...prev, ...response.data])
-        }
-        setHasMore(response.pagination.has_next)
-        setCurrentPage(response.pagination.page)
-      } else {
-        throw new Error(response.message || t.toast.networkError)
-      }
-    } catch (error: unknown) {
-      // 如果是取消的请求，不显示错误
-      const errorObj = error as { name?: string; code?: string; message?: string }
-      if (errorObj.name === 'AbortError' || 
-          errorObj.name === 'CanceledError' || 
-          errorObj.code === 'ECONNABORTED' || 
-          errorObj.code === 'ERR_CANCELED' ||
-          errorObj.message === 'canceled') {
-        console.log('请求已取消，不显示错误')
-        return
-      }
-      
-      const errorMessage = errorObj.message || t.toast.networkError
-      console.error('加载API列表失败:', error)
-      setError(errorMessage)
-      if (reset) {
-        setApis([])
-      }
-      toast.error(errorMessage)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
-    }
-  }, [selectedCategory, sortBy])
-
-  // 分类和排序变化时重新加载
-  useEffect(() => {
-    // 清除之前的定时器
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
-    
-    // 立即执行加载
-    loadAPIs(1, true)
-    
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, sortBy]) // 直接依赖状态，避免 loadAPIs 的循环依赖
+  // 从响应中提取数据
+  const apis = apiResponse || []
+  const hasMore = false // TODO: 从分页信息中获取
+  const [loadingMore, setLoadingMore] = useState(false)
 
   // 分类选择处理
   const handleCategorySelect = (category: string) => {
@@ -165,14 +59,21 @@ export default function APIMarketSection() {
     setCurrentPage(1)
   }
 
-  // 加载更多
-  const handleLoadMore = () => {
-    if (!loadingMore && hasMore) {
-      loadAPIs(currentPage + 1, false)
-    }
+  // 排序变化处理
+  const handleSortChange = (newSortBy: typeof sortBy) => {
+    setSortBy(newSortBy)
+    setCurrentPage(1)
   }
 
-
+  // 加载更多（暂时保留原有逻辑，后续可以优化为使用数据管理器）
+  const handleLoadMore = async () => {
+    if (!loadingMore && hasMore) {
+      setLoadingMore(true)
+      setCurrentPage(prev => prev + 1)
+      // TODO: 实现增量加载逻辑
+      setLoadingMore(false)
+    }
+  }
 
   // 格式化调用次数
   const formatUsageCount = (count: number): string => {
@@ -183,28 +84,13 @@ export default function APIMarketSection() {
 
   // 格式化响应时间显示
   const formatResponseTime = (time?: number): string => {
-    if (!time || time <= 0) return '~200ms' // 默认值
+    if (!time || time <= 0) return '~200ms'
     if (time >= 1000) {
       return `~${(time / 1000).toFixed(1)}s`
     } else {
       return `~${Math.round(time)}ms`
     }
   }
-
-  // 组件清理
-  useEffect(() => {
-    return () => {
-      // 清理定时器
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
-      }
-      
-      // 取消待处理的请求
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [])
 
   return (
     <section id="api-market-section" className="bg-background pb-[60px]">
@@ -216,11 +102,8 @@ export default function APIMarketSection() {
           </p>
         </div>
 
-
         {/* 搜索和筛选 */}
         <div className="mb-8 space-y-4">
-
-          
           {/* 分类标签 */}
           <div className="flex flex-wrap gap-2 justify-center">
             <Badge 
@@ -279,14 +162,14 @@ export default function APIMarketSection() {
             <Button 
               variant={sortBy === 'total_calls' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setSortBy('total_calls')}
+              onClick={() => handleSortChange('total_calls')}
             >
               {t.home.sorting.popularity}
             </Button>
             <Button 
               variant={sortBy === 'created_at' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setSortBy('created_at')}
+              onClick={() => handleSortChange('created_at')}
             >
               {t.home.sorting.latest}
             </Button>
@@ -298,7 +181,7 @@ export default function APIMarketSection() {
           <div className="text-center py-8">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => loadAPIs(1, true)}>{t.projectDetail.retry}</Button>
+            <Button onClick={refresh}>重试</Button>
           </div>
         )}
 
@@ -310,7 +193,7 @@ export default function APIMarketSection() {
           <>
             {apis.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">{t.apiProvider.noAPIs}</p>
+                <p className="text-muted-foreground">暂无API服务</p>
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -333,7 +216,6 @@ export default function APIMarketSection() {
                               {api.name}
                             </CardTitle>
                           </div>
-
                         </div>
                         <CardDescription className="line-clamp-2 h-10">
                           {api.short_description}
@@ -354,56 +236,65 @@ export default function APIMarketSection() {
                         </div>
 
                         {/* 统计信息 */}
-                        <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                          <div className="flex items-center justify-center">
+                        <div className="space-y-2 text-sm mb-4">
+                          <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{formatResponseTime(api.estimated_response_time)}</span>
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">
+                                {formatUsageCount(api.total_calls || 0)} {t.home.usageCount}
+                              </span>
                             </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground/80 text-center">
-                            {t.home.usageCount.replace('{count}', formatUsageCount(api.total_calls))}
+                            <div className="flex items-center space-x-1">
+                              <FileText className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">
+                                {formatResponseTime(api.estimated_response_time || 0)}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
                         {/* 操作按钮 */}
                         <div className="flex space-x-2">
-                          <Button size="sm" className="flex-1" asChild>
-                            <span>
-                              <FileText className="h-4 w-4 mr-1" />
-                              {t.home.viewDetails}
-                            </span>
+                          <Button 
+                            className="flex-1" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              window.open(`/project/${api.slug}`, '_blank')
+                            }}
+                          >
+                            {t.home.viewDetails}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-8 h-8 p-0"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              // TODO: 添加到收藏
+                            }}
+                          >
+                            ♡
                           </Button>
                         </div>
                       </CardContent>
                     </Link>
                   </Card>
                 ))}
-                
-                {/* 加载更多时的骨架屏 */}
-                {loadingMore && <LoadMoreSkeleton count={6} />}
               </div>
             )}
 
             {/* 加载更多按钮 */}
-            {hasMore && apis.length > 0 && !loadingMore && (
+            {hasMore && (
               <div className="text-center mt-8">
                 <Button 
-                  variant="outline" 
-                  size="lg"
                   onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  size="lg"
+                  variant="outline"
                 >
-                  {t.home.loadMore}
+                  {loadingMore ? '加载中...' : t.home.loadMore}
                 </Button>
-              </div>
-            )}
-
-            {/* 全部加载完成提示 */}
-            {!hasMore && apis.length > 0 && (
-              <div className="text-center mt-8">
-                <p className="text-muted-foreground text-sm">
-                  {t.home.totalCount.replace('{count}', apis.length.toString())}
-                </p>
               </div>
             )}
           </>

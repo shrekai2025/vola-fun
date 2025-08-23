@@ -13,13 +13,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/useAuth'
-import { useUserCache } from '@/hooks/useUserCache'
+import { useUnifiedUserCache } from '@/hooks/useUnifiedData'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 
 export function Header() {
   const { showAuthModal, authLoading } = useAuth()
-  const { user, isLoggedIn, loading, clearUser } = useUserCache()
+  const { user, isLoggedIn, loading, clearUser } = useUnifiedUserCache()
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -49,18 +49,26 @@ export function Header() {
       </Link>
 
       {/* Navigation */}
-      <nav className="flex items-center gap-4">
-        {/* 
+      <nav className="flex items-center gap-6">
+        {/* API Market - 第一位 */}
         <Link 
-          href="/docs" 
-          className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 px-2 py-1.5 rounded-md hover:bg-accent/10"
+          href="/#api-market-section" 
+          className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4"
         >
-          {t.nav.docs}
+          API Market
         </Link>
-        */}
+        
+        {/* DOCs - 第二位 */}
+        <Link 
+          href="#" 
+          className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4"
+        >
+          DOCs
+        </Link>
+        
         <Link 
           href="/pricing" 
-          className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 px-2 py-1.5 rounded-md hover:bg-accent/10"
+          className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4"
         >
           {t.nav.pricing}
         </Link>
@@ -69,7 +77,7 @@ export function Header() {
         {isLoggedIn && user && user.role?.toUpperCase() === 'ADMIN' && (
           <Link 
             href="/admin2025" 
-            className="text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 px-2 py-1.5 rounded-md hover:bg-accent/10 border border-primary/20 bg-primary/5"
+            className="text-primary hover:text-primary/80 font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4"
           >
             Admin
           </Link>

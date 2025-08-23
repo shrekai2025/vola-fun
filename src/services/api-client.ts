@@ -111,8 +111,8 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError) => {
     // 只在严重错误时打印必要信息
-    if (error.response?.status >= 500) {
-      console.error('服务器错误:', error.response?.status, error.config?.url)
+    if (error.response?.status && error.response.status >= 500) {
+      console.error('服务器错误:', error.response.status, error.config?.url)
     }
     
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }

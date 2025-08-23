@@ -4,11 +4,13 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUserCache } from '@/hooks/useUserCache'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/components/providers/LanguageProvider'
 import UserAPICreateSection from '@/components/sections/UserAPICreateSection'
 
 export default function CreateAPIPage() {
   const { isLoggedIn, loading } = useUserCache()
   const { showAuthModal } = useAuth()
+  const { t } = useTranslation()
   const router = useRouter()
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function CreateAPIPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading...</p>
+              <p className="text-muted-foreground">{t.common.loading}...</p>
             </div>
           </div>
         </div>
@@ -42,7 +44,7 @@ export default function CreateAPIPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <p className="text-muted-foreground">请先登录以发布API</p>
+              <p className="text-muted-foreground">{t.apiProvider.create.loginPrompt}</p>
             </div>
           </div>
         </div>

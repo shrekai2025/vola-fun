@@ -1,6 +1,16 @@
 // 用户API管理服务
 import apiClient from './api-client'
 import type { MarketAPI, MarketAPIListResponse } from './market-api'
+import { globalUserCache, CACHE_EXPIRY_TIME } from '@/hooks/useUserCache'
+
+// 用户ID缓存
+let userIdCache: { 
+  userId: string | null
+  timestamp: number 
+} = { 
+  userId: null, 
+  timestamp: 0 
+}
 
 // 获取用户API列表的参数接口
 export interface GetUserAPIsParams {
@@ -38,6 +48,51 @@ export interface UpdateUserAPIRequest {
 }
 
 /**
+ * 获取缓存的用户ID，优先使用全局缓存
+ */
+const getCachedUserId = async (): Promise<string> => {
+  const now = Date.now()
+
+  // 优先检查 useUserCache 的全局缓存
+  if (globalUserCache?.user?.id && globalUserCache.timestamp &&
+      (now - globalUserCache.timestamp) < CACHE_EXPIRY_TIME) {
+    console.log('📦 [user-api] 从 useUserCache 全局缓存获取用户ID:', globalUserCache.user.id)
+    // 同步到本地缓存
+    userIdCache = {
+      userId: globalUserCache.user.id,
+      timestamp: globalUserCache.timestamp
+    }
+    return globalUserCache.user.id
+  }
+
+  // 检查本地缓存是否有效
+  if (userIdCache.userId && (now - userIdCache.timestamp) < CACHE_EXPIRY_TIME) {
+    console.log('📦 [user-api] 使用本地缓存的用户ID:', userIdCache.userId)
+    return userIdCache.userId
+  }
+
+  // 缓存失效或不存在，重新获取
+  console.log('🔄 [user-api] 缓存失效，重新获取用户ID...')
+  const userResponse = await apiClient.get('/api/v1/users/me')
+  const userId = userResponse.data.data?.id
+  if (!userId) {
+    throw new Error('无法获取用户ID')
+  }
+  // 更新缓存
+  userIdCache = { userId, timestamp: now }
+  console.log('✅ [user-api] 获取到用户ID并缓存:', userId)
+  return userId
+}
+
+/**
+ * 清除用户ID缓存
+ */
+export const clearUserIdCache = (): void => {
+  userIdCache = { userId: null, timestamp: 0 }
+  console.log('🗑️ [user-api] 用户ID缓存已清除')
+}
+
+/**
  * 获取当前用户发布的API列表
  */
 export const getUserAPIs = async (params?: GetUserAPIsParams): Promise<MarketAPIListResponse> => {
@@ -45,13 +100,8 @@ export const getUserAPIs = async (params?: GetUserAPIsParams): Promise<MarketAPI
     console.log('🔄 [user-api] 开始获取用户API列表')
     console.log('📤 [user-api] 请求参数:', JSON.stringify(params, null, 2))
     
-    // 先获取当前用户信息以得到user_id
-    const userResponse = await apiClient.get('/api/v1/users/me')
-    const userId = userResponse.data.data?.id
-    
-    if (!userId) {
-      throw new Error('无法获取用户ID')
-    }
+    // 使用缓存获取用户ID
+    const userId = await getCachedUserId()
     
     console.log('👤 [user-api] 获取到用户ID:', userId)
     
