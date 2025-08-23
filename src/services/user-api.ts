@@ -74,10 +74,23 @@ const getCachedUserId = async (): Promise<string> => {
   // 缓存失效或不存在，重新获取
   console.log('🔄 [user-api] 缓存失效，重新获取用户ID...')
   const userResponse = await apiClient.get('/api/v1/users/me')
-  const userId = userResponse.data.data?.id
+  
+  // 安全访问用户ID，处理可能的null值
+  const responseData = userResponse.data
+  if (!responseData) {
+    throw new Error('API响应数据为空')
+  }
+  
+  const userData = responseData.data
+  if (!userData) {
+    throw new Error('用户数据为空，请检查登录状态')
+  }
+  
+  const userId = userData.id
   if (!userId) {
     throw new Error('无法获取用户ID')
   }
+  
   // 更新缓存
   userIdCache = { userId, timestamp: now }
   console.log('✅ [user-api] 获取到用户ID并缓存:', userId)

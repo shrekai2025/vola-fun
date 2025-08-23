@@ -193,7 +193,7 @@ export default function APIMarketSectionV2() {
           <>
             {apis.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">暂无API服务</p>
+                <p className="text-muted-foreground">{t.home.noApiServices}</p>
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -258,12 +258,11 @@ export default function APIMarketSectionV2() {
                           <Button 
                             className="flex-1" 
                             size="sm"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              window.open(`/project/${api.slug}`, '_blank')
-                            }}
+                            asChild
                           >
-                            {t.home.viewDetails}
+                            <Link href={`/project/${api.slug}`}>
+                              {t.home.viewDetails}
+                            </Link>
                           </Button>
                           <Button 
                             variant="outline" 

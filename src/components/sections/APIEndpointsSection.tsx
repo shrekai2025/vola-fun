@@ -120,9 +120,8 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
           : translations.generalLoadFailed
         
         if (isValidationError) {
-          const validationErrorMsg = '端点数据格式异常，这可能是由于后端数据不兼容导致的。请联系管理员检查数据完整性。'
-          setEndpointsError(validationErrorMsg)
-          toast.error(validationErrorMsg)
+          setEndpointsError(translations.dataFormatError)
+          toast.error(translations.dataFormatError)
           console.error('端点数据格式验证失败，这可能是由于后端数据格式不兼容导致的')
         } else {
           // 其他错误则显示通用错误信息

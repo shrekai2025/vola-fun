@@ -82,6 +82,7 @@ export interface Translations {
     totalCount: string
     apiMarketIntro: string
     usageCount: string
+    noApiServices: string
   }
   
   // Profile页面
@@ -156,6 +157,35 @@ export interface Translations {
     testCompleted: string
     copy: string
     copied: string
+    // 新增字段
+    overview: string
+    status: string
+    serviceStatus: string
+    activeService: string
+    inactiveService: string
+    deprecatedService: string
+    testApiModal: string
+    testApiDescription: string
+    startTest: string
+    testKey: string
+    testKeyNote: string
+    testSuccessful: string
+    testResultTitle: string
+    description: string
+    endpoints: string
+    noDescription: string
+    noEndpoints: string
+    loadingEndpoints: string
+    endpointDescription: string
+    queryParams: string
+    bodyParams: string
+    responseExample: string
+    avgResponseTime: string
+    successRate: string
+    endpointStatus: string
+    active: string
+    inactive: string
+    calls: string
   }
 
   // API提供商页面
@@ -216,6 +246,8 @@ export interface Translations {
       tagsHelper: string
       // Auth messages
       loginPrompt: string
+      // API文档模板
+      apiDocsPlaceholder: string
     }
     edit: {
       title: string
@@ -370,6 +402,8 @@ export interface Translations {
     endpointDescPlaceholder: string
     jsonFormatNote: string
     saving: string
+    // 验证错误消息
+    dataFormatError: string
   }
 
   // 表单验证消息
@@ -401,6 +435,12 @@ export interface Translations {
     apiCreateSuccess: string
     apiCreateSuccessDraft: string
     apiApprovalSuccess: string
+    apiSetToPublic: string
+    apiSetToPrivate: string
+    apiUpdateFailed: string
+    // API状态切换提示
+    clickToSetPrivate: string
+    clickToSetPublic: string
     // 认证相关
     emailAlreadyExists: string
     passwordWeak: string
@@ -555,7 +595,8 @@ export const en: Translations = {
     viewDetails: 'View Details',
     totalCount: 'Showing all {count} API services',
     apiMarketIntro: 'Discover and integrate powerful APIs to accelerate your development',
-    usageCount: 'Called {count} times'
+    usageCount: 'Called {count} times',
+    noApiServices: 'No API services available'
   },
   
   profile: {
@@ -627,7 +668,36 @@ export const en: Translations = {
     copyFailed: 'Copy failed, please select and copy text manually',
     testCompleted: 'API test completed',
     copy: 'Copy',
-    copied: 'Copied'
+    copied: 'Copied',
+    // 新增字段
+    overview: 'Overview',
+    status: 'Status',
+    serviceStatus: 'Service Status',
+    activeService: 'Active',
+    inactiveService: 'Inactive',
+    deprecatedService: 'Deprecated',
+    testApiModal: 'Test {name}',
+    testApiDescription: 'Enter your API key to test this API',
+    startTest: 'Start Test',
+    testKey: 'API Key',
+    testKeyNote: 'Your API key will be used for testing and will not be stored',
+    testSuccessful: 'Test Successful',
+    testResultTitle: 'Test Result',
+    description: 'Description',
+    endpoints: 'Endpoints',
+    noDescription: 'No detailed description available',
+    noEndpoints: 'No API endpoints available',
+    loadingEndpoints: 'Loading endpoints...',
+    endpointDescription: 'Description',
+    queryParams: 'Query Parameters',
+    bodyParams: 'Request Body Parameters',
+    responseExample: 'Response Example',
+    avgResponseTime: 'Average Response Time',
+    successRate: 'Success Rate',
+    endpointStatus: 'Status',
+    active: 'Active',
+    inactive: 'Inactive',
+    calls: 'calls'
   },
 
   apiProvider: {
@@ -686,7 +756,19 @@ export const en: Translations = {
       responseTimeHelper: 'Expected API response time in milliseconds (optional)',
       tagsHelper: 'Tags (max 5)',
       // Auth messages
-      loginPrompt: 'Please log in first to publish API'
+      loginPrompt: 'Please log in first to publish API',
+      // API文档模板
+      apiDocsPlaceholder: `# API Documentation
+
+## Overview
+Describe your API functionality...
+
+## Authentication
+Describe authentication method...
+
+## Endpoints
+### GET /endpoint
+Describe endpoint usage...`
     },
     edit: {
       title: 'Edit API',
@@ -849,7 +931,9 @@ Describe endpoint usage...`,
     endpointPathPlaceholder: '/example/path',
     endpointDescPlaceholder: 'Endpoint description...',
     jsonFormatNote: 'Please use standard JSON format with property names in double quotes',
-    saving: 'Saving...'
+    saving: 'Saving...',
+    // 验证错误消息
+    dataFormatError: 'Endpoint data format is abnormal, this may be caused by backend data incompatibility. Please contact the administrator to check data integrity.'
   },
 
   validation: {
@@ -879,6 +963,12 @@ Describe endpoint usage...`,
     apiCreateSuccess: 'API published successfully!',
     apiCreateSuccessDraft: 'API created successfully! API is in draft status, can be further edited.',
     apiApprovalSuccess: 'API approved successfully!',
+    apiSetToPublic: 'API set to public',
+    apiSetToPrivate: 'API set to private',
+    apiUpdateFailed: 'Failed to update API status',
+    // API状态切换提示
+    clickToSetPrivate: 'Click to set as private',
+    clickToSetPublic: 'Click to set as public',
     // Auth related
     emailAlreadyExists: 'This email is already registered, please use another email or try logging in',
     passwordWeak: 'Password is too weak, please choose a stronger password',
@@ -1030,7 +1120,8 @@ export const zh: Translations = {
     viewDetails: '查看详情',
     totalCount: '已显示全部 {count} 个API服务',
     apiMarketIntro: '发现和集成强大的API，加速您的开发进程',
-    usageCount: '已调用 {count} 次'
+    usageCount: '已调用 {count} 次',
+    noApiServices: '暂无API服务'
   },
   
   profile: {
@@ -1102,7 +1193,36 @@ export const zh: Translations = {
     copyFailed: '复制失败，请手动选择文本复制',
     testCompleted: 'API测试完成',
     copy: '复制',
-    copied: '已复制'
+    copied: '已复制',
+    // 新增字段
+    overview: '概览',
+    status: '状态',
+    serviceStatus: '服务状态',
+    activeService: '服务正常',
+    inactiveService: '服务暂停',
+    deprecatedService: '已弃用',
+    testApiModal: '测试 {name}',
+    testApiDescription: '输入您的API密钥来测试此API',
+    startTest: '开始测试',
+    testKey: 'API密钥',
+    testKeyNote: '您的API密钥将用于测试，不会被存储',
+    testSuccessful: '测试成功',
+    testResultTitle: '测试结果',
+    description: '描述',
+    endpoints: '端点',
+    noDescription: '暂无详细描述',
+    noEndpoints: '暂无API端点',
+    loadingEndpoints: '加载端点中...',
+    endpointDescription: '描述',
+    queryParams: '查询参数',
+    bodyParams: '请求体参数',
+    responseExample: '响应示例',
+    avgResponseTime: '平均响应时间',
+    successRate: '成功率',
+    endpointStatus: '状态',
+    active: '活跃',
+    inactive: '已停用',
+    calls: '次调用'
   },
 
   apiProvider: {
@@ -1161,7 +1281,19 @@ export const zh: Translations = {
       responseTimeHelper: 'API预期响应时间，单位为毫秒（可选）',
       tagsHelper: '标签 (最多5个)',
       // Auth messages
-      loginPrompt: '请先登录以发布API'
+      loginPrompt: '请先登录以发布API',
+      // API文档模板
+      apiDocsPlaceholder: `# API 文档
+
+## 概述
+描述您的API功能...
+
+## 认证
+描述认证方式...
+
+## 端点
+### GET /endpoint
+描述端点用法...`
     },
     edit: {
       title: '编辑API',
@@ -1324,7 +1456,9 @@ export const zh: Translations = {
     endpointPathPlaceholder: '/example/path',
     endpointDescPlaceholder: '端点描述...',
     jsonFormatNote: '请使用标准JSON格式，属性名需用双引号',
-    saving: '保存中...'
+    saving: '保存中...',
+    // 验证错误消息
+    dataFormatError: '端点数据格式异常，这可能是由于后端数据不兼容导致的。请联系管理员检查数据完整性。'
   },
 
   validation: {
@@ -1354,6 +1488,12 @@ export const zh: Translations = {
     apiCreateSuccess: 'API发布成功！',
     apiCreateSuccessDraft: 'API发布成功！API处于草稿状态，可以进一步编辑完善。',
     apiApprovalSuccess: 'API审核通过成功!',
+    apiSetToPublic: 'API已设为公开',
+    apiSetToPrivate: 'API已设为私有',
+    apiUpdateFailed: '更新API状态失败',
+    // API状态切换提示
+    clickToSetPrivate: '点击设为私有',
+    clickToSetPublic: '点击设为公开',
     // 认证相关
     emailAlreadyExists: '该邮箱已被注册，请使用其他邮箱或尝试登录',
     passwordWeak: '密码强度不够，请选择更强的密码',

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
+import { dataManager } from '@/lib/data-manager'
 import { publishUserAPI } from '@/services/user-api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 
@@ -92,22 +93,62 @@ export default function UserAPICreateSection() {
     try {
       setSubmitting(true)
       
-      const submitData = {
-        ...data,
+      // 构建提交数据，过滤掉空字符串的可选字段
+      const submitData: any = {
+        name: data.name,
+        slug: data.slug,
+        short_description: data.short_description,
+        category: data.category,
+        base_url: data.base_url,
         tags: tags,
-        // 用户发布的API默认为草稿状态，不公开
-        status: 'draft',
+        // 用户发布的API默认不公开
         is_public: false,
       }
 
-      console.log('提交用户API发布:', submitData)
+      // 可选字段：只有不为空时才添加
+      if (data.long_description && data.long_description.trim()) {
+        submitData.long_description = data.long_description
+      }
+      
+      if (data.health_check_url && data.health_check_url.trim()) {
+        submitData.health_check_url = data.health_check_url
+      }
+
+      if (data.estimated_response_time && data.estimated_response_time > 0) {
+        submitData.estimated_response_time = data.estimated_response_time
+      }
+      
+      if (data.website_url && data.website_url.trim()) {
+        submitData.website_url = data.website_url
+      }
+      
+      if (data.documentation_url && data.documentation_url.trim()) {
+        submitData.documentation_url = data.documentation_url
+      }
+      
+      if (data.terms_url && data.terms_url.trim()) {
+        submitData.terms_url = data.terms_url
+      }
+      
+      if (data.documentation_markdown && data.documentation_markdown.trim()) {
+        submitData.documentation_markdown = data.documentation_markdown
+      }
+
+      console.log('🚀 [创建API] 请求数据:', JSON.stringify(submitData, null, 2))
       
       const response = await publishUserAPI(submitData)
       
+      console.log('✅ [创建API] 返回数据:', JSON.stringify(response, null, 2))
+      
+      // 清除用户API列表缓存，确保跳转后显示最新数据
+      dataManager.clearCache('user-apis')
+      
       toast.success(t.toast.apiCreateSuccessDraft)
       
-      // 返回到API Provider页面
-      router.push('/api-provider')
+      // 延迟跳转，确保Toast显示完成
+      setTimeout(() => {
+        router.push('/api-provider')
+      }, 800)
       
     } catch (error: unknown) {
       console.error('发布API失败:', error)
@@ -263,7 +304,9 @@ export default function UserAPICreateSection() {
               </label>
               <Input
                 type="number"
-                {...register('estimated_response_time', { valueAsNumber: true })}
+                {...register('estimated_response_time', { 
+                  setValueAs: (value) => value === '' ? undefined : Number(value) 
+                })}
                 placeholder={t.admin.estimatedResponseTimePlaceholder}
                 className={errors.estimated_response_time ? 'border-destructive' : ''}
               />
@@ -385,17 +428,7 @@ export default function UserAPICreateSection() {
               <textarea
                 {...register('documentation_markdown')}
                 className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none font-mono"
-                placeholder={`# API 文档
-
-## 概述
-描述您的API功能...
-
-## 认证
-描述认证方式...
-
-## 端点
-### GET /endpoint
-描述端点用法...`}
+                placeholder={t.apiProvider.create.apiDocsPlaceholder}
               />
             </div>
           </CardContent>

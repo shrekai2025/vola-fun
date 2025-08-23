@@ -6,22 +6,25 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+
+
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
 import { getMarketAPIDetailBySlug, type MarketAPI } from '@/services/market-api'
+import { getAPIEndpoints, type APIEndpoint } from '@/services/api-endpoints'
 import { 
   ArrowLeft, 
-  Star, 
   Clock, 
-  DollarSign, 
-  Loader2, 
-  AlertCircle, 
+  Loader2,
+  AlertCircle,
   ExternalLink, 
   FileText, 
   Globe,
-  Play,
-  Copy,
-  CheckCircle
+  ChevronDown,
+  ChevronRight,
+  Zap,
+  Activity,
+  Shield
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -37,25 +40,12 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
 
   // 状态管理
   const [api, setApi] = useState<MarketAPI | null>(null)
+  const [endpoints, setEndpoints] = useState<APIEndpoint[]>([])
   const [loading, setLoading] = useState(true)
+  const [endpointsLoading, setEndpointsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [testLoading, setTestLoading] = useState(false)
-  const [apiKey, setApiKey] = useState('vola_test_key_placeholder_12345')
-  const [testResult, setTestResult] = useState<{
-    success: boolean
-    data?: {
-      message: string
-      timestamp: string
-      response_time: string
-      status_code: number
-    }
-    usage?: {
-      credits_used: number
-      remaining_credits: number
-    }
-    error?: string
-  } | null>(null)
-  const [copied, setCopied] = useState(false)
+  const [expandedEndpoints, setExpandedEndpoints] = useState<Set<string>>(new Set())
+  const [activeTab, setActiveTab] = useState('description')
 
   // 格式化响应时间显示
   const formatResponseTime = useCallback((time?: number): string => {
@@ -67,13 +57,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
     }
   }, [])
 
-  // 提取翻译文本，减少useCallback依赖
-  const translations = useMemo(() => ({
-    apiKeyCopied: t.projectDetail.apiKeyCopied,
-    copyFailed: t.projectDetail.copyFailed,
-    testCompleted: t.projectDetail.testCompleted,
-    testFailed: t.projectDetail.testFailed
-  }), [t.projectDetail.apiKeyCopied, t.projectDetail.copyFailed, t.projectDetail.testCompleted, t.projectDetail.testFailed])
+
 
   // 加载API详情
   useEffect(() => {
@@ -104,69 +88,35 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
     }
   }, [slug]) // 移除 toast 依赖
 
+  // 加载API端点列表
+  const loadEndpoints = useCallback(async (apiId: string) => {
+    try {
+      setEndpointsLoading(true)
+      const response = await getAPIEndpoints(apiId)
+      if (response.success) {
+        setEndpoints(response.data)
+      }
+    } catch (error: unknown) {
+      console.error('加载端点列表失败:', error)
+      // 端点加载失败不阻塞页面展示
+    } finally {
+      setEndpointsLoading(false)
+    }
+  }, [])
+
+  // 当API加载完成时，加载端点
+  useEffect(() => {
+    if (api?.id) {
+      loadEndpoints(api.id)
+    }
+  }, [api?.id, loadEndpoints])
+
   // 返回上一页
   const handleBack = useCallback(() => {
     router.back()
   }, [router])
 
-  // 复制API密钥
-  const handleCopyApiKey = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(apiKey)
-      setCopied(true)
-      toast.success(translations.apiKeyCopied)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (_error) {
-      toast.error(translations.copyFailed)
-    }
-  }, [apiKey, translations])
 
-  // 测试API
-  const handleTestAPI = useCallback(async () => {
-    if (!api) return
-    
-    try {
-      setTestLoading(true)
-      
-      // 模拟API测试调用
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // 模拟测试结果
-      const mockResult = {
-        success: true,
-        data: {
-          message: "API测试成功",
-          timestamp: new Date().toISOString(),
-          response_time: "245ms",
-          status_code: 200
-        },
-        usage: {
-          credits_used: 1,
-          remaining_credits: 9999
-        }
-      }
-      
-      setTestResult(mockResult)
-      toast.success(translations.testCompleted)
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : translations.testFailed
-      setTestResult({
-        success: false,
-        error: errorMessage
-      })
-      toast.error(translations.testFailed)
-    } finally {
-      setTestLoading(false)
-    }
-  }, [api, translations])
-
-  // 格式化价格显示
-  const formatPrice = useCallback((totalCalls: number): string => {
-    if (totalCalls === 0) return '免费试用'
-    if (totalCalls < 1000) return `¥0.01/次`
-    if (totalCalls < 10000) return `¥0.005/次`
-    return `¥0.002/次`
-  }, [])
 
   // 格式化调用次数
   const formatUsageCount = useCallback((count: number): string => {
@@ -174,6 +124,66 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
     if (count < 1000000) return `${(count / 1000).toFixed(1)}K`
     return `${(count / 1000000).toFixed(1)}M`
   }, [])
+
+  // 切换端点展开状态
+  const toggleEndpoint = useCallback((endpointId: string) => {
+    setExpandedEndpoints(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(endpointId)) {
+        newSet.delete(endpointId)
+      } else {
+        newSet.add(endpointId)
+      }
+      return newSet
+    })
+  }, [])
+
+  // 获取HTTP方法的样式
+  const getMethodStyle = useCallback((method: string) => {
+    switch (method.toLowerCase()) {
+      case 'get':
+        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+      case 'post':
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800'
+      case 'put':
+        return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800'
+      case 'patch':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
+      case 'delete':
+        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700'
+    }
+  }, [])
+
+  // 检查是否有有效的相关链接
+  const hasRelatedLinks = useMemo(() => {
+    if (!api) return false
+    return !!(api.documentation_url || api.website_url || api.terms_url || api.health_check_url)
+  }, [api])
+
+  // 格式化日期
+  const formatDate = useCallback((dateString: string) => {
+    return new Date(dateString).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }, [])
+
+  // 获取服务状态显示
+  const getStatusInfo = useCallback((status: string) => {
+    switch (status) {
+      case 'published':
+        return { text: t.projectDetail.activeService, color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' }
+      case 'draft':
+        return { text: 'Draft', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' }
+      case 'deprecated':
+        return { text: t.projectDetail.deprecatedService, color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }
+      default:
+        return { text: 'Unknown', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' }
+    }
+  }, [t.projectDetail])
 
   // 加载状态
   if (loading) {
@@ -225,279 +235,281 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
 
       <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
         {/* 左侧主要内容 */}
-        <div className="lg:col-span-2 space-y-4 lg:space-y-6">
-          {/* API头部信息 */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* API简介板块 */}
           <Card>
             <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center space-x-4">
-                  {api.avatar_url && (
-                    <Image
-                      src={api.avatar_url}
-                      alt={api.name}
-                      width={64}
-                      height={64}
-                      className="rounded-lg"
-                    />
-                  )}
-                  <div>
-                    <CardTitle className="text-2xl">{api.name}</CardTitle>
-                    <CardDescription className="text-base mt-1">
-                      {api.short_description}
-                    </CardDescription>
+              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                {/* 左侧基本信息 */}
+                <div className="flex-1">
+                  <div className="flex items-start space-x-4">
+                    {api.avatar_url && (
+                      <Image
+                        src={api.avatar_url}
+                        alt={api.name}
+                        width={64}
+                        height={64}
+                        className="rounded-lg flex-shrink-0"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-2xl font-bold mb-2">{api.name}</CardTitle>
+                      <CardDescription className="text-base mb-4">
+                        {api.short_description}
+                      </CardDescription>
+                      
+                      {/* 状态、分类、标签、统计信息 */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge 
+                          variant="outline" 
+                          className={`text-sm ${getStatusInfo(api.status).color}`}
+                        >
+                          <Shield className="h-3 w-3 mr-1" />
+                          {getStatusInfo(api.status).text}
+                        </Badge>
+                        <Badge variant="secondary" className="text-sm">
+                          {api.category}
+                        </Badge>
+                        {api.tags && api.tags.length > 0 && api.tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-sm">
+                            {tag}
+                          </Badge>
+                        ))}
+                        
+                        {/* 统计信息 */}
+                        <div className="flex items-center gap-3 ml-2">
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>~200ms</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Activity className="h-3 w-3" />
+                            <span>{formatUsageCount(api.total_calls)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-4">
-                  {api.rating && api.rating > 0 && (
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-5 w-5 fill-warning text-warning" />
-                      <span className="font-medium">{api.rating.toFixed(1)}</span>
+                
+              </div>
+            </CardHeader>
+            
+
+          </Card>
+
+
+
+          {/* Description和Endpoints切换标签 */}
+          <div className="space-y-6">
+            {/* 自定义Tab切换器 */}
+            <div className="border-b border-border">
+              <div className="flex space-x-8">
+                <button
+                  onClick={() => setActiveTab('description')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === 'description'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  }`}
+                >
+                  {t.projectDetail.description}
+                </button>
+                <button
+                  onClick={() => setActiveTab('endpoints')}
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                    activeTab === 'endpoints'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                  }`}
+                >
+                  {t.projectDetail.endpoints}
+                  <Zap className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+
+            {/* Tab内容 */}
+            <div className="min-h-[200px]">
+              {activeTab === 'description' && (
+                <div>
+                  {api.documentation_markdown ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {api.documentation_markdown}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>{t.projectDetail.noDescription}</p>
                     </div>
                   )}
-                  <Badge variant="secondary" className="text-sm">
-                    {api.category}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* 标签 */}
-              {api.tags && api.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-4">
-                  {api.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
                 </div>
               )}
-            </CardHeader>
-          </Card>
-
-          {/* 详细描述 */}
-          {api.documentation_markdown && (
-            <Card>
-              <CardHeader>
-                              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 mr-2" />
-                {t.projectDetail.apiDescription}
-              </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {api.documentation_markdown}
-                  </p>
+              
+              {activeTab === 'endpoints' && (
+                <div>
+                  {endpointsLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                      <span className="text-muted-foreground">{t.projectDetail.loadingEndpoints}</span>
+                    </div>
+                  ) : endpoints.length > 0 ? (
+                    <div className="space-y-4">
+                      {endpoints.map((endpoint) => (
+                        <div key={endpoint.id} className="border rounded-lg">
+                          <div 
+                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                            onClick={() => toggleEndpoint(endpoint.id)}
+                          >
+                            <div className="flex items-center gap-3 flex-1">
+                              {expandedEndpoints.has(endpoint.id) ? (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              )}
+                              <Badge 
+                                variant="outline" 
+                                className={`${getMethodStyle(endpoint.method)} text-xs font-mono`}
+                              >
+                                {endpoint.method.toUpperCase()}
+                              </Badge>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{endpoint.path}</p>
+                                <p className="text-sm text-muted-foreground truncate">{endpoint.name}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span>${endpoint.price_per_call}/{t.projectDetail.calls}</span>
+                                <span>{formatUsageCount(endpoint.total_calls)} {t.projectDetail.calls}</span>
+                              </div>
+                          </div>
+                          
+                          {expandedEndpoints.has(endpoint.id) && (
+                            <div className="border-t bg-muted/20 p-4">
+                              <div className="space-y-4">
+                                <div>
+                                  <h4 className="font-medium mb-2">{t.projectDetail.endpointDescription}</h4>
+                                  <p className="text-sm text-muted-foreground">{endpoint.description || t.projectDetail.noDescription}</p>
+                                </div>
+                                
+                                {endpoint.query_params && Object.keys(endpoint.query_params).length > 0 && (
+                                  <div>
+                                    <h4 className="font-medium mb-2">{t.projectDetail.queryParams}</h4>
+                                    <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
+                                      {JSON.stringify(endpoint.query_params, null, 2)}
+                                    </pre>
+                                  </div>
+                                )}
+                                
+                                {endpoint.body_params && Object.keys(endpoint.body_params).length > 0 && (
+                                  <div>
+                                    <h4 className="font-medium mb-2">{t.projectDetail.bodyParams}</h4>
+                                    <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
+                                      {JSON.stringify(endpoint.body_params, null, 2)}
+                                    </pre>
+                                  </div>
+                                )}
+                                
+                                {endpoint.response_body && Object.keys(endpoint.response_body).length > 0 && (
+                                  <div>
+                                    <h4 className="font-medium mb-2">{t.projectDetail.responseExample}</h4>
+                                    <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
+                                      {JSON.stringify(endpoint.response_body, null, 2)}
+                                    </pre>
+                                  </div>
+                                )}
+                                
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2 border-t">
+                                  {endpoint.avg_response_time && endpoint.avg_response_time > 0 && (
+                                    <span>{t.projectDetail.avgResponseTime}: {endpoint.avg_response_time}ms</span>
+                                  )}
+                                  {endpoint.success_rate !== null && endpoint.success_rate !== undefined && (
+                                    <span>{t.projectDetail.successRate}: {(endpoint.success_rate * 100).toFixed(1)}%</span>
+                                  )}
+                                  <span>{t.projectDetail.endpointStatus}: {endpoint.is_active ? t.projectDetail.active : t.projectDetail.inactive}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Zap className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>{t.projectDetail.noEndpoints}</p>
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* API测试 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Play className="h-5 w-5 mr-2" />
-                {t.projectDetail.apiTest}
-              </CardTitle>
-              <CardDescription>
-                {t.projectDetail.apiTestDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* API密钥输入 */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t.projectDetail.apiKeyLabel}</label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={t.projectDetail.apiKeyPlaceholder}
-                    className="flex-1 min-w-0"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyApiKey}
-                    className="sm:shrink-0 w-full sm:w-auto"
-                  >
-                    {copied ? (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        {t.projectDetail.copied}
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-2" />
-                        {t.projectDetail.copy}
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t.projectDetail.apiKeyNote}
-                </p>
-              </div>
-
-              {/* 测试按钮 */}
-              <Button 
-                onClick={handleTestAPI} 
-                disabled={testLoading || !apiKey.trim()}
-                className="w-full sm:w-auto"
-              >
-                {testLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {t.projectDetail.testing}
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4 mr-2" />
-                    {t.projectDetail.testButton}
-                  </>
-                )}
-              </Button>
-
-              {/* 测试结果 */}
-              {testResult && (
-                <Card className={`mt-4 ${testResult.success ? 'border-success' : 'border-destructive'}`}>
-                  <CardHeader>
-                    <CardTitle className="text-sm flex items-center">
-                      {testResult.success ? (
-                        <CheckCircle className="h-4 w-4 mr-2 text-success" />
-                      ) : (
-                        <AlertCircle className="h-4 w-4 mr-2 text-destructive" />
-                      )}
-                      {t.projectDetail.testResult}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <pre className="text-xs bg-muted p-3 rounded overflow-x-auto">
-                      {JSON.stringify(testResult, null, 2)}
-                    </pre>
-                  </CardContent>
-                </Card>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* 右侧边栏 */}
-        <div className="space-y-4 lg:space-y-6">
-          {/* 统计信息 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t.projectDetail.statistics}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{t.projectDetail.price}</span>
-                </div>
-                <span className="font-medium">{formatPrice(api.total_calls)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{t.projectDetail.responseTime}</span>
-                </div>
-                <span className="font-medium">{formatResponseTime(api.estimated_response_time)}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{t.projectDetail.totalCalls}</span>
-                <span className="font-medium">{formatUsageCount(api.total_calls)}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{t.projectDetail.totalRevenue}</span>
-                <span className="font-medium">¥{api.total_revenue.toFixed(2)}</span>
-              </div>
-
-              {api.status === 'published' && (
-                <div className="pt-2">
-                  <Badge variant="secondary" className="w-full justify-center">
-                    {t.projectDetail.serviceAvailable}
-                  </Badge>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* 相关链接 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t.projectDetail.relatedLinks}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {api.documentation_url && (
-                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                  <Link href={api.documentation_url} target="_blank">
-                    <FileText className="h-4 w-4 mr-2" />
-                    {t.projectDetail.viewDocs}
-                    <ExternalLink className="h-3 w-3 ml-auto" />
-                  </Link>
-                </Button>
-              )}
-
-              {api.website_url && (
-                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                  <Link href={api.website_url} target="_blank">
-                    <Globe className="h-4 w-4 mr-2" />
-                    {t.projectDetail.officialWebsite}
-                    <ExternalLink className="h-3 w-3 ml-auto" />
-                  </Link>
-                </Button>
-              )}
-
-              {api.terms_url && (
-                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                  <Link href={api.terms_url} target="_blank">
-                    <FileText className="h-4 w-4 mr-2" />
-                    {t.projectDetail.termsOfService}
-                    <ExternalLink className="h-3 w-3 ml-auto" />
-                  </Link>
-                </Button>
-              )}
-
-              {api.health_check_url && (
-                <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                  <Link href={api.health_check_url} target="_blank">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {t.projectDetail.healthCheck}
-                    <ExternalLink className="h-3 w-3 ml-auto" />
-                  </Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
+        <div className="space-y-6">
+          {/* Related Links板块 */}
+                            {hasRelatedLinks && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">{t.projectDetail.relatedLinks}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {api.documentation_url && (
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <Link href={api.documentation_url} target="_blank">
+                      <FileText className="h-4 w-4 mr-2" />
+                      {t.projectDetail.viewDocs}
+                      <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Link>
+                  </Button>
+                )}
+                {api.website_url && (
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <Link href={api.website_url} target="_blank">
+                      <Globe className="h-4 w-4 mr-2" />
+                      {t.projectDetail.officialWebsite}
+                      <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Link>
+                  </Button>
+                )}
+                {api.terms_url && (
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <Link href={api.terms_url} target="_blank">
+                      <FileText className="h-4 w-4 mr-2" />
+                      {t.projectDetail.termsOfService}
+                      <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Link>
+                  </Button>
+                )}
+                {api.health_check_url && (
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <Link href={api.health_check_url} target="_blank">
+                      <Activity className="h-4 w-4 mr-2" />
+                      {t.projectDetail.healthCheck}
+                      <ExternalLink className="h-3 w-3 ml-auto" />
+                    </Link>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          
           {/* 基本信息 */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t.projectDetail.basicInfo}</CardTitle>
-            </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t.projectDetail.createdAt}</span>
-                <span>{new Date(api.created_at).toLocaleDateString('zh-CN')}</span>
+                <span>{formatDate(api.created_at)}</span>
               </div>
               
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t.projectDetail.updatedAt}</span>
-                <span>{new Date(api.updated_at).toLocaleDateString('zh-CN')}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t.projectDetail.apiId}</span>
-                <span className="font-mono text-xs">{api.id}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t.projectDetail.accessPermission}</span>
-                <span>{api.is_public ? t.projectDetail.publicAccess : t.projectDetail.privateAccess}</span>
+                <span>{formatDate(api.updated_at)}</span>
               </div>
             </CardContent>
           </Card>

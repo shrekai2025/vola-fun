@@ -338,7 +338,7 @@ export interface UseDataResult<T> {
   data: T | null
   loading: boolean
   error: string | null
-  refresh: () => Promise<void>
+  refresh: (forceRefresh?: boolean) => Promise<void>
 }
 
 /**

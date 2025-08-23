@@ -9,7 +9,8 @@ import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
 import { useUserCache } from '@/hooks/useUserCache'
 import { useUserAPIList } from '@/hooks/useUnifiedData'
-import { deleteUserAPI } from '@/services/user-api'
+import { deleteUserAPI, updateUserAPI, clearUserIdCache } from '@/services/user-api'
+import { dataManager } from '@/lib/data-manager'
 import type { MarketAPI } from '@/services/market-api'
 import type { GetUserAPIsParams } from '@/services/user-api'
 import { Plus, Eye, Edit, Trash2, Info } from 'lucide-react'
@@ -58,6 +59,7 @@ const getStatusText = (status: string, t: any) => {
 
 export default function UserAPIListSection() {
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [updating, setUpdating] = useState<string | null>(null)
   const { t } = useTranslation()
   const toast = useToast()
   const { isLoggedIn, loading: userLoading } = useUserCache()
@@ -90,8 +92,8 @@ export default function UserAPIListSection() {
       setDeleting(apiId)
       await deleteUserAPI(apiId)
       
-      // 刷新API列表以反映删除结果
-      await refreshAPIs()
+      // 刷新API列表以反映删除结果（强制不使用缓存）
+      await refreshAPIs(true)
       toast.success(t.toast.apiDeleteSuccess)
     } catch (error: unknown) {
       console.error('删除API失败', error)
@@ -101,6 +103,24 @@ export default function UserAPIListSection() {
       setDeleting(null)
     }
   }, [refreshAPIs, toast, t])
+
+  // 切换API公开状态
+  const handleTogglePublic = useCallback(async (apiId: string, currentPublic: boolean) => {
+    try {
+      setUpdating(apiId)
+      await updateUserAPI(apiId, { is_public: !currentPublic })
+      
+      // 刷新API列表以反映更新结果
+      await refreshAPIs(true)
+      toast.success(currentPublic ? t.toast.apiSetToPrivate : t.toast.apiSetToPublic)
+    } catch (error: unknown) {
+      console.error('更新API状态失败', error)
+      const errorMessage = error instanceof Error ? error.message : t.toast.apiUpdateFailed
+      toast.error(`${t.toast.apiUpdateFailed}：${errorMessage}`)
+    } finally {
+      setUpdating(null)
+    }
+  }, [refreshAPIs, toast])
 
   // useUserAPIList Hook会自动处理数据加载，无需手动useEffect
 
@@ -154,7 +174,23 @@ export default function UserAPIListSection() {
           <p className="text-muted-foreground mb-6 max-w-md">
             {error}
           </p>
-          <Button onClick={refreshAPIs}>{t.projectDetail.retry}</Button>
+          <div className="flex gap-2">
+            <Button onClick={() => refreshAPIs()} variant="default">
+              {t.projectDetail.retry}
+            </Button>
+            <Button 
+              onClick={() => {
+                // 清除所有相关缓存并重试
+                clearUserIdCache()
+                dataManager.clearCache('user-apis')
+                dataManager.clearCache('user-info')
+                refreshAPIs(true)
+              }}
+              variant="outline"
+            >
+              清除缓存重试
+            </Button>
+          </div>
         </div>
       ) :
       /* 加载状态 - 使用骨架屏 */
@@ -219,6 +255,26 @@ export default function UserAPIListSection() {
                         {api.category.replace('_', '/')}
                       </Badge>
                     </div>
+                  </div>
+                  
+                  {/* Switch for is_public */}
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleTogglePublic(api.id, api.is_public || false)}
+                      disabled={updating === api.id}
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                        api.is_public 
+                          ? 'bg-primary' 
+                          : 'bg-muted-foreground/20'
+                      } ${updating === api.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      title={api.is_public ? t.toast.clickToSetPrivate : t.toast.clickToSetPublic}
+                    >
+                      <span
+                        className={`inline-block h-3 w-3 transform rounded-full bg-background transition-transform ${
+                          api.is_public ? 'translate-x-5' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
                   </div>
                 </div>
               </CardHeader>

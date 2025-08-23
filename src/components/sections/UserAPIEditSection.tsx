@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
+import { dataManager } from '@/lib/data-manager'
 import { getUserAPI, updateUserAPI } from '@/services/user-api'
 import type { MarketAPI } from '@/services/market-api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
@@ -175,10 +176,15 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
       
       await updateUserAPI(apiId, updateData)
       
+      // 清除用户API列表缓存，确保跳转后显示最新数据
+      dataManager.clearCache('user-apis')
+      
       toast.success(t.apiProvider.edit.saveChanges + ' ' + t.common.success)
       
-      // 返回到API Provider页面
-      router.push('/api-provider')
+      // 延迟跳转，确保Toast显示完成
+      setTimeout(() => {
+        router.push('/api-provider')
+      }, 800)
       
     } catch (error: unknown) {
       console.error('更新API失败:', error)
@@ -360,7 +366,9 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
               </label>
               <Input
                 type="number"
-                {...register('estimated_response_time', { valueAsNumber: true })}
+                {...register('estimated_response_time', { 
+                  setValueAs: (value) => value === '' ? undefined : Number(value) 
+                })}
                 placeholder={t.admin.estimatedResponseTimePlaceholder}
                 className={errors.estimated_response_time ? 'border-destructive' : ''}
               />
