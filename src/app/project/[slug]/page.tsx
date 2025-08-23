@@ -8,7 +8,7 @@ export default function ProjectDetailPage() {
   const slug = params.slug as string
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className='min-h-screen bg-background'>
       <ProjectDetailSection slug={slug} />
     </div>
   )

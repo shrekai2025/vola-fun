@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -17,7 +16,7 @@ import type { EmailFormData, FirebaseAuthError } from '@/types/auth'
 
 // 表单验证 Schema
 const emailSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址')
+  email: z.string().email('请输入有效的邮箱地址'),
 })
 
 /**
@@ -34,7 +33,7 @@ export function EmailStep() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EmailFormData>({
-    resolver: zodResolver(emailSchema)
+    resolver: zodResolver(emailSchema),
   })
 
   // Google 登录成功处理
@@ -52,18 +51,18 @@ export function EmailStep() {
       await signInWithEmailAndPassword(auth, data.email, '123456789')
     } catch (error) {
       const firebaseError = error as FirebaseAuthError
-      
+
       if (firebaseError.code === 'auth/user-not-found') {
         // 用户不存在，跳转到注册表单
-        setAuthModal({ 
+        setAuthModal({
           step: 'signup',
-          email: data.email 
+          email: data.email,
         })
       } else if (firebaseError.code === 'auth/wrong-password') {
         // 用户存在但密码错误，跳转到登录表单
-        setAuthModal({ 
+        setAuthModal({
           step: 'login',
-          email: data.email 
+          email: data.email,
         })
       } else if (firebaseError.code === 'auth/invalid-email') {
         toast.error('邮箱格式不正确')
@@ -79,43 +78,41 @@ export function EmailStep() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Google 登录按钮 */}
       <GoogleAuthButton
         onSuccess={handleGoogleSuccess}
         disabled={isLoading || isSubmitting}
-        mode="popup"
+        mode='popup'
       />
 
       {/* 分隔线 */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+      <div className='relative'>
+        <div className='absolute inset-0 flex items-center'>
+          <span className='w-full border-t' />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">or</span>
+        <div className='relative flex justify-center text-xs uppercase'>
+          <span className='bg-background px-2 text-muted-foreground'>or</span>
         </div>
       </div>
 
       {/* 邮箱输入表单 */}
-      <form onSubmit={handleSubmit(handleEmailContinue)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleEmailContinue)} className='space-y-4'>
         <div>
           <Input
             {...register('email')}
-            type="email"
-            placeholder="Email"
-            className="h-12 text-base"
+            type='email'
+            placeholder='Email'
+            className='h-12 text-base'
             disabled={isLoading || isSubmitting}
           />
-          {errors.email && (
-            <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
-          )}
+          {errors.email && <p className='text-sm text-red-500 mt-1'>{errors.email.message}</p>}
         </div>
 
         <Button
-          type="submit"
+          type='submit'
           disabled={isLoading || isSubmitting}
-          className="w-full h-12 text-base font-medium bg-black text-white hover:bg-gray-800"
+          className='w-full h-12 text-base font-medium bg-black text-white hover:bg-gray-800'
         >
           Continue with Email
         </Button>

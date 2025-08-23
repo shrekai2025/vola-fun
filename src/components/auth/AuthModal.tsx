@@ -2,12 +2,7 @@
 
 import { useAtom } from 'jotai'
 import { authModalAtom, closeAuthModalAtom } from '@/atoms/auth'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmailStep } from './EmailStep'
 import { LoginForm } from './LoginForm'
 import { SignupForm } from './SignupForm'
@@ -53,16 +48,12 @@ export function AuthModal() {
 
   return (
     <Dialog open={authModal.isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="text-center">
-          <DialogTitle className="text-xl font-semibold">
-            {getModalTitle()}
-          </DialogTitle>
+      <DialogContent className='sm:max-w-md'>
+        <DialogHeader className='text-center'>
+          <DialogTitle className='text-xl font-semibold'>{getModalTitle()}</DialogTitle>
         </DialogHeader>
-        
-        <div className="px-2">
-          {renderModalContent()}
-        </div>
+
+        <div className='px-2'>{renderModalContent()}</div>
       </DialogContent>
     </Dialog>
   )

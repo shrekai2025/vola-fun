@@ -9,7 +9,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       // 扩展session对象
       if (session.user) {
-        (session.user as any).id = token.sub!
+        ;(session.user as { id?: string }).id = token.sub!
       }
       return session
     },

@@ -4,22 +4,20 @@
 
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
-import { 
-  userAtom, 
-  isLoggedInAtom, 
-  openAuthModalAtom, 
+import {
+  userAtom,
+  isLoggedInAtom,
+  openAuthModalAtom,
   closeAuthModalAtom,
-  setUserAtom,
   clearAuthAtom,
   initAuthAtom,
   authLoadingAtom,
-  setAuthLoadingAtom
+  setAuthLoadingAtom,
 } from '@/atoms/auth'
 import { TokenManager } from '@/lib/cookie'
-import { AuthAPI } from '@/services/auth-api'
+import { AuthService } from '@/lib/api'
 import FirebaseAuthService from '@/services/firebase-auth'
 import { useToast } from '@/components/ui/toast'
-import { clearUserIdCache } from '@/services/user-api'
 import { dataManager } from '@/lib/data-manager'
 
 /**
@@ -29,7 +27,6 @@ export function useAuth() {
   const [user] = useAtom(userAtom)
   const [isLoggedIn] = useAtom(isLoggedInAtom)
   const [authLoading] = useAtom(authLoadingAtom)
-  const [, setUser] = useAtom(setUserAtom)
   const [, openAuthModal] = useAtom(openAuthModalAtom)
   const [, closeAuthModal] = useAtom(closeAuthModalAtom)
   const [, clearAuth] = useAtom(clearAuthAtom)
@@ -40,20 +37,20 @@ export function useAuth() {
   // 初始化认证状态
   useEffect(() => {
     initAuth()
-    
+
     // 处理 Google 重定向结果
     const handleRedirectResult = async () => {
       try {
         const idToken = await FirebaseAuthService.handleGoogleRedirectResult()
         if (idToken) {
           // 有重定向结果，处理登录
-          const tokenData = await AuthAPI.loginWithFirebaseToken(idToken)
-          
+          const tokenData = await AuthService.login(idToken)
+
           // 存储 tokens
           TokenManager.setTokens({
             accessToken: tokenData.access_token,
             refreshToken: tokenData.refresh_token,
-            tokenType: tokenData.token_type
+            tokenType: tokenData.token_type,
           })
 
           toast.loginSuccess()
@@ -64,15 +61,15 @@ export function useAuth() {
         toast.authError('Google 登录失败，请重试')
       }
     }
-    
+
     handleRedirectResult()
-    
+
     // 监听 Firebase 认证状态变化
     const unsubscribe = FirebaseAuthService.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser && TokenManager.isLoggedIn()) {
         // 用户已登录，可以在这里获取用户信息
         // TODO: 从后端 API 获取完整的用户信息
-        console.log('Firebase user:', firebaseUser)
+        console.debug('Firebase user:', firebaseUser)
       } else if (!firebaseUser) {
         // 用户已登出
         clearAuth()
@@ -80,7 +77,7 @@ export function useAuth() {
     })
 
     return () => unsubscribe()
-  }, [initAuth, clearAuth])
+  }, [initAuth, clearAuth, toast])
 
   /**
    * 打开认证弹窗
@@ -104,7 +101,7 @@ export function useAuth() {
     try {
       // 1. 调用后端登出 API
       try {
-        await AuthAPI.logout()
+        await AuthService.logout()
       } catch (error) {
         console.warn('Backend logout failed:', error)
         // 即使后端登出失败，我们也继续本地清理
@@ -117,11 +114,10 @@ export function useAuth() {
       clearAuth()
 
       // 4. 清除所有缓存数据
-      clearUserIdCache()
       dataManager.secureCleanup()
 
       toast.logoutSuccess()
-      
+
       // 5. 刷新页面
       window.location.reload()
     } catch (error) {
@@ -158,7 +154,7 @@ export function useAuth() {
     user,
     isLoggedIn,
     authLoading,
-    
+
     // 方法
     showAuthModal,
     hideAuthModal,

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AuthAPI } from '@/services/auth-api'
+import { AuthService } from '@/lib/api'
 import { FirebaseAuthService } from '@/services/firebase-auth'
-import { TokenManager } from '@/lib/cookie'
 import { useUserCache } from '@/hooks/useUserCache'
 import { User } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -36,11 +35,11 @@ export default function ProfilePage() {
     const fetchUserInfo = async () => {
       try {
         setLoading(true)
-        const userInfo = await AuthAPI.getUserInfo()
+        const userInfo = await AuthService.getCurrentUser()
         setUser(userInfo)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('获取用户信息失败:', err)
-        setError(err.message || 'Failed to fetch user info')
+        setError(err instanceof Error ? err.message : 'Failed to fetch user info')
       } finally {
         setLoading(false)
       }
@@ -57,7 +56,7 @@ export default function ProfilePage() {
     try {
       // 1. 调用后端登出 API
       try {
-        await AuthAPI.logout()
+        await AuthService.logout()
       } catch (error) {
         console.warn('Backend logout failed:', error)
         // 即使后端登出失败，我们也继续本地清理
@@ -83,13 +82,13 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="h-64 bg-muted rounded"></div>
-              <div className="h-64 bg-muted rounded"></div>
+      <div className='container mx-auto px-4 py-8'>
+        <div className='max-w-4xl mx-auto'>
+          <div className='animate-pulse'>
+            <div className='h-8 bg-muted rounded w-1/4 mb-6' />
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <div className='h-64 bg-muted rounded' />
+              <div className='h-64 bg-muted rounded' />
             </div>
           </div>
         </div>
@@ -99,14 +98,14 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-destructive">
+      <div className='container mx-auto px-4 py-8'>
+        <div className='max-w-4xl mx-auto'>
+          <Card className='border-destructive'>
             <CardHeader>
-              <CardTitle className="text-destructive">{t.errors.userInfoFailed}</CardTitle>
+              <CardTitle className='text-destructive'>{t('errors.userInfoFailed')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{error}</p>
+              <p className='text-muted-foreground'>{error}</p>
             </CardContent>
           </Card>
         </div>
@@ -115,56 +114,55 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Profile</h1>
-          <div className="flex items-center space-x-2">
-            <LanguageSelector variant="outline" size="sm" showLabel />
-            <ThemeToggleWithLabel variant="outline" size="sm" />
+    <div className='container mx-auto px-4 py-8'>
+      <div className='max-w-6xl mx-auto'>
+        <div className='flex justify-between items-center mb-8'>
+          <h1 className='text-3xl font-bold text-foreground'>Profile</h1>
+          <div className='flex items-center space-x-2'>
+            <LanguageSelector variant='outline' size='sm' showLabel />
+            <ThemeToggleWithLabel variant='outline' size='sm' />
             <Button
-              variant="destructive"
-              size="sm"
+              variant='destructive'
+              size='sm'
               onClick={handleLogout}
               disabled={logoutLoading}
-              className="flex items-center gap-2"
+              className='flex items-center gap-2'
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className='h-4 w-4' />
               {logoutLoading ? 'Logging out...' : 'Log out'}
             </Button>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className='space-y-6'>
           {/* 用户信息卡片 */}
           <Card>
-            <CardContent className="px-6">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-16 w-16">
+            <CardContent className='px-6'>
+              <div className='flex items-center space-x-4'>
+                <Avatar className='h-16 w-16'>
                   <AvatarImage src={user?.avatar_url} alt={user?.full_name || 'User'} />
-                  <AvatarFallback className="bg-muted text-foreground text-lg font-semibold">
-                    {user?.full_name?.charAt(0) || user?.username?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                  <AvatarFallback className='bg-muted text-foreground text-lg font-semibold'>
+                    {user?.full_name?.charAt(0) ||
+                      user?.username?.charAt(0) ||
+                      user?.email?.charAt(0) ||
+                      'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 space-y-2">
-                  <h2 className="text-xl font-semibold text-foreground">
+                <div className='flex-1 space-y-2'>
+                  <h2 className='text-xl font-semibold text-foreground'>
                     {user?.full_name || user?.username || 'USERNAME'}
                   </h2>
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <span className="text-sm">Email</span>
-                      <span className="text-foreground">{user?.email || 'a2424234@gmail.com'}</span>
+                  <div className='space-y-1'>
+                    <div className='flex items-center space-x-2 text-muted-foreground'>
+                      <span className='text-sm'>Email</span>
+                      <span className='text-foreground'>{user?.email || 'a2424234@gmail.com'}</span>
                     </div>
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <span className="text-sm">Plan</span>
-                      <Badge variant="secondary" className="bg-muted text-foreground">
-                        {user?.plan === 'basic' ? 'Free' : (user?.plan || 'Free')}
+                    <div className='flex items-center space-x-2 text-muted-foreground'>
+                      <span className='text-sm'>Plan</span>
+                      <Badge variant='secondary' className='bg-muted text-foreground'>
+                        {user?.plan === 'basic' ? 'Free' : user?.plan || 'Free'}
                       </Badge>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="ml-2 h-6 px-2 text-xs"
-                      >
+                      <Button variant='outline' size='sm' className='ml-2 h-6 px-2 text-xs'>
                         Manage Subscription
                       </Button>
                     </div>
@@ -176,15 +174,15 @@ export default function ProfilePage() {
 
           {/* 信用额度卡片 */}
           <Card>
-            <CardContent className="px-6">
-              <div className="grid grid-cols-2 gap-6">
+            <CardContent className='px-6'>
+              <div className='grid grid-cols-2 gap-6'>
                 <div>
-                  <p className="text-muted-foreground text-sm mb-1">Remaining Credit</p>
-                  <p className="text-2xl font-semibold text-foreground">1,245</p>
+                  <p className='text-muted-foreground text-sm mb-1'>Remaining Credit</p>
+                  <p className='text-2xl font-semibold text-foreground'>1,245</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-sm mb-1">Extra Credit</p>
-                  <p className="text-2xl font-semibold text-foreground">1,245</p>
+                  <p className='text-muted-foreground text-sm mb-1'>Extra Credit</p>
+                  <p className='text-2xl font-semibold text-foreground'>1,245</p>
                 </div>
               </div>
             </CardContent>
@@ -195,28 +193,38 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle>Call log</CardTitle>
             </CardHeader>
-            <CardContent className="py-4">
-              <div className="overflow-x-auto">
-                <table className="w-full">
+            <CardContent className='py-4'>
+              <div className='overflow-x-auto'>
+                <table className='w-full'>
                   <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-3 text-sm font-medium text-muted-foreground">Date</th>
-                      <th className="text-left py-3 text-sm font-medium text-muted-foreground">API Name</th>
-                      <th className="text-left py-3 text-sm font-medium text-muted-foreground">Result</th>
-                      <th className="text-left py-3 text-sm font-medium text-muted-foreground">Cost</th>
+                    <tr className='border-b border-border'>
+                      <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
+                        Date
+                      </th>
+                      <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
+                        API Name
+                      </th>
+                      <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
+                        Result
+                      </th>
+                      <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
+                        Cost
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {mockCallLogs.map((log, index) => (
-                      <tr key={index} className="border-b border-border/50">
-                        <td className="py-3 text-sm text-muted-foreground">{log.date}</td>
-                        <td className="py-3 text-sm text-foreground">{log.apiName}</td>
-                        <td className="py-3 text-sm">
-                          <span className={`${log.result === 'Success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                      <tr key={index} className='border-b border-border/50'>
+                        <td className='py-3 text-sm text-muted-foreground'>{log.date}</td>
+                        <td className='py-3 text-sm text-foreground'>{log.apiName}</td>
+                        <td className='py-3 text-sm'>
+                          <span
+                            className={`${log.result === 'Success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                          >
                             {log.result}
                           </span>
                         </td>
-                        <td className="py-3 text-sm text-muted-foreground">{log.cost}</td>
+                        <td className='py-3 text-sm text-muted-foreground'>{log.cost}</td>
                       </tr>
                     ))}
                   </tbody>

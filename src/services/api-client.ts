@@ -1,7 +1,8 @@
 // API 客户端配置 - 带有认证拦截器
 
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios'
-import type { ApiResponse, TokenData, RefreshTokenResponse } from '@/types/auth'
+import type { ApiResponse, RefreshTokenResponse } from '@/types/auth'
+import type { RequestConfig } from '@/lib/api/types'
 import { TokenManager } from '@/lib/cookie'
 // import Toast from '@/components/ui/toast'  // 不再使用Toast类，改为组件层面处理
 
@@ -9,9 +10,12 @@ import { TokenManager } from '@/lib/cookie'
 // 🔧 调试开关：设置为true直接请求后端，false使用代理
 const USE_DIRECT_API = false // 开发环境调试开关
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? (USE_DIRECT_API ? 'https://api.vola.fun' : '/api/proxy') // 开发环境：直接访问或使用代理
-  : '/api/proxy' // 🔧 生产环境使用代理避免CORS问题
+const API_BASE_URL =
+  process.env.NODE_ENV === 'development'
+    ? USE_DIRECT_API
+      ? 'https://api.vola.fun'
+      : '/api/proxy' // 开发环境：直接访问或使用代理
+    : '/api/proxy' // 🔧 生产环境使用代理避免CORS问题
 const REQUEST_TIMEOUT = 30000 // 30秒超时
 
 // 创建 Axios 实例
@@ -27,11 +31,11 @@ const apiClient: AxiosInstance = axios.create({
 let isRefreshing = false
 let failedQueue: Array<{
   resolve: (token: string) => void
-  reject: (error: any) => void
+  reject: (error: unknown) => void
 }> = []
 
 // 处理队列中的请求
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
       reject(error)
@@ -39,14 +43,14 @@ const processQueue = (error: any, token: string | null = null) => {
       resolve(token!)
     }
   })
-  
+
   failedQueue = []
 }
 
 // 刷新 Token 函数
 const refreshToken = async (): Promise<string> => {
   const refreshTokenValue = TokenManager.getRefreshToken()
-  
+
   if (!refreshTokenValue) {
     throw new Error('没有可用的刷新令牌')
   }
@@ -57,7 +61,7 @@ const refreshToken = async (): Promise<string> => {
       { refresh_token: refreshTokenValue },
       {
         headers: { 'Content-Type': 'application/json' },
-        timeout: REQUEST_TIMEOUT
+        timeout: REQUEST_TIMEOUT,
       }
     )
 
@@ -66,7 +70,7 @@ const refreshToken = async (): Promise<string> => {
       TokenManager.setTokens({
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
-        tokenType: tokens.token_type
+        tokenType: tokens.token_type,
       })
       return tokens.access_token
     } else {
@@ -83,8 +87,10 @@ const refreshToken = async (): Promise<string> => {
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 若调用方已显式设置 Authorization，则不覆盖（例如登录时使用 Firebase ID Token）
-    const hasCallerAuthHeader = Boolean(config.headers && (config.headers as any).Authorization)
-    
+    const hasCallerAuthHeader = Boolean(
+      config.headers && (config.headers as { Authorization?: string }).Authorization
+    )
+
     if (!hasCallerAuthHeader) {
       const accessToken = TokenManager.getAccessToken()
       if (accessToken) {
@@ -114,7 +120,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status && error.response.status >= 500) {
       console.error('服务器错误:', error.response.status, error.config?.url)
     }
-    
+
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
     const requestUrl = (originalRequest && originalRequest.url) || ''
 
@@ -133,7 +139,7 @@ apiClient.interceptors.response.use(
         console.error('严重错误：请求method丢失，无法重试')
         return Promise.reject(new Error('HTTP method lost during token refresh'))
       }
-      
+
       if (isRefreshing) {
         // 如果正在刷新，将请求加入队列
         return new Promise((resolve, reject) => {
@@ -146,9 +152,9 @@ apiClient.interceptors.response.use(
               originalRequest.headers.Authorization = `Bearer ${token}`
               resolve(apiClient(originalRequest))
             },
-            reject: (err: any) => {
+            reject: (err: unknown) => {
               reject(err)
-            }
+            },
           })
         })
       }
@@ -158,12 +164,12 @@ apiClient.interceptors.response.use(
 
       try {
         const newAccessToken = await refreshToken()
-        
+
         // 再次检查method
         if (!originalRequest?.method) {
           throw new Error('HTTP method lost during token refresh')
         }
-        
+
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         processQueue(null, newAccessToken)
         return apiClient(originalRequest)
@@ -198,18 +204,18 @@ export default apiClient
 
 // 导出便捷的 API 方法
 export const api = {
-  get: <T = any>(url: string, config?: any) =>
+  get: <T = unknown>(url: string, config?: RequestConfig) =>
     apiClient.get<ApiResponse<T>>(url, config),
-  
-  post: <T = any>(url: string, data?: any, config?: any) =>
+
+  post: <T = unknown>(url: string, data?: unknown, config?: RequestConfig) =>
     apiClient.post<ApiResponse<T>>(url, data, config),
-  
-  put: <T = any>(url: string, data?: any, config?: any) =>
+
+  put: <T = unknown>(url: string, data?: unknown, config?: RequestConfig) =>
     apiClient.put<ApiResponse<T>>(url, data, config),
-  
-  delete: <T = any>(url: string, config?: any) =>
+
+  delete: <T = unknown>(url: string, config?: RequestConfig) =>
     apiClient.delete<ApiResponse<T>>(url, config),
-  
-  patch: <T = any>(url: string, data?: any, config?: any) =>
+
+  patch: <T = unknown>(url: string, data?: unknown, config?: RequestConfig) =>
     apiClient.patch<ApiResponse<T>>(url, data, config),
 }

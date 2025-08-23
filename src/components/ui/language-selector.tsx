@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { useTranslation } from '@/components/providers/LanguageProvider'
-import { languages, SupportedLanguage } from '@/lib/i18n'
+import { languages, SupportedLanguage } from '@/lib/i18n-config'
 import { Globe } from 'lucide-react'
 
 interface LanguageSelectorProps {
@@ -11,12 +11,12 @@ interface LanguageSelectorProps {
   showLabel?: boolean
 }
 
-export function LanguageSelector({ 
-  size = 'sm', 
+export function LanguageSelector({
+  size = 'sm',
   variant = 'outline',
-  showLabel = true 
+  showLabel = true,
 }: LanguageSelectorProps) {
-  const { language, changeLanguage, t } = useTranslation()
+  const { language, changeLanguage } = useTranslation()
 
   const toggleLanguage = () => {
     const newLang: SupportedLanguage = language === 'en' ? 'zh' : 'en'
@@ -31,9 +31,9 @@ export function LanguageSelector({
         variant={variant}
         size={size}
         onClick={toggleLanguage}
-        className="flex items-center space-x-2"
+        className='flex items-center space-x-2'
       >
-        <Globe className="h-4 w-4" />
+        <Globe className='h-4 w-4' />
         <span>{currentLangConfig.flag}</span>
         <span>{currentLangConfig.name}</span>
       </Button>
@@ -45,10 +45,10 @@ export function LanguageSelector({
       variant={variant}
       size={size}
       onClick={toggleLanguage}
-      className="flex items-center space-x-1"
+      className='flex items-center space-x-1'
       aria-label={`Switch to ${language === 'en' ? 'Chinese' : 'English'}`}
     >
-      <Globe className="h-4 w-4" />
+      <Globe className='h-4 w-4' />
       <span>{currentLangConfig.flag}</span>
     </Button>
   )

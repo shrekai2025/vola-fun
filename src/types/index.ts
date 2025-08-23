@@ -30,8 +30,6 @@ export interface User {
   updated_at: string
 }
 
-
-
 export interface ApiService {
   id: string
   projectName: string
@@ -54,8 +52,8 @@ export interface ApiDocumentation {
   responseParams: ApiParam[]
   statusCodes: StatusCode[]
   examples: {
-    request: any
-    response: any
+    request: unknown
+    response: unknown
   }
 }
 
@@ -64,7 +62,7 @@ export interface ApiParam {
   type: string
   required: boolean
   description: string
-  example?: any
+  example?: unknown
 }
 
 export interface StatusCode {
@@ -89,18 +87,18 @@ export interface ApiUsageLog {
   timestamp: string
   status: 'success' | 'failed'
   creditsUsed: number
-  requestData?: any
-  responseData?: any
+  requestData?: Record<string, unknown>
+  responseData?: Record<string, unknown>
 }
 
 export interface ApiCallRequest {
   apiId: string
-  params: Record<string, any>
+  params: Record<string, unknown>
 }
 
 export interface ApiCallResponse {
   success: boolean
-  data?: any
+  data?: unknown
   error?: string
   creditsUsed: number
 }

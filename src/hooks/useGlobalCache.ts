@@ -12,7 +12,7 @@ let globalAppCache: {
   theme: undefined,
   themeTimestamp: 0,
   avatar: undefined,
-  avatarTimestamp: 0
+  avatarTimestamp: 0,
 }
 
 const THEME_CACHE_KEY = 'vola_app_theme'
@@ -26,12 +26,12 @@ export const useGlobalCache = () => {
   // 获取缓存的主题
   const getCachedTheme = (): Theme | null => {
     const now = Date.now()
-    
+
     // 优先从内存缓存获取
-    if (globalAppCache.theme && (now - globalAppCache.themeTimestamp) < CACHE_EXPIRY_TIME) {
+    if (globalAppCache.theme && now - globalAppCache.themeTimestamp < CACHE_EXPIRY_TIME) {
       return globalAppCache.theme
     }
-    
+
     // 从localStorage获取
     if (typeof window !== 'undefined') {
       try {
@@ -45,16 +45,16 @@ export const useGlobalCache = () => {
         console.warn('无法读取主题缓存:', error)
       }
     }
-    
+
     return null
   }
-  
+
   // 设置缓存的主题
   const setCachedTheme = (theme: Theme) => {
     const now = Date.now()
     globalAppCache.theme = theme
     globalAppCache.themeTimestamp = now
-    
+
     // 保存到localStorage
     if (typeof window !== 'undefined') {
       try {
@@ -64,34 +64,34 @@ export const useGlobalCache = () => {
       }
     }
   }
-  
+
   // 获取缓存的头像
   const getCachedAvatar = (): string | null => {
     const now = Date.now()
-    
-    if (globalAppCache.avatar && (now - globalAppCache.avatarTimestamp) < CACHE_EXPIRY_TIME) {
+
+    if (globalAppCache.avatar && now - globalAppCache.avatarTimestamp < CACHE_EXPIRY_TIME) {
       return globalAppCache.avatar
     }
-    
+
     return null
   }
-  
+
   // 设置缓存的头像
   const setCachedAvatar = (avatar: string) => {
     const now = Date.now()
     globalAppCache.avatar = avatar
     globalAppCache.avatarTimestamp = now
   }
-  
+
   // 清除所有缓存
   const clearCache = () => {
     globalAppCache = {
       theme: undefined,
       themeTimestamp: 0,
       avatar: undefined,
-      avatarTimestamp: 0
+      avatarTimestamp: 0,
     }
-    
+
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem(THEME_CACHE_KEY)
@@ -100,12 +100,12 @@ export const useGlobalCache = () => {
       }
     }
   }
-  
+
   return {
     getCachedTheme,
     setCachedTheme,
     getCachedAvatar,
     setCachedAvatar,
-    clearCache
+    clearCache,
   }
 }

@@ -8,8 +8,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { dataManager, type UseDataResult } from '@/lib/data-manager'
 import type { User } from '@/types'
-import type { MarketAPI, GetMarketAPIsParams } from '@/services/market-api'
-import type { GetUserAPIsParams } from '@/services/user-api'
+import type { API, APIListParams } from '@/lib/api'
 
 // ======================== 用户信息Hook ========================
 
@@ -22,10 +21,10 @@ export function useUser(): UseDataResult<User> {
     try {
       setLoading(true)
       setError(null)
-      const userData = await dataManager.getUserInfo(true)
+      const userData = await dataManager.getCurrentUser(true)
       setData(userData)
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
     } finally {
       setLoading(false)
@@ -40,33 +39,34 @@ export function useUser(): UseDataResult<User> {
         // 先检查缓存状态
         const cached = dataManager.getCacheState('user-info')
         if (cached.data) {
-          setData(cached.data)
+          setData(cached.data as User)
           setLoading(cached.loading)
           setError(cached.error)
         }
 
         // 订阅数据变化
-        unsubscribe = dataManager.subscribe('user-info', (update) => {
-          if (update.data !== undefined) {
-            setData(update.data)
+        unsubscribe = dataManager.subscribe('user-info', (update: unknown) => {
+          const updateData = update as { data?: User; loading?: boolean; error?: string | null }
+          if (updateData.data !== undefined) {
+            setData(updateData.data)
           }
-          if (update.loading !== undefined) {
-            setLoading(update.loading)
+          if (updateData.loading !== undefined) {
+            setLoading(updateData.loading)
           }
-          if (update.error !== undefined) {
-            setError(update.error)
+          if (updateData.error !== undefined) {
+            setError(updateData.error)
           }
         })
 
         // 获取最新数据
-        const userData = await dataManager.getUserInfo()
+        const userData = await dataManager.getCurrentUser()
         setData(userData)
         setLoading(false)
         setError(null)
-      } catch (error: any) {
+      } catch (error: unknown) {
         setData(null)
         setLoading(false)
-        setError(error.message)
+        setError(error instanceof Error ? error.message : 'Unknown error')
       }
     }
 
@@ -84,24 +84,30 @@ export function useUser(): UseDataResult<User> {
 
 // ======================== 用户API列表Hook ========================
 
-export function useUserAPIList(params: GetUserAPIsParams = {}, pageLevelRefresh = false): UseDataResult<MarketAPI[]> {
-  const [data, setData] = useState<MarketAPI[] | null>(null)
+export function useUserAPIList(
+  params: APIListParams = {},
+  pageLevelRefresh = false
+): UseDataResult<API[]> {
+  const [data, setData] = useState<API[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refresh = useCallback(async (forceRefresh = false) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await dataManager.getUserAPIList(params, forceRefresh, false)
-      setData(response.data || [])
-    } catch (error: any) {
-      setError(error.message)
-      setData(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [params])
+  const refresh = useCallback(
+    async (forceRefresh = false) => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await dataManager.getUserAPIList(params, forceRefresh, false)
+        setData(response.data || [])
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'Unknown error')
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [params]
+  )
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null
@@ -109,25 +115,32 @@ export function useUserAPIList(params: GetUserAPIsParams = {}, pageLevelRefresh 
     const loadAPIList = async () => {
       try {
         const key = `user-apis-${JSON.stringify(params)}`
-        
+
         // 先检查缓存状态
         const cached = dataManager.getCacheState(key)
         if (cached.data && !pageLevelRefresh) {
-          setData(cached.data.data || [])
+          const cachedData = cached.data as { data?: API[] }
+          setData(cachedData?.data || [])
           setLoading(cached.loading)
           setError(cached.error)
         }
 
         // 订阅数据变化
-        unsubscribe = dataManager.subscribe(key, (update) => {
-          if (update.data !== undefined) {
-            setData(update.data?.data || update.data)
+        unsubscribe = dataManager.subscribe(key, (update: unknown) => {
+          const updateData = update as {
+            data?: { data?: API[] } | API[]
+            loading?: boolean
+            error?: string | null
           }
-          if (update.loading !== undefined) {
-            setLoading(update.loading)
+          if (updateData.data !== undefined) {
+            const apiData = updateData.data as { data?: API[] } | API[]
+            setData(Array.isArray(apiData) ? apiData : apiData?.data || [])
           }
-          if (update.error !== undefined) {
-            setError(update.error)
+          if (updateData.loading !== undefined) {
+            setLoading(updateData.loading)
+          }
+          if (updateData.error !== undefined) {
+            setError(updateData.error)
           }
         })
 
@@ -144,10 +157,10 @@ export function useUserAPIList(params: GetUserAPIsParams = {}, pageLevelRefresh 
           setLoading(false)
           setError(null)
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         setData(null)
         setLoading(false)
-        setError(error.message)
+        setError(error instanceof Error ? error.message : 'Unknown error')
       }
     }
 
@@ -165,24 +178,37 @@ export function useUserAPIList(params: GetUserAPIsParams = {}, pageLevelRefresh 
 
 // ======================== 市场API列表Hook ========================
 
-export function useMarketAPIList(params: GetMarketAPIsParams = {}, pageLevelRefresh = false): UseDataResult<MarketAPI[]> {
-  const [data, setData] = useState<MarketAPI[] | null>(null)
+export function useAPIList(
+  params: APIListParams = {},
+  pageLevelRefresh = false
+): UseDataResult<API[]> {
+  return useMarketAPIList(params, pageLevelRefresh)
+}
+
+export function useMarketAPIList(
+  params: APIListParams = {},
+  pageLevelRefresh = false
+): UseDataResult<API[]> {
+  const [data, setData] = useState<API[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refresh = useCallback(async (forceRefresh = false) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await dataManager.getMarketAPIList(params, forceRefresh, false)
-      setData(response.data || [])
-    } catch (error: any) {
-      setError(error.message)
-      setData(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [params])
+  const refresh = useCallback(
+    async (forceRefresh = false) => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await dataManager.getMarketAPIList(params, forceRefresh, false)
+        setData(response.data || [])
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'Unknown error')
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [params]
+  )
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null
@@ -190,25 +216,32 @@ export function useMarketAPIList(params: GetMarketAPIsParams = {}, pageLevelRefr
     const loadAPIList = async () => {
       try {
         const key = `market-apis-${JSON.stringify(params)}`
-        
+
         // 先检查缓存状态
         const cached = dataManager.getCacheState(key)
         if (cached.data && !pageLevelRefresh) {
-          setData(cached.data.data || [])
+          const cachedData = cached.data as { data?: API[] }
+          setData(cachedData?.data || [])
           setLoading(cached.loading)
           setError(cached.error)
         }
 
         // 订阅数据变化
-        unsubscribe = dataManager.subscribe(key, (update) => {
-          if (update.data !== undefined) {
-            setData(update.data?.data || update.data)
+        unsubscribe = dataManager.subscribe(key, (update: unknown) => {
+          const updateData = update as {
+            data?: { data?: API[] } | API[]
+            loading?: boolean
+            error?: string | null
           }
-          if (update.loading !== undefined) {
-            setLoading(update.loading)
+          if (updateData.data !== undefined) {
+            const apiData = updateData.data as { data?: API[] } | API[]
+            setData(Array.isArray(apiData) ? apiData : apiData?.data || [])
           }
-          if (update.error !== undefined) {
-            setError(update.error)
+          if (updateData.loading !== undefined) {
+            setLoading(updateData.loading)
+          }
+          if (updateData.error !== undefined) {
+            setError(updateData.error)
           }
         })
 
@@ -225,10 +258,10 @@ export function useMarketAPIList(params: GetMarketAPIsParams = {}, pageLevelRefr
           setLoading(false)
           setError(null)
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         setData(null)
         setLoading(false)
-        setError(error.message)
+        setError(error instanceof Error ? error.message : 'Unknown error')
       }
     }
 
@@ -246,26 +279,29 @@ export function useMarketAPIList(params: GetMarketAPIsParams = {}, pageLevelRefr
 
 // ======================== API详情Hook ========================
 
-export function useAPIDetail(apiId: string, pageLevelRefresh = false): UseDataResult<MarketAPI> {
-  const [data, setData] = useState<MarketAPI | null>(null)
+export function useAPIDetail(apiId: string, pageLevelRefresh = false): UseDataResult<API> {
+  const [data, setData] = useState<API | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refresh = useCallback(async (forceRefresh = false) => {
-    if (!apiId) return
-    
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await dataManager.getAPIDetail(apiId, forceRefresh, false)
-      setData(response.data)
-    } catch (error: any) {
-      setError(error.message)
-      setData(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [apiId])
+  const refresh = useCallback(
+    async (forceRefresh = false) => {
+      if (!apiId) return
+
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await dataManager.getAPIDetail(apiId, forceRefresh, false)
+        setData(response)
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : 'Unknown error')
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [apiId]
+  )
 
   useEffect(() => {
     if (!apiId) return
@@ -275,25 +311,27 @@ export function useAPIDetail(apiId: string, pageLevelRefresh = false): UseDataRe
     const loadAPIDetail = async () => {
       try {
         const key = `api-detail-${apiId}`
-        
+
         // 先检查缓存状态
         const cached = dataManager.getCacheState(key)
         if (cached.data && !pageLevelRefresh) {
-          setData(cached.data.data || cached.data)
+          const cachedData = cached.data as API
+          setData(cachedData)
           setLoading(cached.loading)
           setError(cached.error)
         }
 
         // 订阅数据变化
-        unsubscribe = dataManager.subscribe(key, (update) => {
-          if (update.data !== undefined) {
-            setData(update.data?.data || update.data)
+        unsubscribe = dataManager.subscribe(key, (update: unknown) => {
+          const updateData = update as { data?: API; loading?: boolean; error?: string | null }
+          if (updateData.data !== undefined) {
+            setData(updateData.data)
           }
-          if (update.loading !== undefined) {
-            setLoading(update.loading)
+          if (updateData.loading !== undefined) {
+            setLoading(updateData.loading)
           }
-          if (update.error !== undefined) {
-            setError(update.error)
+          if (updateData.error !== undefined) {
+            setError(updateData.error)
           }
         })
 
@@ -302,18 +340,18 @@ export function useAPIDetail(apiId: string, pageLevelRefresh = false): UseDataRe
           setLoading(true)
           setError(null)
           const response = await dataManager.getAPIDetail(apiId, false, true)
-          setData(response.data)
+          setData(response)
           setLoading(false)
         } else {
           const response = await dataManager.getAPIDetail(apiId)
-          setData(response.data)
+          setData(response)
           setLoading(false)
           setError(null)
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         setData(null)
         setLoading(false)
-        setError(error.message)
+        setError(error instanceof Error ? error.message : 'Unknown error')
       }
     }
 
@@ -336,7 +374,7 @@ export function useAPIDetail(apiId: string, pageLevelRefresh = false): UseDataRe
  */
 export function useUnifiedUserCache() {
   const { data: user, loading, error, refresh } = useUser()
-  
+
   return {
     user,
     isLoggedIn: !!user && !error,
@@ -345,7 +383,7 @@ export function useUnifiedUserCache() {
     refreshUser: refresh,
     clearUser: () => {
       dataManager.secureCleanup()
-    }
+    },
   }
 }
 

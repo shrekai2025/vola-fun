@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -13,40 +13,59 @@ import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
 import { dataManager } from '@/lib/data-manager'
-import { publishUserAPI } from '@/services/user-api'
+import { APIService, CreateAPIData } from '@/lib/api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 
 // 表单验证模式 - 使用函数获取翻译
-const createUserAPISchema = (t: any) => z.object({
-  name: z.string().min(1, t.validation.apiNameRequired).max(255, t.validation.apiNameMaxLength),
-  slug: z.string()
-    .min(1, t.validation.apiSlugRequired)
-    .regex(/^[a-z0-9-]+$/, t.validation.apiSlugFormat),
-  short_description: z.string().min(1, t.validation.shortDescRequired).max(100, t.validation.shortDescMaxLength),
-  long_description: z.string().optional(),
-  category: z.enum(['data', 'ai_ml', 'finance', 'social', 'tools', 'communication', 'entertainment', 'business', 'other']),
-  base_url: z.string().url(t.validation.urlInvalid),
-  health_check_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
-  website_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
-  documentation_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
-  terms_url: z.string().url(t.validation.urlInvalid).optional().or(z.literal('')),
-  estimated_response_time: z.number().min(1, t.validation.responseTimeRequired).max(600000, t.validation.responseTimeRange).optional(),
-  documentation_markdown: z.string().optional(),
-})
+const createUserAPISchema = (t: (key: string) => string) =>
+  z.object({
+    name: z.string().min(1, t('validation.required')).max(255, t('validation.apiNameMaxLength')),
+    slug: z
+      .string()
+      .min(1, t('validation.required'))
+      .regex(/^[a-z0-9-]+$/, t('validation.apiSlugFormat')),
+    short_description: z
+      .string()
+      .min(1, t('validation.required'))
+      .max(100, t('validation.shortDescMaxLength')),
+    long_description: z.string().optional(),
+    category: z.enum([
+      'data',
+      'ai_ml',
+      'finance',
+      'social',
+      'tools',
+      'communication',
+      'entertainment',
+      'business',
+      'other',
+    ]),
+    base_url: z.string().url(t('validation.urlInvalid')),
+    health_check_url: z.string().url(t('validation.urlInvalid')).optional().or(z.literal('')),
+    website_url: z.string().url(t('validation.urlInvalid')).optional().or(z.literal('')),
+    documentation_url: z.string().url(t('validation.urlInvalid')).optional().or(z.literal('')),
+    terms_url: z.string().url(t('validation.urlInvalid')).optional().or(z.literal('')),
+    estimated_response_time: z
+      .number()
+      .min(1, t('validation.required'))
+      .max(600000, t('validation.responseTimeRange'))
+      .optional(),
+    documentation_markdown: z.string().optional(),
+  })
 
 type CreateUserAPIFormData = z.infer<ReturnType<typeof createUserAPISchema>>
 
 // API分类选项 - 动态获取翻译
-const getCategoryOptions = (t: any) => [
-  { value: 'data', label: t.apiProvider.categories.data },
-  { value: 'ai_ml', label: t.apiProvider.categories.ai_ml },
-  { value: 'finance', label: t.apiProvider.categories.finance },
-  { value: 'social', label: t.apiProvider.categories.social },
-  { value: 'tools', label: t.apiProvider.categories.tools },
-  { value: 'communication', label: t.apiProvider.categories.communication },
-  { value: 'entertainment', label: t.apiProvider.categories.entertainment },
-  { value: 'business', label: t.apiProvider.categories.business },
-  { value: 'other', label: t.apiProvider.categories.other },
+const getCategoryOptions = (t: (key: string) => string) => [
+  { value: 'data', label: t('apiProvider.categories.data') },
+  { value: 'ai_ml', label: t('apiProvider.categories.ai_ml') },
+  { value: 'finance', label: t('apiProvider.categories.finance') },
+  { value: 'social', label: t('apiProvider.categories.social') },
+  { value: 'tools', label: t('apiProvider.categories.tools') },
+  { value: 'communication', label: t('apiProvider.categories.communication') },
+  { value: 'entertainment', label: t('apiProvider.categories.entertainment') },
+  { value: 'business', label: t('apiProvider.categories.business') },
+  { value: 'other', label: t('apiProvider.categories.other') },
 ]
 
 export default function UserAPICreateSection() {
@@ -58,15 +77,11 @@ export default function UserAPICreateSection() {
   const router = useRouter()
 
   // 稳定化翻译对象
-  const translations = useMemo(() => t.apiProvider, [t.apiProvider])
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-    watch,
-    reset,
   } = useForm<CreateUserAPIFormData>({
     resolver: zodResolver(createUserAPISchema(t)),
     defaultValues: {
@@ -78,181 +93,181 @@ export default function UserAPICreateSection() {
   const handleAddTag = useCallback(() => {
     const trimmed = tagInput.trim()
     if (trimmed && !tags.includes(trimmed) && tags.length < 5) {
-      setTags(prev => [...prev, trimmed])
+      setTags((prev) => [...prev, trimmed])
       setTagInput('')
     }
   }, [tagInput, tags])
 
   // 处理标签删除
   const handleRemoveTag = useCallback((tagToRemove: string) => {
-    setTags(prev => prev.filter(tag => tag !== tagToRemove))
+    setTags((prev) => prev.filter((tag) => tag !== tagToRemove))
   }, [])
 
   // 处理表单提交
-  const onSubmit = useCallback(async (data: CreateUserAPIFormData) => {
-    try {
-      setSubmitting(true)
-      
-      // 构建提交数据，过滤掉空字符串的可选字段
-      const submitData: any = {
-        name: data.name,
-        slug: data.slug,
-        short_description: data.short_description,
-        category: data.category,
-        base_url: data.base_url,
-        tags: tags,
-        // 用户发布的API默认不公开
-        is_public: false,
-      }
+  const onSubmit = useCallback(
+    async (data: CreateUserAPIFormData) => {
+      try {
+        setSubmitting(true)
 
-      // 可选字段：只有不为空时才添加
-      if (data.long_description && data.long_description.trim()) {
-        submitData.long_description = data.long_description
-      }
-      
-      if (data.health_check_url && data.health_check_url.trim()) {
-        submitData.health_check_url = data.health_check_url
-      }
+        // 构建提交数据，过滤掉空字符串的可选字段
+        const submitData: CreateAPIData = {
+          name: data.name,
+          slug: data.slug,
+          short_description: data.short_description,
+          category: data.category,
+          base_url: data.base_url,
+          tags: tags,
+          // 用户发布的API默认不公开
+          is_public: false,
+        }
 
-      if (data.estimated_response_time && data.estimated_response_time > 0) {
-        submitData.estimated_response_time = data.estimated_response_time
-      }
-      
-      if (data.website_url && data.website_url.trim()) {
-        submitData.website_url = data.website_url
-      }
-      
-      if (data.documentation_url && data.documentation_url.trim()) {
-        submitData.documentation_url = data.documentation_url
-      }
-      
-      if (data.terms_url && data.terms_url.trim()) {
-        submitData.terms_url = data.terms_url
-      }
-      
-      if (data.documentation_markdown && data.documentation_markdown.trim()) {
-        submitData.documentation_markdown = data.documentation_markdown
-      }
+        // 可选字段：只有不为空时才添加
+        if (data.long_description && data.long_description.trim()) {
+          submitData.long_description = data.long_description
+        }
 
-      console.log('🚀 [创建API] 请求数据:', JSON.stringify(submitData, null, 2))
-      
-      const response = await publishUserAPI(submitData)
-      
-      console.log('✅ [创建API] 返回数据:', JSON.stringify(response, null, 2))
-      
-      // 清除用户API列表缓存，确保跳转后显示最新数据
-      dataManager.clearCache('user-apis')
-      
-      toast.success(t.toast.apiCreateSuccessDraft)
-      
-      // 延迟跳转，确保Toast显示完成
-      setTimeout(() => {
-        router.push('/api-provider')
-      }, 800)
-      
-    } catch (error: unknown) {
-      console.error('发布API失败:', error)
-      const errorMessage = error instanceof Error ? error.message : '发布失败'
-      toast.error(`API发布失败：${errorMessage}`)
-    } finally {
-      setSubmitting(false)
-    }
-  }, [tags]) // 移除toast和router依赖
+        if (data.health_check_url && data.health_check_url.trim()) {
+          submitData.health_check_url = data.health_check_url
+        }
+
+        if (data.estimated_response_time && data.estimated_response_time > 0) {
+          submitData.estimated_response_time = data.estimated_response_time
+        }
+
+        if (data.website_url && data.website_url.trim()) {
+          submitData.website_url = data.website_url
+        }
+
+        if (data.documentation_url && data.documentation_url.trim()) {
+          submitData.documentation_url = data.documentation_url
+        }
+
+        if (data.terms_url && data.terms_url.trim()) {
+          submitData.terms_url = data.terms_url
+        }
+
+        if (data.documentation_markdown && data.documentation_markdown.trim()) {
+          submitData.documentation_markdown = data.documentation_markdown
+        }
+
+        console.debug('🚀 [创建API] 请求数据:', JSON.stringify(submitData, null, 2))
+
+        const api = await APIService.create(submitData)
+
+        console.debug('✅ [创建API] 返回数据:', JSON.stringify(api, null, 2))
+
+        // 清除用户API列表缓存，确保跳转后显示最新数据
+        dataManager.clearCache('user-apis')
+
+        toast.success(t('toast.apiCreateSuccessDraft'))
+
+        // 延迟跳转，确保Toast显示完成
+        setTimeout(() => {
+          router.push('/api-provider')
+        }, 800)
+      } catch (error: unknown) {
+        console.error('发布API失败:', error)
+        const errorMessage = error instanceof Error ? error.message : '发布失败'
+        toast.error(`API发布失败：${errorMessage}`)
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tags]
+  ) // 移除toast和router依赖
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className='container mx-auto px-4 py-8 max-w-4xl'>
       {/* 页面标题 */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/api-provider" className="flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              {t.apiProvider.edit.backToList}
+      <div className='mb-8'>
+        <div className='flex items-center gap-4 mb-4'>
+          <Button variant='ghost' size='sm' asChild>
+            <Link href='/api-provider' className='flex items-center gap-2'>
+              <ArrowLeft className='w-4 h-4' />
+              {t('endpoints.backToList')}
             </Link>
           </Button>
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          {t.apiProvider.create.title}
-        </h1>
-        <p className="text-muted-foreground">
-          {t.apiProvider.create.description}
-        </p>
+        <h1 className='text-3xl font-bold text-foreground mb-2'>{t('apiProvider.create.title')}</h1>
+        <p className='text-muted-foreground'>{t('apiProvider.create.description')}</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
         {/* 基本信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>{t.apiProvider.create.basicInfo}</CardTitle>
+            <CardTitle>{t('apiProvider.create.basicInfo')}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className='space-y-6'>
             {/* API名称和标识 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.apiProvider.create.apiName} <span className="text-destructive">*</span>
+                <label className='block text-sm font-medium mb-2'>
+                  {t('apiProvider.create.apiName')} <span className='text-destructive'>*</span>
                 </label>
                 <Input
                   {...register('name')}
-                  placeholder={t.admin.apiNamePlaceholder}
+                  placeholder={t('apiProvider.create.placeholders.apiName')}
                   className={errors.name ? 'border-destructive' : ''}
                 />
                 {errors.name && (
-                  <p className="text-destructive text-sm mt-1">{errors.name.message}</p>
+                  <p className='text-destructive text-sm mt-1'>{errors.name.message}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.apiProvider.create.apiSlug} <span className="text-destructive">*</span>
+                <label className='block text-sm font-medium mb-2'>
+                  {t('apiProvider.create.apiSlug')} <span className='text-destructive'>*</span>
                 </label>
                 <Input
                   {...register('slug')}
-                  placeholder={t.admin.apiSlugPlaceholder}
+                  placeholder={t('apiProvider.create.placeholders.apiSlug')}
                   className={errors.slug ? 'border-destructive' : ''}
                 />
                 {errors.slug && (
-                  <p className="text-destructive text-sm mt-1">{errors.slug.message}</p>
+                  <p className='text-destructive text-sm mt-1'>{errors.slug.message}</p>
                 )}
-                <p className="text-muted-foreground text-xs mt-1">
-                  {t.apiProvider.create.slugHelper}
+                <p className='text-muted-foreground text-xs mt-1'>
+                  {t('apiProvider.create.slugHelper')}
                 </p>
               </div>
             </div>
 
             {/* 描述 */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.shortDescription} <span className="text-destructive">*</span>
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.shortDescription')}{' '}
+                <span className='text-destructive'>*</span>
               </label>
               <Input
                 {...register('short_description')}
-                placeholder={t.admin.shortDescPlaceholder}
+                placeholder={t('apiProvider.create.placeholders.shortDescription')}
                 className={errors.short_description ? 'border-destructive' : ''}
               />
               {errors.short_description && (
-                <p className="text-destructive text-sm mt-1">{errors.short_description.message}</p>
+                <p className='text-destructive text-sm mt-1'>{errors.short_description.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.longDescription}
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.longDescription')}
               </label>
               <textarea
                 {...register('long_description')}
-                className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                placeholder={t.admin.longDescPlaceholder}
+                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none'
+                placeholder={t('apiProvider.create.placeholders.longDescription')}
               />
             </div>
 
             {/* 分类 */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.category} <span className="text-destructive">*</span>
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.category')} <span className='text-destructive'>*</span>
               </label>
               <select
                 {...register('category')}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
                 {getCategoryOptions(t).map((category) => (
                   <option key={category.value} value={category.value}>
@@ -267,54 +282,56 @@ export default function UserAPICreateSection() {
         {/* 技术配置 */}
         <Card>
           <CardHeader>
-            <CardTitle>{t.apiProvider.create.technicalConfig}</CardTitle>
+            <CardTitle>{t('apiProvider.create.technicalConfig')}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className='space-y-6'>
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.baseUrl} <span className="text-destructive">*</span>
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.baseUrl')} <span className='text-destructive'>*</span>
               </label>
               <Input
                 {...register('base_url')}
-                placeholder="https://api.example.com"
+                placeholder='https://api.example.com'
                 className={errors.base_url ? 'border-destructive' : ''}
               />
               {errors.base_url && (
-                <p className="text-destructive text-sm mt-1">{errors.base_url.message}</p>
+                <p className='text-destructive text-sm mt-1'>{errors.base_url.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.healthCheckUrl}
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.healthCheckUrl')}
               </label>
               <Input
                 {...register('health_check_url')}
-                placeholder="https://api.example.com/health"
+                placeholder='https://api.example.com/health'
                 className={errors.health_check_url ? 'border-destructive' : ''}
               />
               {errors.health_check_url && (
-                <p className="text-destructive text-sm mt-1">{errors.health_check_url.message}</p>
+                <p className='text-destructive text-sm mt-1'>{errors.health_check_url.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.estimatedResponseTime}
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.estimatedResponseTime')}
               </label>
               <Input
-                type="number"
-                {...register('estimated_response_time', { 
-                  setValueAs: (value) => value === '' ? undefined : Number(value) 
+                type='number'
+                {...register('estimated_response_time', {
+                  setValueAs: (value) => (value === '' ? undefined : Number(value)),
                 })}
-                placeholder={t.admin.estimatedResponseTimePlaceholder}
+                placeholder={t('apiProvider.create.placeholders.estimatedResponseTime')}
                 className={errors.estimated_response_time ? 'border-destructive' : ''}
               />
               {errors.estimated_response_time && (
-                <p className="text-destructive text-sm mt-1">{errors.estimated_response_time.message}</p>
+                <p className='text-destructive text-sm mt-1'>
+                  {errors.estimated_response_time.message}
+                </p>
               )}
-              <p className="text-xs text-muted-foreground mt-1">
-                {t.apiProvider.create.responseTimeHelper}
+              <p className='text-xs text-muted-foreground mt-1'>
+                {t('apiProvider.create.responseTimeHelper')}
               </p>
             </div>
           </CardContent>
@@ -323,49 +340,51 @@ export default function UserAPICreateSection() {
         {/* 链接信息 */}
         <Card>
           <CardHeader>
-            <CardTitle>{t.apiProvider.create.relatedLinks}</CardTitle>
+            <CardTitle>{t('apiProvider.create.relatedLinks')}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className='space-y-6'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.apiProvider.create.websiteUrl}
+                <label className='block text-sm font-medium mb-2'>
+                  {t('apiProvider.create.websiteUrl')}
                 </label>
                 <Input
                   {...register('website_url')}
-                  placeholder="https://example.com"
+                  placeholder='https://example.com'
                   className={errors.website_url ? 'border-destructive' : ''}
                 />
                 {errors.website_url && (
-                  <p className="text-destructive text-sm mt-1">{errors.website_url.message}</p>
+                  <p className='text-destructive text-sm mt-1'>{errors.website_url.message}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.apiProvider.create.documentationUrl}
+                <label className='block text-sm font-medium mb-2'>
+                  {t('apiProvider.create.documentationUrl')}
                 </label>
                 <Input
                   {...register('documentation_url')}
-                  placeholder="https://docs.example.com"
+                  placeholder='https://docs.example.com'
                   className={errors.documentation_url ? 'border-destructive' : ''}
                 />
                 {errors.documentation_url && (
-                  <p className="text-destructive text-sm mt-1">{errors.documentation_url.message}</p>
+                  <p className='text-destructive text-sm mt-1'>
+                    {errors.documentation_url.message}
+                  </p>
                 )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.termsUrl}
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.termsUrl')}
               </label>
               <Input
                 {...register('terms_url')}
-                placeholder="https://example.com/terms"
+                placeholder='https://example.com/terms'
                 className={errors.terms_url ? 'border-destructive' : ''}
               />
               {errors.terms_url && (
-                <p className="text-destructive text-sm mt-1">{errors.terms_url.message}</p>
+                <p className='text-destructive text-sm mt-1'>{errors.terms_url.message}</p>
               )}
             </div>
           </CardContent>
@@ -374,20 +393,20 @@ export default function UserAPICreateSection() {
         {/* 标签和文档 */}
         <Card>
           <CardHeader>
-            <CardTitle>{t.apiProvider.create.tagsAndDocs}</CardTitle>
+            <CardTitle>{t('apiProvider.create.tagsAndDocs')}</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className='space-y-6'>
             {/* 标签 */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.tags}
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.tags')}
               </label>
-              <div className="flex gap-2 mb-2">
+              <div className='flex gap-2 mb-2'>
                 <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  placeholder={t.admin.tagsPlaceholder}
-                  className="flex-1"
+                  placeholder={t('apiProvider.create.placeholders.tags')}
+                  className='flex-1'
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
@@ -395,25 +414,25 @@ export default function UserAPICreateSection() {
                     }
                   }}
                 />
-                <Button 
-                  type="button" 
+                <Button
+                  type='button'
                   onClick={handleAddTag}
                   disabled={!tagInput.trim() || tags.length >= 5}
-                  size="sm"
+                  size='sm'
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className='w-4 h-4' />
                 </Button>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className='flex flex-wrap gap-2'>
                 {tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                  <Badge key={tag} variant='secondary' className='flex items-center gap-1'>
                     {tag}
                     <button
-                      type="button"
+                      type='button'
                       onClick={() => handleRemoveTag(tag)}
-                      className="text-muted-foreground hover:text-foreground"
+                      className='text-muted-foreground hover:text-foreground'
                     >
-                      <X className="w-3 h-3" />
+                      <X className='w-3 h-3' />
                     </button>
                   </Badge>
                 ))}
@@ -422,37 +441,33 @@ export default function UserAPICreateSection() {
 
             {/* Markdown文档 */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t.apiProvider.create.apiDocs}
+              <label className='block text-sm font-medium mb-2'>
+                {t('apiProvider.create.apiDocs')}
               </label>
               <textarea
                 {...register('documentation_markdown')}
-                className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none font-mono"
-                placeholder={t.apiProvider.create.apiDocsPlaceholder}
+                className='flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none font-mono'
+                placeholder={t('apiProvider.create.apiDocsPlaceholder')}
               />
             </div>
           </CardContent>
         </Card>
 
         {/* 提交按钮 */}
-        <div className="flex items-center justify-end gap-4">
-          <Button type="button" variant="outline" asChild>
-            <Link href="/api-provider">{t.apiProvider.create.cancel}</Link>
+        <div className='flex items-center justify-end gap-4'>
+          <Button type='button' variant='outline' asChild>
+            <Link href='/api-provider'>{t('apiProvider.create.cancel')}</Link>
           </Button>
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="flex items-center gap-2"
-          >
+          <Button type='submit' disabled={submitting} className='flex items-center gap-2'>
             {submitting ? (
               <>
-                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                {t.apiProvider.create.publishing}
+                <div className='w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin' />
+                {t('apiProvider.create.publishing')}
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
-                {t.apiProvider.create.publishAPI}
+                <Save className='w-4 h-4' />
+                {t('apiProvider.create.publishAPI')}
               </>
             )}
           </Button>

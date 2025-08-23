@@ -22,12 +22,12 @@ export default function EditAPIPage() {
   // 显示加载状态
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading...</p>
+      <div className='min-h-screen bg-background'>
+        <div className='container mx-auto px-4 py-8'>
+          <div className='flex items-center justify-center min-h-[400px]'>
+            <div className='text-center'>
+              <div className='w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+              <p className='text-muted-foreground'>Loading...</p>
             </div>
           </div>
         </div>
@@ -38,11 +38,11 @@ export default function EditAPIPage() {
   // 用户未登录时显示空页面
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <p className="text-muted-foreground">请先登录以编辑API</p>
+      <div className='min-h-screen bg-background'>
+        <div className='container mx-auto px-4 py-8'>
+          <div className='flex items-center justify-center min-h-[400px]'>
+            <div className='text-center'>
+              <p className='text-muted-foreground'>请先登录以编辑API</p>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function EditAPIPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className='min-h-screen bg-background'>
       <UserAPIEditSection apiId={apiId} />
     </div>
   )

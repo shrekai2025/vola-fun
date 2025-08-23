@@ -17,6 +17,7 @@ Admin Panel 是一个受保护的管理页面，仅供系统管理员使用。�
 提供完整的 API 发布表单，支持以下字段：
 
 #### 必填字段
+
 - `name`: API 名称（最大 255 字符）
 - `slug`: API 唯一标识符（只能包含小写字母、数字和连字符）
 - `short_description`: 简短描述（最大 100 字符）
@@ -24,6 +25,7 @@ Admin Panel 是一个受保护的管理页面，仅供系统管理员使用。�
 - `base_url`: API 基础 URL
 
 #### 可选字段
+
 - `long_description`: 详细描述
 - `tags`: 标签数组（最多 3 个）
 - `health_check_url`: 健康检查 URL
@@ -50,7 +52,7 @@ useEffect(() => {
       router.replace('/404')
       return
     }
-    
+
     const userRole = user.role?.toUpperCase() || ''
     if (userRole !== 'ADMIN') {
       router.replace('/404')
@@ -72,6 +74,7 @@ useEffect(() => {
 ### 表单验证
 
 使用 Zod 进行客户端表单验证：
+
 - URL 格式验证
 - 字符长度限制
 - 必填字段检查
@@ -110,7 +113,7 @@ src/services/
 当前版本主要实现了 API 发布功能，未来可扩展：
 
 - 用户管理
-- 系统指标监控  
+- 系统指标监控
 - API 使用统计
 - 权限管理
 - 系统配置

@@ -1,7 +1,7 @@
 // Firebase 认证服务
 
-import { 
-  signInWithEmailAndPassword, 
+import {
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
@@ -9,7 +9,7 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
-  User as FirebaseUser
+  User as FirebaseUser,
 } from 'firebase/auth'
 import { auth } from '@/config/firebase'
 import type { AuthService, FirebaseAuthError } from '@/types/auth'
@@ -18,7 +18,6 @@ import type { AuthService, FirebaseAuthError } from '@/types/auth'
  * Firebase 认证服务实现
  */
 export class FirebaseAuthService implements AuthService {
-  
   /**
    * Google 登录 - 使用弹窗模式（优先）
    */
@@ -105,7 +104,7 @@ export class FirebaseAuthService implements AuthService {
       return 'exists'
     } catch (error) {
       const firebaseError = error as FirebaseAuthError
-      
+
       if (firebaseError.code === 'auth/user-not-found') {
         return 'not-found'
       } else if (firebaseError.code === 'auth/wrong-password') {

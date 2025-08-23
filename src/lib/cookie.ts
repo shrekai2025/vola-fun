@@ -7,7 +7,7 @@ import type { StoredTokens } from '@/types/auth'
 const COOKIE_KEYS = {
   ACCESS_TOKEN: 'vola_access_token',
   REFRESH_TOKEN: 'vola_refresh_token',
-  TOKEN_TYPE: 'vola_token_type'
+  TOKEN_TYPE: 'vola_token_type',
 } as const
 
 // Cookie 配置
@@ -15,7 +15,7 @@ const COOKIE_OPTIONS = {
   expires: 7, // 7天过期
   secure: process.env.NODE_ENV === 'production', // 生产环境使用 HTTPS
   sameSite: 'strict' as const,
-  path: '/'
+  path: '/',
 }
 
 /**
@@ -52,7 +52,7 @@ export class TokenManager {
       return {
         accessToken,
         refreshToken,
-        tokenType
+        tokenType,
       }
     } catch (error) {
       console.error('Failed to retrieve tokens:', error)
@@ -144,7 +144,7 @@ export const {
   clearTokens,
   isLoggedIn,
   hasAccessToken,
-  hasRefreshToken
+  hasRefreshToken,
 } = TokenManager
 
 // 默认导出

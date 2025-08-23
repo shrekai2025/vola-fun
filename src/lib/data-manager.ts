@@ -4,9 +4,7 @@
  * 确保无重复请求，快速加载，安全可靠
  */
 
-import { AuthAPI } from '@/services/auth-api'
-import { getMarketAPIs, type MarketAPI, type GetMarketAPIsParams } from '@/services/market-api'
-import { getUserAPIs, getUserAPI, type GetUserAPIsParams } from '@/services/user-api'
+import { AuthService, APIService, type APIListParams, type API } from '@/lib/api'
 import { TokenManager } from '@/lib/cookie'
 import type { User } from '@/types'
 
@@ -19,19 +17,19 @@ interface CacheEntry<T> {
   error: string | null
 }
 
-interface PendingRequest<T> {
-  promise: Promise<T>
-  resolve: (value: T) => void
-  reject: (error: any) => void
+interface PendingRequest {
+  promise: Promise<unknown>
+  resolve: (value: unknown) => void
+  reject: (error: unknown) => void
 }
 
 // ======================== 配置常量 ========================
 
 const CACHE_CONFIG = {
-  USER_INFO: 5 * 60 * 1000,        // 用户信息：5分钟
-  USER_APIS: 30 * 60 * 1000,       // 用户API列表：30分钟 (页面级强制刷新)
-  MARKET_APIS: 30 * 60 * 1000,     // 市场API列表：30分钟 (页面级强制刷新)
-  API_DETAIL: 30 * 60 * 1000,      // API详情：30分钟 (页面级强制刷新)
+  USER_INFO: 5 * 60 * 1000, // 用户信息：5分钟
+  USER_APIS: 30 * 60 * 1000, // 用户API列表：30分钟 (页面级强制刷新)
+  MARKET_APIS: 30 * 60 * 1000, // 市场API列表：30分钟 (页面级强制刷新)
+  API_DETAIL: 30 * 60 * 1000, // API详情：30分钟 (页面级强制刷新)
 } as const
 
 // API数据刷新策略：页面级强制刷新
@@ -41,15 +39,15 @@ const API_DATA_TYPES = new Set(['user-apis', 'market-apis', 'api-detail'])
 
 class DataManager {
   private static instance: DataManager
-  
+
   // 缓存存储
-  private cache = new Map<string, CacheEntry<any>>()
-  
+  private cache = new Map<string, CacheEntry<unknown>>()
+
   // 正在进行的请求（防重复）
-  private pendingRequests = new Map<string, PendingRequest<any>>()
-  
+  private pendingRequests = new Map<string, PendingRequest>()
+
   // 订阅者管理
-  private subscribers = new Map<string, Set<(data: any) => void>>()
+  private subscribers = new Map<string, Set<(data: unknown) => void>>()
 
   private constructor() {
     // 监听登出事件，清理缓存
@@ -69,7 +67,7 @@ class DataManager {
    * 检查是否为API数据类型，需要页面级强制刷新
    */
   private isAPIDataType(key: string): boolean {
-    return Array.from(API_DATA_TYPES).some(type => key.startsWith(type))
+    return Array.from(API_DATA_TYPES).some((type) => key.startsWith(type))
   }
 
   /**
@@ -79,7 +77,7 @@ class DataManager {
     for (const [key] of this.cache) {
       if (this.isAPIDataType(key)) {
         this.cache.delete(key)
-        console.log(`🗑️ [DataManager] 页面级清除API缓存: ${key}`)
+        console.debug(`🗑️ [DataManager] 页面级清除API缓存: ${key}`)
       }
     }
   }
@@ -101,37 +99,41 @@ class DataManager {
     const shouldIgnoreCache = forceRefresh || (pageLevelRefresh && this.isAPIDataType(key))
 
     // 检查缓存是否有效
-    if (!shouldIgnoreCache && cached && (now - cached.timestamp) < cacheTime && !cached.error) {
-      console.log(`📦 [DataManager] 缓存命中: ${key}`)
-      return cached.data
+    if (!shouldIgnoreCache && cached && now - cached.timestamp < cacheTime && !cached.error) {
+      console.debug(`📦 [DataManager] 缓存命中: ${key}`)
+      return cached.data as T
     }
 
     // 页面级刷新日志
     if (pageLevelRefresh && this.isAPIDataType(key)) {
-      console.log(`🔄 [DataManager] 页面级强制刷新: ${key}`)
+      console.debug(`🔄 [DataManager] 页面级强制刷新: ${key}`)
     }
 
     // 检查是否有正在进行的请求
     const pending = this.pendingRequests.get(key)
     if (pending) {
-      console.log(`⏳ [DataManager] 等待进行中的请求: ${key}`)
-      return pending.promise
+      console.debug(`⏳ [DataManager] 等待进行中的请求: ${key}`)
+      return pending.promise as Promise<T>
     }
 
     // 创建新请求
-    console.log(`🔄 [DataManager] 发起新请求: ${key}`)
-    
+    console.debug(`🔄 [DataManager] 发起新请求: ${key}`)
+
     let resolvePromise: (value: T) => void
-    let rejectPromise: (error: any) => void
-    
+    let rejectPromise: (error: unknown) => void
+
     const promise = new Promise<T>((resolve, reject) => {
       resolvePromise = resolve
       rejectPromise = reject
     })
-    
+
     // 存储请求信息
-    this.pendingRequests.set(key, { promise, resolve: resolvePromise!, reject: rejectPromise! })
-    
+    this.pendingRequests.set(key, {
+      promise: promise as Promise<unknown>,
+      resolve: resolvePromise! as (value: unknown) => void,
+      reject: rejectPromise!,
+    })
+
     // 设置加载状态
     this.updateCache(key, null, now, true, null)
     this.notifySubscribers(key, { loading: true })
@@ -160,10 +162,10 @@ class DataManager {
    * 更新缓存
    */
   private updateCache<T>(
-    key: string, 
-    data: T | null, 
-    timestamp: number, 
-    loading: boolean, 
+    key: string,
+    data: T | null,
+    timestamp: number,
+    loading: boolean,
     error: string | null
   ) {
     this.cache.set(key, { data, timestamp, loading, error })
@@ -172,10 +174,10 @@ class DataManager {
   /**
    * 通知订阅者
    */
-  private notifySubscribers(key: string, update: any) {
+  private notifySubscribers(key: string, update: unknown) {
     const subs = this.subscribers.get(key)
     if (subs) {
-      subs.forEach(callback => callback(update))
+      subs.forEach((callback) => callback(update))
     }
   }
 
@@ -184,7 +186,7 @@ class DataManager {
   /**
    * 获取用户信息
    */
-  async getUserInfo(forceRefresh = false): Promise<User> {
+  async getCurrentUser(forceRefresh = false): Promise<User> {
     const hasTokens = TokenManager.isLoggedIn()
     if (!hasTokens) {
       throw new Error('用户未登录')
@@ -192,7 +194,7 @@ class DataManager {
 
     return this.getData(
       'user-info',
-      () => AuthAPI.getUserInfo(),
+      () => AuthService.getCurrentUser(),
       CACHE_CONFIG.USER_INFO,
       forceRefresh
     )
@@ -201,16 +203,23 @@ class DataManager {
   /**
    * 获取用户API列表
    */
-  async getUserAPIList(params: GetUserAPIsParams = {}, forceRefresh = false, pageLevelRefresh = false): Promise<any> {
+  async getUserAPIList(
+    params: APIListParams = {},
+    forceRefresh = false,
+    pageLevelRefresh = false
+  ): Promise<{ data: API[] }> {
     // 先获取用户信息以获得用户ID
-    const user = await this.getUserInfo()
+    const user = await this.getCurrentUser()
     const finalParams = { ...params, owner_id: user.id }
-    
+
     const key = `user-apis-${JSON.stringify(finalParams)}`
-    
+
     return this.getData(
       key,
-      () => getUserAPIs(finalParams),
+      async () => {
+        const user = await AuthService.getCurrentUser()
+        return APIService.getUserAPIs(user.id, finalParams)
+      },
       CACHE_CONFIG.USER_APIS,
       forceRefresh,
       pageLevelRefresh
@@ -220,12 +229,16 @@ class DataManager {
   /**
    * 获取市场API列表
    */
-  async getMarketAPIList(params: GetMarketAPIsParams = {}, forceRefresh = false, pageLevelRefresh = false): Promise<any> {
+  async getMarketAPIList(
+    params: APIListParams = {},
+    forceRefresh = false,
+    pageLevelRefresh = false
+  ): Promise<{ data: API[] }> {
     const key = `market-apis-${JSON.stringify(params)}`
-    
+
     return this.getData(
       key,
-      () => getMarketAPIs(params),
+      () => APIService.getMarketAPIs(params),
       CACHE_CONFIG.MARKET_APIS,
       forceRefresh,
       pageLevelRefresh
@@ -235,12 +248,12 @@ class DataManager {
   /**
    * 获取API详情
    */
-  async getAPIDetail(apiId: string, forceRefresh = false, pageLevelRefresh = false): Promise<any> {
+  async getAPIDetail(apiId: string, forceRefresh = false, pageLevelRefresh = false): Promise<API> {
     const key = `api-detail-${apiId}`
-    
+
     return this.getData(
       key,
-      () => getUserAPI(apiId),
+      () => APIService.get(apiId),
       CACHE_CONFIG.API_DETAIL,
       forceRefresh,
       pageLevelRefresh
@@ -252,7 +265,7 @@ class DataManager {
   /**
    * 订阅数据变化
    */
-  subscribe(key: string, callback: (data: any) => void): () => void {
+  subscribe(key: string, callback: (data: unknown) => void): () => void {
     if (!this.subscribers.has(key)) {
       this.subscribers.set(key, new Set())
     }
@@ -284,10 +297,10 @@ class DataManager {
   clearCache(key?: string) {
     if (key) {
       this.cache.delete(key)
-      console.log(`🗑️ [DataManager] 清除缓存: ${key}`)
+      console.debug(`🗑️ [DataManager] 清除缓存: ${key}`)
     } else {
       this.cache.clear()
-      console.log(`🗑️ [DataManager] 清除全部缓存`)
+      console.debug(`🗑️ [DataManager] 清除全部缓存`)
     }
   }
 
@@ -311,7 +324,7 @@ class DataManager {
       window.addEventListener('storage', (e) => {
         if (e.key === 'vola_access_token' && !e.newValue) {
           this.clearCache()
-          console.log('🧹 [DataManager] 检测到登出，清除所有缓存')
+          console.debug('🧹 [DataManager] 检测到登出，清除所有缓存')
         }
       })
     }
@@ -324,7 +337,7 @@ class DataManager {
     this.cache.clear()
     this.pendingRequests.clear()
     this.subscribers.clear()
-    console.log('🔒 [DataManager] 安全清理完成')
+    console.debug('🔒 [DataManager] 安全清理完成')
   }
 }
 
@@ -346,12 +359,15 @@ export interface UseDataResult<T> {
  */
 export function useDataManager() {
   return {
-    getUserInfo: (forceRefresh?: boolean) => dataManager.getUserInfo(forceRefresh),
-    getUserAPIList: (params?: GetUserAPIsParams, forceRefresh?: boolean, pageLevelRefresh?: boolean) => 
+    getCurrentUser: (forceRefresh?: boolean) => dataManager.getCurrentUser(forceRefresh),
+    getUserAPIList: (params?: APIListParams, forceRefresh?: boolean, pageLevelRefresh?: boolean) =>
       dataManager.getUserAPIList(params, forceRefresh, pageLevelRefresh),
-    getMarketAPIList: (params?: GetMarketAPIsParams, forceRefresh?: boolean, pageLevelRefresh?: boolean) => 
-      dataManager.getMarketAPIList(params, forceRefresh, pageLevelRefresh),
-    getAPIDetail: (apiId: string, forceRefresh?: boolean, pageLevelRefresh?: boolean) => 
+    getMarketAPIList: (
+      params?: APIListParams,
+      forceRefresh?: boolean,
+      pageLevelRefresh?: boolean
+    ) => dataManager.getMarketAPIList(params, forceRefresh, pageLevelRefresh),
+    getAPIDetail: (apiId: string, forceRefresh?: boolean, pageLevelRefresh?: boolean) =>
       dataManager.getAPIDetail(apiId, forceRefresh, pageLevelRefresh),
     clearCache: (key?: string) => dataManager.clearCache(key),
     clearAPIDataCache: () => dataManager.clearAPIDataCache(),

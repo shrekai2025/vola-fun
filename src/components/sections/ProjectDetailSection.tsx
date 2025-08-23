@@ -4,27 +4,24 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-
 
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
-import { getMarketAPIDetailBySlug, type MarketAPI } from '@/services/market-api'
-import { getAPIEndpoints, type APIEndpoint } from '@/services/api-endpoints'
-import { 
-  ArrowLeft, 
-  Clock, 
+import { APIService, EndpointService, type API, type APIEndpoint } from '@/lib/api'
+import {
+  ArrowLeft,
+  Clock,
   Loader2,
   AlertCircle,
-  ExternalLink, 
-  FileText, 
+  ExternalLink,
+  FileText,
   Globe,
   ChevronDown,
   ChevronRight,
   Zap,
   Activity,
-  Shield
+  Shield,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -39,7 +36,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
   const toast = useToast()
 
   // 状态管理
-  const [api, setApi] = useState<MarketAPI | null>(null)
+  const [api, setApi] = useState<API | null>(null)
   const [endpoints, setEndpoints] = useState<APIEndpoint[]>([])
   const [loading, setLoading] = useState(true)
   const [endpointsLoading, setEndpointsLoading] = useState(false)
@@ -47,27 +44,15 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
   const [expandedEndpoints, setExpandedEndpoints] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState('description')
 
-  // 格式化响应时间显示
-  const formatResponseTime = useCallback((time?: number): string => {
-    if (!time || time <= 0) return '~200ms' // 默认值
-    if (time >= 1000) {
-      return `~${(time / 1000).toFixed(1)}s`
-    } else {
-      return `~${Math.round(time)}ms`
-    }
-  }, [])
-
-
-
   // 加载API详情
   useEffect(() => {
     const loadAPIDetail = async () => {
       try {
         setLoading(true)
         setError(null)
-        
-        const response = await getMarketAPIDetailBySlug(slug)
-        
+
+        const response = await APIService.getMarketAPIDetailBySlug(slug)
+
         if (response.success) {
           setApi(response.data)
         } else {
@@ -86,13 +71,13 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
     if (slug) {
       loadAPIDetail()
     }
-  }, [slug]) // 移除 toast 依赖
+  }, [slug, toast])
 
   // 加载API端点列表
   const loadEndpoints = useCallback(async (apiId: string) => {
     try {
       setEndpointsLoading(true)
-      const response = await getAPIEndpoints(apiId)
+      const response = await EndpointService.list(apiId)
       if (response.success) {
         setEndpoints(response.data)
       }
@@ -116,8 +101,6 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
     router.back()
   }, [router])
 
-
-
   // 格式化调用次数
   const formatUsageCount = useCallback((count: number): string => {
     if (count < 1000) return count.toString()
@@ -127,7 +110,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
 
   // 切换端点展开状态
   const toggleEndpoint = useCallback((endpointId: string) => {
-    setExpandedEndpoints(prev => {
+    setExpandedEndpoints((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(endpointId)) {
         newSet.delete(endpointId)
@@ -167,31 +150,46 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
     return new Date(dateString).toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     })
   }, [])
 
   // 获取服务状态显示
-  const getStatusInfo = useCallback((status: string) => {
-    switch (status) {
-      case 'published':
-        return { text: t.projectDetail.activeService, color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' }
-      case 'draft':
-        return { text: 'Draft', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' }
-      case 'deprecated':
-        return { text: t.projectDetail.deprecatedService, color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }
-      default:
-        return { text: 'Unknown', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' }
-    }
-  }, [t.projectDetail])
+  const getStatusInfo = useCallback(
+    (status: string) => {
+      switch (status) {
+        case 'published':
+          return {
+            text: t('projectDetail.activeService'),
+            color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+          }
+        case 'draft':
+          return {
+            text: 'Draft',
+            color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+          }
+        case 'deprecated':
+          return {
+            text: t('projectDetail.deprecatedService'),
+            color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+          }
+        default:
+          return {
+            text: 'Unknown',
+            color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+          }
+      }
+    },
+    [t]
+  )
 
   // 加载状态
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-muted-foreground">{t.projectDetail.loading}</span>
+      <div className='container mx-auto px-4 py-8'>
+        <div className='flex items-center justify-center py-20'>
+          <Loader2 className='h-8 w-8 animate-spin text-primary' />
+          <span className='ml-2 text-muted-foreground'>{t('projectDetail.loading')}</span>
         </div>
       </div>
     )
@@ -200,19 +198,17 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
   // 错误状态
   if (error || !api) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-20">
-          <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">{t.projectDetail.loadFailed}</h2>
-          <p className="text-muted-foreground mb-6">{error || t.projectDetail.apiNotFound}</p>
-          <div className="space-x-4">
-            <Button onClick={handleBack} variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t.projectDetail.backButton}
+      <div className='container mx-auto px-4 py-8'>
+        <div className='text-center py-20'>
+          <AlertCircle className='h-16 w-16 text-destructive mx-auto mb-4' />
+          <h2 className='text-2xl font-bold mb-2'>{t('projectDetail.loadFailed')}</h2>
+          <p className='text-muted-foreground mb-6'>{error || t('projectDetail.apiNotFound')}</p>
+          <div className='space-x-4'>
+            <Button onClick={handleBack} variant='outline'>
+              <ArrowLeft className='h-4 w-4 mr-2' />
+              {t('projectDetail.backButton')}
             </Button>
-            <Button onClick={() => window.location.reload()}>
-              {t.projectDetail.retry}
-            </Button>
+            <Button onClick={() => window.location.reload()}>{t('projectDetail.retry')}</Button>
           </div>
         </div>
       </div>
@@ -220,70 +216,68 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className='container mx-auto px-4 py-8'>
       {/* 返回按钮 */}
-      <div className="mb-6">
-        <Button 
-          onClick={handleBack} 
-          variant="ghost" 
-          className="pl-0 hover:pl-2 transition-all"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          {t.projectDetail.backButton}
+      <div className='mb-6'>
+        <Button onClick={handleBack} variant='ghost' className='pl-0 hover:pl-2 transition-all'>
+          <ArrowLeft className='h-4 w-4 mr-2' />
+          {t('projectDetail.backButton')}
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
+      <div className='grid gap-6 lg:gap-8 lg:grid-cols-3'>
         {/* 左侧主要内容 */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className='lg:col-span-2 space-y-6'>
           {/* API简介板块 */}
           <Card>
             <CardHeader>
-              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+              <div className='flex flex-col lg:flex-row lg:items-start justify-between gap-6'>
                 {/* 左侧基本信息 */}
-                <div className="flex-1">
-                  <div className="flex items-start space-x-4">
+                <div className='flex-1'>
+                  <div className='flex items-start space-x-4'>
                     {api.avatar_url && (
                       <Image
                         src={api.avatar_url}
                         alt={api.name}
                         width={64}
                         height={64}
-                        className="rounded-lg flex-shrink-0"
+                        className='rounded-lg flex-shrink-0'
                       />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-2xl font-bold mb-2">{api.name}</CardTitle>
-                      <CardDescription className="text-base mb-4">
+                    <div className='flex-1 min-w-0'>
+                      <CardTitle className='text-2xl font-bold mb-2'>{api.name}</CardTitle>
+                      <CardDescription className='text-base mb-4'>
                         {api.short_description}
                       </CardDescription>
-                      
+
                       {/* 状态、分类、标签、统计信息 */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge 
-                          variant="outline" 
+                      <div className='flex flex-wrap items-center gap-2'>
+                        <Badge
+                          variant='outline'
                           className={`text-sm ${getStatusInfo(api.status).color}`}
                         >
-                          <Shield className="h-3 w-3 mr-1" />
+                          <Shield className='h-3 w-3 mr-1' />
                           {getStatusInfo(api.status).text}
                         </Badge>
-                        <Badge variant="secondary" className="text-sm">
+                        <Badge variant='secondary' className='text-sm'>
                           {api.category}
                         </Badge>
-                        {api.tags && api.tags.length > 0 && api.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-sm">
-                            {tag}
-                          </Badge>
-                        ))}
-                        
+                        {api.tags &&
+                          api.tags.length > 0 &&
+                          api.tags.map((tag) => (
+                            <Badge key={tag} variant='outline' className='text-sm'>
+                              {tag}
+                            </Badge>
+                          ))}
+
                         {/* 统计信息 */}
-                        <div className="flex items-center gap-3 ml-2">
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
+                        <div className='flex items-center gap-3 ml-2'>
+                          <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+                            <Clock className='h-3 w-3' />
                             <span>~200ms</span>
                           </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Activity className="h-3 w-3" />
+                          <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+                            <Activity className='h-3 w-3' />
                             <span>{formatUsageCount(api.total_calls)}</span>
                           </div>
                         </div>
@@ -291,21 +285,15 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                     </div>
                   </div>
                 </div>
-                
-                
               </div>
             </CardHeader>
-            
-
           </Card>
 
-
-
           {/* Description和Endpoints切换标签 */}
-          <div className="space-y-6">
+          <div className='space-y-6'>
             {/* 自定义Tab切换器 */}
-            <div className="border-b border-border">
-              <div className="flex space-x-8">
+            <div className='border-b border-border'>
+              <div className='flex space-x-8'>
                 <button
                   onClick={() => setActiveTab('description')}
                   className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -314,7 +302,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
                   }`}
                 >
-                  {t.projectDetail.description}
+                  {t('projectDetail.description')}
                 </button>
                 <button
                   onClick={() => setActiveTab('endpoints')}
@@ -324,113 +312,146 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
                   }`}
                 >
-                  {t.projectDetail.endpoints}
-                  <Zap className="h-3 w-3" />
+                  {t('projectDetail.endpoints')}
+                  <Zap className='h-3 w-3' />
                 </button>
               </div>
             </div>
 
             {/* Tab内容 */}
-            <div className="min-h-[200px]">
+            <div className='min-h-[200px]'>
               {activeTab === 'description' && (
                 <div>
                   {api.documentation_markdown ? (
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    <div className='prose prose-sm max-w-none dark:prose-invert'>
+                      <div className='text-muted-foreground leading-relaxed whitespace-pre-wrap'>
                         {api.documentation_markdown}
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>{t.projectDetail.noDescription}</p>
+                    <div className='text-center py-8 text-muted-foreground'>
+                      <FileText className='h-8 w-8 mx-auto mb-2 opacity-50' />
+                      <p>{t('projectDetail.noDescription')}</p>
                     </div>
                   )}
                 </div>
               )}
-              
+
               {activeTab === 'endpoints' && (
                 <div>
                   {endpointsLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                      <span className="text-muted-foreground">{t.projectDetail.loadingEndpoints}</span>
+                    <div className='flex items-center justify-center py-8'>
+                      <Loader2 className='h-6 w-6 animate-spin mr-2' />
+                      <span className='text-muted-foreground'>
+                        {t('projectDetail.loadingEndpoints')}
+                      </span>
                     </div>
                   ) : endpoints.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className='space-y-4'>
                       {endpoints.map((endpoint) => (
-                        <div key={endpoint.id} className="border rounded-lg">
-                          <div 
-                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                        <div key={endpoint.id} className='border rounded-lg'>
+                          <div
+                            className='flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors'
                             onClick={() => toggleEndpoint(endpoint.id)}
                           >
-                            <div className="flex items-center gap-3 flex-1">
+                            <div className='flex items-center gap-3 flex-1'>
                               {expandedEndpoints.has(endpoint.id) ? (
-                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                <ChevronDown className='w-4 h-4 text-muted-foreground' />
                               ) : (
-                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                <ChevronRight className='w-4 h-4 text-muted-foreground' />
                               )}
-                              <Badge 
-                                variant="outline" 
+                              <Badge
+                                variant='outline'
                                 className={`${getMethodStyle(endpoint.method)} text-xs font-mono`}
                               >
                                 {endpoint.method.toUpperCase()}
                               </Badge>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">{endpoint.path}</p>
-                                <p className="text-sm text-muted-foreground truncate">{endpoint.name}</p>
+                              <div className='flex-1 min-w-0'>
+                                <p className='font-medium truncate'>{endpoint.path}</p>
+                                <p className='text-sm text-muted-foreground truncate'>
+                                  {endpoint.name}
+                                </p>
                               </div>
                             </div>
-                            
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span>${endpoint.price_per_call}/{t.projectDetail.calls}</span>
-                                <span>{formatUsageCount(endpoint.total_calls)} {t.projectDetail.calls}</span>
-                              </div>
+
+                            <div className='flex items-center gap-4 text-sm text-muted-foreground'>
+                              <span>
+                                ${endpoint.price_per_call}/{t('projectDetail.calls')}
+                              </span>
+                              <span>
+                                {formatUsageCount(endpoint.total_calls)} {t('projectDetail.calls')}
+                              </span>
+                            </div>
                           </div>
-                          
+
                           {expandedEndpoints.has(endpoint.id) && (
-                            <div className="border-t bg-muted/20 p-4">
-                              <div className="space-y-4">
+                            <div className='border-t bg-muted/20 p-4'>
+                              <div className='space-y-4'>
                                 <div>
-                                  <h4 className="font-medium mb-2">{t.projectDetail.endpointDescription}</h4>
-                                  <p className="text-sm text-muted-foreground">{endpoint.description || t.projectDetail.noDescription}</p>
+                                  <h4 className='font-medium mb-2'>
+                                    {t('projectDetail.endpointDescription')}
+                                  </h4>
+                                  <p className='text-sm text-muted-foreground'>
+                                    {endpoint.description || t('projectDetail.noDescription')}
+                                  </p>
                                 </div>
-                                
-                                {endpoint.query_params && Object.keys(endpoint.query_params).length > 0 && (
-                                  <div>
-                                    <h4 className="font-medium mb-2">{t.projectDetail.queryParams}</h4>
-                                    <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
-                                      {JSON.stringify(endpoint.query_params, null, 2)}
-                                    </pre>
-                                  </div>
-                                )}
-                                
-                                {endpoint.body_params && Object.keys(endpoint.body_params).length > 0 && (
-                                  <div>
-                                    <h4 className="font-medium mb-2">{t.projectDetail.bodyParams}</h4>
-                                    <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
-                                      {JSON.stringify(endpoint.body_params, null, 2)}
-                                    </pre>
-                                  </div>
-                                )}
-                                
-                                {endpoint.response_body && Object.keys(endpoint.response_body).length > 0 && (
-                                  <div>
-                                    <h4 className="font-medium mb-2">{t.projectDetail.responseExample}</h4>
-                                    <pre className="text-xs bg-background p-3 rounded overflow-x-auto">
-                                      {JSON.stringify(endpoint.response_body, null, 2)}
-                                    </pre>
-                                  </div>
-                                )}
-                                
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2 border-t">
+
+                                {endpoint.query_params &&
+                                  Object.keys(endpoint.query_params).length > 0 && (
+                                    <div>
+                                      <h4 className='font-medium mb-2'>
+                                        {t('projectDetail.queryParams')}
+                                      </h4>
+                                      <pre className='text-xs bg-background p-3 rounded overflow-x-auto'>
+                                        {JSON.stringify(endpoint.query_params, null, 2)}
+                                      </pre>
+                                    </div>
+                                  )}
+
+                                {endpoint.body_params &&
+                                  Object.keys(endpoint.body_params).length > 0 && (
+                                    <div>
+                                      <h4 className='font-medium mb-2'>
+                                        {t('projectDetail.bodyParams')}
+                                      </h4>
+                                      <pre className='text-xs bg-background p-3 rounded overflow-x-auto'>
+                                        {JSON.stringify(endpoint.body_params, null, 2)}
+                                      </pre>
+                                    </div>
+                                  )}
+
+                                {endpoint.response_body &&
+                                  Object.keys(endpoint.response_body).length > 0 && (
+                                    <div>
+                                      <h4 className='font-medium mb-2'>
+                                        {t('projectDetail.responseExample')}
+                                      </h4>
+                                      <pre className='text-xs bg-background p-3 rounded overflow-x-auto'>
+                                        {JSON.stringify(endpoint.response_body, null, 2)}
+                                      </pre>
+                                    </div>
+                                  )}
+
+                                <div className='flex items-center gap-4 text-sm text-muted-foreground pt-2 border-t'>
                                   {endpoint.avg_response_time && endpoint.avg_response_time > 0 && (
-                                    <span>{t.projectDetail.avgResponseTime}: {endpoint.avg_response_time}ms</span>
+                                    <span>
+                                      {t('projectDetail.avgResponseTime')}:{' '}
+                                      {endpoint.avg_response_time}ms
+                                    </span>
                                   )}
-                                  {endpoint.success_rate !== null && endpoint.success_rate !== undefined && (
-                                    <span>{t.projectDetail.successRate}: {(endpoint.success_rate * 100).toFixed(1)}%</span>
-                                  )}
-                                  <span>{t.projectDetail.endpointStatus}: {endpoint.is_active ? t.projectDetail.active : t.projectDetail.inactive}</span>
+                                  {endpoint.success_rate !== null &&
+                                    endpoint.success_rate !== undefined && (
+                                      <span>
+                                        {t('projectDetail.successRate')}:{' '}
+                                        {(endpoint.success_rate * 100).toFixed(1)}%
+                                      </span>
+                                    )}
+                                  <span>
+                                    {t('projectDetail.endpointStatus')}:{' '}
+                                    {endpoint.is_active
+                                      ? t('projectDetail.active')
+                                      : t('projectDetail.inactive')}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -439,9 +460,9 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Zap className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>{t.projectDetail.noEndpoints}</p>
+                    <div className='text-center py-8 text-muted-foreground'>
+                      <Zap className='h-8 w-8 mx-auto mb-2 opacity-50' />
+                      <p>{t('projectDetail.noEndpoints')}</p>
                     </div>
                   )}
                 </div>
@@ -451,64 +472,64 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
         </div>
 
         {/* 右侧边栏 */}
-        <div className="space-y-6">
+        <div className='space-y-6'>
           {/* Related Links板块 */}
-                            {hasRelatedLinks && (
+          {hasRelatedLinks && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">{t.projectDetail.relatedLinks}</CardTitle>
+                <CardTitle className='text-lg'>{t('projectDetail.relatedLinks')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className='space-y-3'>
                 {api.documentation_url && (
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <Link href={api.documentation_url} target="_blank">
-                      <FileText className="h-4 w-4 mr-2" />
-                      {t.projectDetail.viewDocs}
-                      <ExternalLink className="h-3 w-3 ml-auto" />
+                  <Button variant='outline' size='sm' className='w-full justify-start' asChild>
+                    <Link href={api.documentation_url} target='_blank'>
+                      <FileText className='h-4 w-4 mr-2' />
+                      {t('projectDetail.viewDocs')}
+                      <ExternalLink className='h-3 w-3 ml-auto' />
                     </Link>
                   </Button>
                 )}
                 {api.website_url && (
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <Link href={api.website_url} target="_blank">
-                      <Globe className="h-4 w-4 mr-2" />
-                      {t.projectDetail.officialWebsite}
-                      <ExternalLink className="h-3 w-3 ml-auto" />
+                  <Button variant='outline' size='sm' className='w-full justify-start' asChild>
+                    <Link href={api.website_url} target='_blank'>
+                      <Globe className='h-4 w-4 mr-2' />
+                      {t('projectDetail.officialWebsite')}
+                      <ExternalLink className='h-3 w-3 ml-auto' />
                     </Link>
                   </Button>
                 )}
                 {api.terms_url && (
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <Link href={api.terms_url} target="_blank">
-                      <FileText className="h-4 w-4 mr-2" />
-                      {t.projectDetail.termsOfService}
-                      <ExternalLink className="h-3 w-3 ml-auto" />
+                  <Button variant='outline' size='sm' className='w-full justify-start' asChild>
+                    <Link href={api.terms_url} target='_blank'>
+                      <FileText className='h-4 w-4 mr-2' />
+                      {t('projectDetail.termsOfService')}
+                      <ExternalLink className='h-3 w-3 ml-auto' />
                     </Link>
                   </Button>
                 )}
                 {api.health_check_url && (
-                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                    <Link href={api.health_check_url} target="_blank">
-                      <Activity className="h-4 w-4 mr-2" />
-                      {t.projectDetail.healthCheck}
-                      <ExternalLink className="h-3 w-3 ml-auto" />
+                  <Button variant='outline' size='sm' className='w-full justify-start' asChild>
+                    <Link href={api.health_check_url} target='_blank'>
+                      <Activity className='h-4 w-4 mr-2' />
+                      {t('projectDetail.healthCheck')}
+                      <ExternalLink className='h-3 w-3 ml-auto' />
                     </Link>
                   </Button>
                 )}
               </CardContent>
             </Card>
           )}
-          
+
           {/* 基本信息 */}
           <Card>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t.projectDetail.createdAt}</span>
+            <CardContent className='space-y-3 text-sm'>
+              <div className='flex justify-between'>
+                <span className='text-muted-foreground'>{t('projectDetail.createdAt')}</span>
                 <span>{formatDate(api.created_at)}</span>
               </div>
-              
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t.projectDetail.updatedAt}</span>
+
+              <div className='flex justify-between'>
+                <span className='text-muted-foreground'>{t('projectDetail.updatedAt')}</span>
                 <span>{formatDate(api.updated_at)}</span>
               </div>
             </CardContent>

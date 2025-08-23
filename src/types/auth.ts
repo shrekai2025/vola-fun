@@ -17,7 +17,7 @@ export interface TokenData {
 }
 
 // API 响应基础结构
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   code: string
   message: string
@@ -25,13 +25,13 @@ export interface ApiResponse<T = any> {
 }
 
 // 登录API响应
-export interface LoginResponse extends ApiResponse<TokenData> {}
+export type LoginResponse = ApiResponse<TokenData>
 
 // 刷新Token API响应
-export interface RefreshTokenResponse extends ApiResponse<TokenData> {}
+export type RefreshTokenResponse = ApiResponse<TokenData>
 
 // 登出API响应
-export interface LogoutResponse extends ApiResponse<null> {}
+export type LogoutResponse = ApiResponse<null>
 
 // 用户状态
 export interface User {
@@ -78,7 +78,7 @@ export interface SignupFormData {
 }
 
 // Firebase 错误代码
-export type FirebaseAuthErrorCode = 
+export type FirebaseAuthErrorCode =
   | 'auth/user-not-found'
   | 'auth/wrong-password'
   | 'auth/email-already-in-use'
@@ -98,16 +98,16 @@ export interface FirebaseAuthError {
 export interface AuthService {
   // Google 登录
   signInWithGoogle: () => Promise<string> // 返回 Firebase ID Token
-  
+
   // 邮箱登录
   signInWithEmail: (email: string, password: string) => Promise<string>
-  
+
   // 邮箱注册
   signUpWithEmail: (email: string, password: string) => Promise<string>
-  
+
   // 检查用户是否存在
   checkUserExists: (email: string) => Promise<'exists' | 'not-found'>
-  
+
   // 登出
   signOut: () => Promise<void>
 }

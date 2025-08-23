@@ -10,22 +10,30 @@ import { auth } from '@/config/firebase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import GoogleAuthButton from './GoogleAuthButton'
-import { authModalAtom, setAuthModalAtom, authLoadingAtom, setAuthLoadingAtom, setWelcomeModalAtom } from '@/atoms/auth'
-import { AuthAPI } from '@/services/auth-api'
+import {
+  authModalAtom,
+  setAuthModalAtom,
+  authLoadingAtom,
+  setAuthLoadingAtom,
+  setWelcomeModalAtom,
+} from '@/atoms/auth'
+import { AuthService } from '@/lib/api'
 import { TokenManager } from '@/lib/cookie'
 import { useToast } from '@/components/ui/toast'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import type { SignupFormData, FirebaseAuthError } from '@/types/auth'
-
-// 表单验证 Schema - 使用函数创建以获取翻译
-const createSignupSchema = (t: any) => z.object({
-  email: z.string().email(t.validation.emailInvalid),
-  password: z.string().min(6, t.validation.passwordMinLength),
-  confirmPassword: z.string().min(6, t.validation.passwordMinLength)
-}).refine((data) => data.password === data.confirmPassword, {
-  message: t.validation.passwordMismatch,
-  path: ["confirmPassword"],
-})
+// 表单验证 Schema - 使用函数创建以支持i18n
+const createSignupSchema = (t: (key: string) => string) =>
+  z
+    .object({
+      email: z.string().email(t('validation.emailInvalid')),
+      password: z.string().min(6, t('validation.passwordMinLength')),
+      confirmPassword: z.string().min(6, t('validation.passwordMinLength')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('validation.passwordMismatch'),
+      path: ['confirmPassword'],
+    })
 
 /**
  * 注册表单组件
@@ -46,8 +54,8 @@ export function SignupForm() {
   } = useForm<SignupFormData>({
     resolver: zodResolver(createSignupSchema(t)),
     defaultValues: {
-      email: authModal.email || ''
-    }
+      email: authModal.email || '',
+    },
   })
 
   // 检查是否显示欢迎弹窗
@@ -58,10 +66,10 @@ export function SignupForm() {
   // Google 登录成功处理
   const handleGoogleSuccess = () => {
     toast.signupSuccess()
-    
+
     // 关闭认证弹窗
     setAuthModal({ isOpen: false })
-    
+
     // 显示欢迎弹窗（如果配置为显示）
     if (shouldShowWelcome()) {
       setWelcomeModal(true)
@@ -78,20 +86,20 @@ export function SignupForm() {
       const idToken = await result.user.getIdToken()
 
       // 调用后端 API 换取 JWT
-      const tokenData = await AuthAPI.loginWithFirebaseToken(idToken)
-      
+      const tokenData = await AuthService.login(idToken)
+
       // 存储 tokens
       TokenManager.setTokens({
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
-        tokenType: tokenData.token_type
+        tokenType: tokenData.token_type,
       })
 
       toast.signupSuccess()
-      
+
       // 关闭认证弹窗
       setAuthModal({ isOpen: false })
-      
+
       // 显示欢迎弹窗（如果配置为显示）
       if (shouldShowWelcome()) {
         setWelcomeModal(true)
@@ -100,16 +108,16 @@ export function SignupForm() {
       }
     } catch (error) {
       const firebaseError = error as FirebaseAuthError
-      
+
       if (firebaseError.code === 'auth/email-already-in-use') {
-        toast.error(t.toast.emailAlreadyExists)
+        toast.error(t('toast.emailAlreadyExists'))
       } else if (firebaseError.code === 'auth/weak-password') {
-        toast.error(t.toast.passwordWeak)
+        toast.error(t('toast.passwordWeak'))
       } else if (firebaseError.code === 'auth/invalid-email') {
-        toast.error(t.validation.emailInvalid)
+        toast.error(t('validation.emailInvalid'))
       } else {
         console.error('Email signup error:', error)
-        toast.error(t.toast.authError)
+        toast.error(t('toast.authError'))
       }
     } finally {
       setLoading(false)
@@ -122,11 +130,12 @@ export function SignupForm() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* 隐私政策提示 */}
-      <div className="text-sm text-gray-600 text-center leading-relaxed">
-        By clicking &ldquo;Continue with Google&rdquo; or &ldquo;Create account&rdquo;, you agree to the{' '}
-        <a href="#" className="text-blue-600 hover:underline">
+      <div className='text-sm text-gray-600 text-center leading-relaxed'>
+        By clicking &ldquo;Continue with Google&rdquo; or &ldquo;Create account&rdquo;, you agree to
+        the{' '}
+        <a href='#' className='text-blue-600 hover:underline'>
           Privacy Policy
         </a>
         .
@@ -136,75 +145,73 @@ export function SignupForm() {
       <GoogleAuthButton
         onSuccess={handleGoogleSuccess}
         disabled={isLoading || isSubmitting}
-        mode="popup"
+        mode='popup'
       />
 
       {/* 分隔线 */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+      <div className='relative'>
+        <div className='absolute inset-0 flex items-center'>
+          <span className='w-full border-t' />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">or</span>
+        <div className='relative flex justify-center text-xs uppercase'>
+          <span className='bg-background px-2 text-muted-foreground'>or</span>
         </div>
       </div>
 
       {/* 邮箱注册表单 */}
-      <form onSubmit={handleSubmit(handleEmailSignup)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleEmailSignup)} className='space-y-4'>
         <div>
           <Input
             {...register('email')}
-            type="email"
-            placeholder="Email"
-            className="h-12 text-base"
+            type='email'
+            placeholder='Email'
+            className='h-12 text-base'
             disabled={isLoading || isSubmitting}
           />
-          {errors.email && (
-            <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
-          )}
+          {errors.email && <p className='text-sm text-red-500 mt-1'>{errors.email.message}</p>}
         </div>
 
         <div>
           <Input
             {...register('password')}
-            type="password"
-            placeholder="Password"
-            className="h-12 text-base"
+            type='password'
+            placeholder='Password'
+            className='h-12 text-base'
             disabled={isLoading || isSubmitting}
           />
           {errors.password && (
-            <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+            <p className='text-sm text-red-500 mt-1'>{errors.password.message}</p>
           )}
         </div>
 
         <div>
           <Input
             {...register('confirmPassword')}
-            type="password"
-            placeholder="Confirm Password"
-            className="h-12 text-base"
+            type='password'
+            placeholder='Confirm Password'
+            className='h-12 text-base'
             disabled={isLoading || isSubmitting}
           />
           {errors.confirmPassword && (
-            <p className="text-sm text-red-500 mt-1">{errors.confirmPassword.message}</p>
+            <p className='text-sm text-red-500 mt-1'>{errors.confirmPassword.message}</p>
           )}
         </div>
 
         <Button
-          type="submit"
+          type='submit'
           disabled={isLoading || isSubmitting}
-          className="w-full h-12 text-base font-medium bg-black text-white hover:bg-gray-800"
+          className='w-full h-12 text-base font-medium bg-black text-white hover:bg-gray-800'
         >
           Create account
         </Button>
 
         {/* 切换到登录 */}
-        <div className="text-center text-sm">
-          <span className="text-gray-600">Already have an account? </span>
+        <div className='text-center text-sm'>
+          <span className='text-gray-600'>Already have an account? </span>
           <button
-            type="button"
+            type='button'
             onClick={handleSwitchToLogin}
-            className="text-blue-600 hover:text-blue-500 underline"
+            className='text-blue-600 hover:text-blue-500 underline'
             disabled={isLoading || isSubmitting}
           >
             Log in

@@ -13,10 +13,13 @@ interface CachedAvatarProps {
 }
 
 // Avatar缓存管理
-const avatarCache = new Map<string, {
-  blob: string
-  timestamp: number
-}>()
+const avatarCache = new Map<
+  string,
+  {
+    blob: string
+    timestamp: number
+  }
+>()
 
 const AVATAR_CACHE_EXPIRY = 30 * 60 * 1000 // 30分钟
 
@@ -36,10 +39,10 @@ const isValidUrl = (url: string): boolean => {
  */
 export function CachedAvatar({
   src,
-  alt = "Avatar",
+  alt = 'Avatar',
   className,
   fallback,
-  size = 32
+  size = 32,
 }: CachedAvatarProps) {
   const [cachedSrc, setCachedSrc] = useState<string | undefined>(src)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,14 +55,14 @@ export function CachedAvatar({
       return
     }
 
-    // 重置错误状态
+    // Reset error state when src changes
     setHasError(false)
 
     const cached = avatarCache.get(src)
     const now = Date.now()
 
     // 检查缓存是否有效
-    if (cached && (now - cached.timestamp) < AVATAR_CACHE_EXPIRY) {
+    if (cached && now - cached.timestamp < AVATAR_CACHE_EXPIRY) {
       setCachedSrc(cached.blob)
       return
     }
@@ -68,7 +71,7 @@ export function CachedAvatar({
     const loadAndCacheAvatar = async () => {
       try {
         setIsLoading(true)
-        
+
         // 验证URL格式
         if (!isValidUrl(src)) {
           console.warn('Invalid avatar URL:', src)
@@ -76,42 +79,42 @@ export function CachedAvatar({
           setCachedSrc(src) // 使用原始URL，让浏览器处理
           return
         }
-        
+
         // 创建带超时的fetch请求
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超时
-        
+
         const response = await fetch(src, {
           method: 'GET',
           mode: 'cors',
           cache: 'default',
           signal: controller.signal,
           headers: {
-            'Accept': 'image/*',
-          }
+            Accept: 'image/*',
+          },
         })
-        
+
         clearTimeout(timeoutId)
-        
+
         if (response.ok) {
           const contentType = response.headers.get('content-type')
           if (contentType && contentType.startsWith('image/')) {
             const blob = await response.blob()
             const blobUrl = URL.createObjectURL(blob)
-            
+
             // 清理过期的缓存
             if (cached?.blob) {
               URL.revokeObjectURL(cached.blob)
             }
-            
+
             // 更新缓存
             avatarCache.set(src, {
               blob: blobUrl,
-              timestamp: now
+              timestamp: now,
             })
-            
+
             setCachedSrc(blobUrl)
-            console.log('✅ Avatar cached successfully:', src)
+            console.debug('✅ Avatar cached successfully:', src)
           } else {
             console.warn('Response is not an image:', contentType)
             setCachedSrc(src)
@@ -120,16 +123,19 @@ export function CachedAvatar({
           console.warn('Avatar fetch failed with status:', response.status, response.statusText)
           setCachedSrc(src)
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // 详细的错误处理
-        if (error.name === 'AbortError') {
+        const errorName = (error as { name?: string })?.name
+        const errorMessage = (error as { message?: string })?.message
+
+        if (errorName === 'AbortError') {
           console.warn('Avatar fetch timed out:', src)
-        } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-          console.warn('Network error or CORS issue for avatar:', src, error.message)
+        } else if (errorName === 'TypeError' && errorMessage?.includes('Failed to fetch')) {
+          console.warn('Network error or CORS issue for avatar:', src, errorMessage)
         } else {
           console.warn('Failed to cache avatar:', src, error)
         }
-        
+
         // 无论什么错误，都使用原始URL作为后备
         // 不设置 hasError=true，因为我们有后备方案
         setCachedSrc(src)
@@ -149,27 +155,22 @@ export function CachedAvatar({
   }, [])
 
   return (
-    <Avatar 
-      className={className}
-      style={{ width: size, height: size }}
-    >
-      {cachedSrc ? (
-        <AvatarImage 
-          src={cachedSrc} 
+    <Avatar className={className} style={{ width: size, height: size }}>
+      {cachedSrc && !hasError ? (
+        <AvatarImage
+          src={cachedSrc}
           alt={alt}
           onError={() => {
             console.warn('Avatar image failed to load:', cachedSrc)
             setHasError(true)
           }}
-          style={{ 
+          style={{
             opacity: isLoading ? 0.7 : 1,
-            transition: 'opacity 0.2s ease-in-out'
+            transition: 'opacity 0.2s ease-in-out',
           }}
         />
       ) : null}
-      <AvatarFallback>
-        {fallback || <User className="h-4 w-4" />}
-      </AvatarFallback>
+      <AvatarFallback>{fallback || <User className='h-4 w-4' />}</AvatarFallback>
     </Avatar>
   )
 }
@@ -180,19 +181,19 @@ export const clearAvatarCache = () => {
     URL.revokeObjectURL(blob)
   })
   avatarCache.clear()
-  console.log('🗑️ Avatar cache cleared')
+  console.debug('🗑️ Avatar cache cleared')
 }
 
 // 获取缓存统计信息
 export const getAvatarCacheStats = () => {
   const now = Date.now()
   const validEntries = Array.from(avatarCache.entries()).filter(
-    ([_, { timestamp }]) => (now - timestamp) < AVATAR_CACHE_EXPIRY
+    ([_, { timestamp }]) => now - timestamp < AVATAR_CACHE_EXPIRY
   )
-  
+
   return {
     total: avatarCache.size,
     valid: validEntries.length,
-    expired: avatarCache.size - validEntries.length
+    expired: avatarCache.size - validEntries.length,
   }
 }

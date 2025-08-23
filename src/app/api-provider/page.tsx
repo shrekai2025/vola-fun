@@ -21,11 +21,11 @@ export default function APIProviderPage() {
   // 用户未登录时显示空页面（登录模态框会自动弹出）
   if (!loading && !isLoggedIn) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <p className="text-muted-foreground">{t.apiProvider.create.loginPrompt}</p>
+      <div className='min-h-screen bg-background'>
+        <div className='container mx-auto px-4 py-8'>
+          <div className='flex items-center justify-center min-h-[400px]'>
+            <div className='text-center'>
+              <p className='text-muted-foreground'>{t('apiProvider.create.loginPrompt')}</p>
             </div>
           </div>
         </div>
@@ -36,7 +36,7 @@ export default function APIProviderPage() {
   // 无论是否在加载用户信息，都显示 UserAPIListSection
   // UserAPIListSection 会处理自己的加载状态
   return (
-    <div className="min-h-screen bg-background">
+    <div className='min-h-screen bg-background'>
       <UserAPIListSection />
     </div>
   )
