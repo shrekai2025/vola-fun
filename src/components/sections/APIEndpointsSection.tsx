@@ -44,6 +44,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
   const [editingEndpoint, setEditingEndpoint] = useState<string | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
   const [deletingEndpoint, setDeletingEndpoint] = useState<string | null>(null)
+  const [endpointsError, setEndpointsError] = useState<string | null>(null)
   
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -97,25 +98,67 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
     try {
       setLoading(true)
       
-      // 并行加载API信息和端点列表
-      const [apiResponse, endpointsResponse] = await Promise.all([
-        getUserAPI(apiId),
-        getAPIEndpoints(apiId)
-      ])
-      
+      // 先加载API信息
+      const apiResponse = await getUserAPI(apiId)
       setApi(apiResponse.data)
-      setEndpoints(endpointsResponse.data || [])
+      
+      // 然后尝试加载端点列表，如果失败则继续，只是设置空数组
+      try {
+        const endpointsResponse = await getAPIEndpoints(apiId)
+        setEndpoints(endpointsResponse.data || [])
+        setEndpointsError(null) // 清除之前的错误
+      } catch (endpointsError: unknown) {
+        console.warn('获取端点列表失败，但API信息加载成功:', endpointsError)
+        
+        // 检查是否是响应格式验证错误
+        const isValidationError = endpointsError instanceof Error && 
+          (endpointsError.message.includes('RESPONSE_VALIDATION_ERROR') ||
+           endpointsError.message.includes('invalid response format'))
+        
+        const errorMessage = endpointsError instanceof Error 
+          ? endpointsError.message 
+          : translations.generalLoadFailed
+        
+        if (isValidationError) {
+          const validationErrorMsg = '端点数据格式异常，这可能是由于后端数据不兼容导致的。请联系管理员检查数据完整性。'
+          setEndpointsError(validationErrorMsg)
+          toast.error(validationErrorMsg)
+          console.error('端点数据格式验证失败，这可能是由于后端数据格式不兼容导致的')
+        } else {
+          // 其他错误则显示通用错误信息
+          setEndpointsError(errorMessage)
+          toast.error(errorMessage)
+        }
+        
+        // 设置空端点列表，让用户可以继续操作
+        setEndpoints([])
+      }
       
     } catch (error: unknown) {
-      console.error('加载数据失败:', error)
+      console.error('加载API信息失败:', error)
       const errorMessage = error instanceof Error ? error.message : '加载失败'
       toast.error(errorMessage)
-      // 返回到API Provider页面
+      // 只有API信息也加载失败时才返回列表页
       router.push('/api-provider')
     } finally {
       setLoading(false)
     }
   }, [apiId]) // 移除toast和router依赖避免无限循环
+
+  // 只重新加载端点列表
+  const retryEndpoints = useCallback(async () => {
+    try {
+      const endpointsResponse = await getAPIEndpoints(apiId)
+      setEndpoints(endpointsResponse.data || [])
+      setEndpointsError(null)
+      toast.success(translations.refreshSuccess)
+    } catch (error: unknown) {
+      console.error('重新加载端点失败:', error)
+      const errorMessage = error instanceof Error ? error.message : translations.generalLoadFailed
+      setEndpointsError(errorMessage)
+      toast.error(errorMessage)
+    }
+  }, [apiId])
 
   // 切换端点展开/收起状态
   const toggleEndpoint = useCallback((endpointId: string) => {
@@ -192,9 +235,9 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <p className="text-muted-foreground mb-4">API不存在或您没有访问权限</p>
+            <p className="text-muted-foreground mb-4">{translations.apiNotFound}</p>
             <Button asChild>
-              <Link href="/api-provider">返回列表</Link>
+              <Link href="/api-provider">{translations.backToList}</Link>
             </Button>
           </div>
         </div>
@@ -210,7 +253,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
           <Button variant="ghost" size="sm" asChild>
             <Link href="/api-provider" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
-              返回列表
+              {translations.backToList}
             </Link>
           </Button>
         </div>
@@ -245,15 +288,32 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
             />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
-            {translations.noEndpoints}
+            {endpointsError ? translations.endpointLoadFailed : translations.noEndpoints}
           </h3>
-          <Button 
-            onClick={() => setCreatingNew(true)}
-            className="flex items-center gap-2 mt-4"
-          >
-            <Plus className="w-4 h-4" />
-            {translations.createNew}
-          </Button>
+          <p className="text-muted-foreground mb-4">
+            {endpointsError 
+              ? endpointsError 
+              : (api ? translations.firstEndpoint : '如果您刚才遇到了加载错误，可以尝试刷新')
+            }
+          </p>
+          <div className="flex gap-2">
+            {!endpointsError && (
+              <Button 
+                onClick={() => setCreatingNew(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                {translations.createNew}
+              </Button>
+            )}
+            <Button 
+              variant="outline"
+              onClick={endpointsError ? retryEndpoints : loadData}
+              className="flex items-center gap-2"
+            >
+              {endpointsError ? translations.retryEndpoints : translations.refreshAndRetry}
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -408,7 +468,7 @@ function EndpointItem({
             {/* 基本信息 */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium mb-3">基本信息</h4>
+                <h4 className="font-medium mb-3">{translations.basicInfo}</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{translations.endpointName}:</span>
@@ -432,7 +492,7 @@ function EndpointItem({
               </div>
               
               <div>
-                <h4 className="font-medium mb-3">统计信息</h4>
+                <h4 className="font-medium mb-3">{translations.statisticsInfo}</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">{translations.totalCalls}:</span>
@@ -452,14 +512,14 @@ function EndpointItem({
 
             {/* 请求参数 */}
             <div>
-              <h4 className="font-medium mb-3">请求参数</h4>
+              <h4 className="font-medium mb-3">{translations.requestParams}</h4>
               <div className="grid gap-4">
                 {/* Headers */}
                 <div>
                   <h5 className="text-sm font-medium text-muted-foreground mb-2">{translations.headersLabel}</h5>
                   <div className="bg-muted/30 rounded-md p-3">
                     {Object.keys(endpoint.headers || {}).length === 0 ? (
-                      <span className="text-sm text-muted-foreground">无</span>
+                      <span className="text-sm text-muted-foreground">{translations.none}</span>
                     ) : (
                       <pre className="text-xs overflow-auto max-h-32">
                         {JSON.stringify(endpoint.headers, null, 2)}
@@ -473,7 +533,7 @@ function EndpointItem({
                   <h5 className="text-sm font-medium text-muted-foreground mb-2">{translations.queryParamsLabel}</h5>
                   <div className="bg-muted/30 rounded-md p-3">
                     {Object.keys(endpoint.query_params || {}).length === 0 ? (
-                      <span className="text-sm text-muted-foreground">无</span>
+                      <span className="text-sm text-muted-foreground">{translations.none}</span>
                     ) : (
                       <pre className="text-xs overflow-auto max-h-32">
                         {JSON.stringify(endpoint.query_params, null, 2)}
@@ -487,7 +547,7 @@ function EndpointItem({
                   <h5 className="text-sm font-medium text-muted-foreground mb-2">{translations.bodyParamsLabel}</h5>
                   <div className="bg-muted/30 rounded-md p-3">
                     {Object.keys(endpoint.body_params || {}).length === 0 ? (
-                      <span className="text-sm text-muted-foreground">无</span>
+                      <span className="text-sm text-muted-foreground">{translations.none}</span>
                     ) : (
                       <pre className="text-xs overflow-auto max-h-32">
                         {JSON.stringify(endpoint.body_params, null, 2)}
@@ -517,7 +577,7 @@ function EndpointItem({
                 className="flex items-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="w-3 h-3" />
-                {deleting ? '删除中...' : translations.delete}
+                {deleting ? translations.deleting : translations.delete}
               </Button>
             </div>
           </div>
@@ -607,7 +667,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               <Input
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                placeholder="端点名称"
+                placeholder={translations.endpointNamePlaceholder}
                 required
               />
             </div>
@@ -618,7 +678,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               <Input
                 value={formData.path}
                 onChange={(e) => handleChange('path', e.target.value)}
-                placeholder="/example/path"
+                placeholder={translations.endpointPathPlaceholder}
                 required
               />
             </div>
@@ -677,7 +737,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
               className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              placeholder="端点描述..."
+              placeholder={translations.endpointDescPlaceholder}
             />
           </div>
 
@@ -730,7 +790,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
               placeholder='{"success": true, "data": {"id": "123", "name": "example"}}'
             />
-            <p className="text-xs text-muted-foreground mt-1">请使用标准JSON格式，属性名需用双引号</p>
+            <p className="text-xs text-muted-foreground mt-1">{translations.jsonFormatNote}</p>
           </div>
 
           <div className="flex items-center gap-4 pt-4 border-t border-border/50">
@@ -742,7 +802,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               {saving ? (
                 <>
                   <div className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  保存中...
+                  {translations.saving}
                 </>
               ) : (
                 <>

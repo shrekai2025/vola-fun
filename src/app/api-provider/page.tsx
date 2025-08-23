@@ -3,11 +3,13 @@
 import { useEffect } from 'react'
 import { useUserCache } from '@/hooks/useUserCache'
 import { useAuth } from '@/hooks/useAuth'
+import { useTranslation } from '@/components/providers/LanguageProvider'
 import UserAPIListSection from '@/components/sections/UserAPIListSection'
 
 export default function APIProviderPage() {
   const { isLoggedIn, loading } = useUserCache()
   const { showAuthModal } = useAuth()
+  const { t } = useTranslation()
 
   useEffect(() => {
     // 如果用户未登录，重定向到登录
@@ -23,7 +25,7 @@ export default function APIProviderPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <p className="text-muted-foreground">请先登录以访问API Provider页面</p>
+              <p className="text-muted-foreground">{t.apiProvider.create.loginPrompt}</p>
             </div>
           </div>
         </div>

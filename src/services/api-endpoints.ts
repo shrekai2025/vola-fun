@@ -129,10 +129,17 @@ export const getAPIEndpoints = async (
     console.error('完整错误对象:', error)
     
     if (error instanceof Error && 'response' in error) {
-      const axiosError = error as { response?: { status?: number; data?: { message?: string } } }
+      const axiosError = error as { response?: { status?: number; data?: { message?: string; code?: string } } }
       console.error('📥 [api-endpoints] HTTP响应错误:')
       console.error('  状态码:', axiosError.response?.status)
       console.error('  响应数据:', axiosError.response?.data)
+      
+      // 特别检查响应验证错误
+      if (axiosError.response?.data?.code === 'RESPONSE_VALIDATION_ERROR') {
+        console.error('🚨 [api-endpoints] 检测到响应格式验证错误')
+        console.error('  这通常表示后端返回的数据格式不符合预期')
+        console.error('  建议检查后端API返回的端点数据是否包含所有必需字段')
+      }
     }
     
     console.groupEnd()

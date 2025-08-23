@@ -41,16 +41,16 @@ const getStatusStyle = (status: string) => {
   }
 }
 
-const getStatusText = (status: string) => {
+const getStatusText = (status: string, t: any) => {
   switch (status) {
     case 'draft':
-      return '草稿'
+      return t.apiProvider.status.draft
     case 'published':
-      return '已发布'
+      return t.apiProvider.status.published
     case 'deprecated':
-      return '已弃用'
+      return t.apiProvider.status.deprecated
     case 'suspended':
-      return '已暂停'
+      return t.apiProvider.status.suspended
     default:
       return status
   }
@@ -82,7 +82,7 @@ export default function UserAPIListSection() {
 
   // 删除API
   const handleDeleteAPI = useCallback(async (apiId: string, apiName: string) => {
-    if (!confirm(`确定要删除API "${apiName}" 吗？此操作无法撤销。`)) {
+    if (!confirm(t.confirmDialog.deleteAPIMessage.replace('{name}', apiName))) {
       return
     }
 
@@ -92,15 +92,15 @@ export default function UserAPIListSection() {
       
       // 刷新API列表以反映删除结果
       await refreshAPIs()
-      toast.success('API删除成功')
+      toast.success(t.toast.apiDeleteSuccess)
     } catch (error: unknown) {
       console.error('删除API失败', error)
-      const errorMessage = error instanceof Error ? error.message : '删除API失败，请稍后重试'
+      const errorMessage = error instanceof Error ? error.message : t.errors.deleteAPIFailed
       toast.error(errorMessage)
     } finally {
       setDeleting(null)
     }
-  }, [refreshAPIs, toast])
+  }, [refreshAPIs, toast, t])
 
   // useUserAPIList Hook会自动处理数据加载，无需手动useEffect
 
@@ -120,14 +120,14 @@ export default function UserAPIListSection() {
               <Info className="w-4 h-4 text-muted-foreground hover:text-foreground cursor-help transition-colors" />
               <div className="absolute left-0 top-6 w-80 p-3 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <p className="text-sm text-foreground">
-                  Vola.fun shares revenue with API providers based on the credits consumed when their APIs are used.{' '}
+                  {t.apiProvider.description}{' '}
                   <a 
                     href="/docs" 
                     className="text-primary hover:text-primary/80 underline"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    View the DOCs
+                    {t.nav.docs}
                   </a>
                 </p>
               </div>
@@ -149,12 +149,12 @@ export default function UserAPIListSection() {
             <Info className="w-12 h-12 text-destructive" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
-            加载失败
+            {t.errors.loadAPIsFailed}
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md">
             {error}
           </p>
-          <Button onClick={refreshAPIs}>重试</Button>
+          <Button onClick={refreshAPIs}>{t.projectDetail.retry}</Button>
         </div>
       ) :
       /* 加载状态 - 使用骨架屏 */
@@ -167,10 +167,10 @@ export default function UserAPIListSection() {
             <Plus className="w-12 h-12 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
-            请先登录
+            {t.apiProvider.create.loginPrompt}
           </h3>
           <p className="text-muted-foreground mb-6 max-w-md">
-            您需要登录才能管理您的API
+            {t.apiProvider.create.loginPrompt}
           </p>
         </div>
       ) : (!apis || apis.length === 0) ? (
@@ -213,7 +213,7 @@ export default function UserAPIListSection() {
                         variant="outline" 
                         className={`${getStatusStyle(api.status)} text-xs`}
                       >
-                        {getStatusText(api.status)}
+                        {getStatusText(api.status, t)}
                       </Badge>
                       <Badge variant="secondary" className="text-xs capitalize">
                         {api.category.replace('_', '/')}
@@ -225,7 +225,7 @@ export default function UserAPIListSection() {
               
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                  {api.short_description || '暂无描述'}
+                  {api.short_description || t.apiProvider.noDescription}
                 </p>
                 
                 <div className="space-y-2 text-xs text-muted-foreground mb-4">

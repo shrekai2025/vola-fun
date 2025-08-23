@@ -167,6 +167,7 @@ export interface Translations {
     loading: string
     noAPIs: string
     noAPIsDescription: string
+    noDescription: string
     // Actions and labels
     totalCalls: string
     createdAt: string
@@ -281,6 +282,12 @@ export interface Translations {
       business: string
       other: string
     }
+    status: {
+      draft: string
+      published: string
+      deprecated: string
+      suspended: string
+    }
   }
 
   // API端点管理页面
@@ -292,6 +299,7 @@ export interface Translations {
     loading: string
     loadFailed: string
     retry: string
+    loginPrompt: string
     
     // 端点信息
     endpointName: string
@@ -340,6 +348,28 @@ export interface Translations {
     deleteConfirmMessage: string
     editConfirmTitle: string
     editConfirmMessage: string
+    // API不存在相关
+    apiNotFound: string
+    backToList: string
+    // 错误状态相关
+    generalLoadFailed: string
+    endpointLoadFailed: string
+    retryEndpoints: string
+    refreshAndRetry: string
+    firstEndpoint: string
+    refreshSuccess: string
+    // 基本信息和统计信息标题
+    basicInfo: string
+    statisticsInfo: string
+    requestParams: string
+    none: string
+    deleting: string
+    // 表单占位符
+    endpointNamePlaceholder: string
+    endpointPathPlaceholder: string
+    endpointDescPlaceholder: string
+    jsonFormatNote: string
+    saving: string
   }
 
   // 表单验证消息
@@ -608,6 +638,7 @@ export const en: Translations = {
     loading: 'Loading...',
     noAPIs: 'No APIs yet',
     noAPIsDescription: 'You haven\'t published any APIs yet. Start by publishing your first API to share with the community.',
+    noDescription: 'No description available',
     // Actions and labels
     totalCalls: 'Total Calls',
     createdAt: 'Created At',
@@ -731,6 +762,12 @@ Describe endpoint usage...`,
       entertainment: 'Entertainment',
       business: 'Business',
       other: 'Other'
+    },
+    status: {
+      draft: 'Draft',
+      published: 'Published',
+      deprecated: 'Deprecated',
+      suspended: 'Suspended'
     }
   },
 
@@ -742,6 +779,7 @@ Describe endpoint usage...`,
     loading: 'Loading...',
     loadFailed: 'Load Failed',
     retry: 'Retry',
+    loginPrompt: 'Please log in first to manage API endpoints',
     
     // 端点信息
     endpointName: 'Endpoint Name',
@@ -789,7 +827,29 @@ Describe endpoint usage...`,
     deleteConfirmTitle: 'Delete Endpoint',
     deleteConfirmMessage: 'Are you sure you want to delete this endpoint? This action cannot be undone.',
     editConfirmTitle: 'Save Changes',
-    editConfirmMessage: 'Are you sure you want to save these changes?'
+    editConfirmMessage: 'Are you sure you want to save these changes?',
+    // API不存在相关
+    apiNotFound: 'API not found or you do not have access',
+    backToList: 'Back to List',
+    // 错误状态相关
+    generalLoadFailed: 'Load Failed',
+    endpointLoadFailed: 'Endpoint loading failed',
+    retryEndpoints: 'Retry loading endpoints',
+    refreshAndRetry: 'Refresh and retry',
+    firstEndpoint: 'Start creating your first API endpoint',
+    refreshSuccess: 'Endpoint list refreshed',
+    // 基本信息和统计信息标题
+    basicInfo: 'Basic Information',
+    statisticsInfo: 'Statistics',
+    requestParams: 'Request Parameters',
+    none: 'None',
+    deleting: 'Deleting...',
+    // 表单占位符
+    endpointNamePlaceholder: 'Endpoint name',
+    endpointPathPlaceholder: '/example/path',
+    endpointDescPlaceholder: 'Endpoint description...',
+    jsonFormatNote: 'Please use standard JSON format with property names in double quotes',
+    saving: 'Saving...'
   },
 
   validation: {
@@ -1053,6 +1113,7 @@ export const zh: Translations = {
     loading: '加载中...',
     noAPIs: '暂无API',
     noAPIsDescription: '您还没有发布任何API。开始发布您的第一个API来与社区分享吧。',
+    noDescription: '暂无描述',
     // Actions and labels
     totalCalls: '调用量',
     createdAt: '创建时间',
@@ -1176,6 +1237,12 @@ export const zh: Translations = {
       entertainment: '娱乐',
       business: '商业',
       other: '其他'
+    },
+    status: {
+      draft: '草稿',
+      published: '已发布',
+      deprecated: '已弃用',
+      suspended: '已暂停'
     }
   },
 
@@ -1187,6 +1254,7 @@ export const zh: Translations = {
     loading: '加载中...',
     loadFailed: '加载失败',
     retry: '重试',
+    loginPrompt: '请先登录以管理API端点',
     
     // 端点信息
     endpointName: '端点名称',
@@ -1234,7 +1302,29 @@ export const zh: Translations = {
     deleteConfirmTitle: '删除端点',
     deleteConfirmMessage: '确定要删除此端点吗？此操作不可撤销。',
     editConfirmTitle: '保存更改',
-    editConfirmMessage: '确定要保存这些更改吗？'
+    editConfirmMessage: '确定要保存这些更改吗？',
+    // API不存在相关
+    apiNotFound: 'API不存在或您没有访问权限',
+    backToList: '返回列表',
+    // 错误状态相关
+    generalLoadFailed: '加载失败',
+    endpointLoadFailed: '端点加载失败',
+    retryEndpoints: '重试加载端点',
+    refreshAndRetry: '刷新重试',
+    firstEndpoint: '开始创建您的第一个API端点',
+    refreshSuccess: '端点列表已刷新',
+    // 基本信息和统计信息标题
+    basicInfo: '基本信息',
+    statisticsInfo: '统计信息',
+    requestParams: '请求参数',
+    none: '无',
+    deleting: '删除中...',
+    // 表单占位符
+    endpointNamePlaceholder: '端点名称',
+    endpointPathPlaceholder: '/example/path',
+    endpointDescPlaceholder: '端点描述...',
+    jsonFormatNote: '请使用标准JSON格式，属性名需用双引号',
+    saving: '保存中...'
   },
 
   validation: {
