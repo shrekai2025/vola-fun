@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/toast'
 import { X, Plus, Trash2, Save } from 'lucide-react'
-import { createAPI } from '@/services/admin-api'
+import { publishAPI } from '@/services/admin-api'
 
 // 表单验证模式
 const createAPISchema = z.object({
@@ -102,7 +102,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
       }
 
       // 详细的请求日志
-      console.group('🚀 [CreateAPIForm] 开始创建API请求')
+      console.group('🚀 [CreateAPIForm] 开始发布API请求')
       console.log('🔧 [CreateAPIForm] 当前模式: 直接请求后端服务器')
       console.log('💡 [CreateAPIForm] 配置说明: 按用户要求启用直接API访问')
       console.log('🎯 [CreateAPIForm] 请求路径: https://api.vola.fun/api/v1/apis/')
@@ -116,7 +116,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
       console.log('%c2. 确保勾选了"Preserve log"选项', 'color: #2196F3; font-weight: bold;')
       console.log('%c3. 查找以下请求链路:', 'color: #FF9800; font-weight: bold;')
       console.log('   • OPTIONS https://api.vola.fun/api/v1/apis/ - CORS预检请求')
-      console.log('   • POST https://api.vola.fun/api/v1/apis/ - 实际的API创建请求')
+      console.log('   • POST https://api.vola.fun/api/v1/apis/ - 实际的API发布请求')
       console.log('   • 直接访问后端服务器，跳过代理层')
       console.log('   • 如果出现CORS错误，这是正常现象')
       console.log('%c4. ⚠️ 注意：可能出现跨域限制', 'color: #FF9800; font-weight: bold;')
@@ -126,17 +126,17 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
       
       // 调用API并记录响应
       const startTime = Date.now()
-      const response = await createAPI(apiData)
+      const response = await publishAPI(apiData)
       const endTime = Date.now()
       
-      console.log('✅ [CreateAPIForm] API创建成功')
+      console.log('✅ [CreateAPIForm] API发布成功')
       console.log('📥 [CreateAPIForm] 响应数据:', JSON.stringify(response, null, 2))
       console.log('⏱️ [CreateAPIForm] 请求耗时:', `${endTime - startTime}ms`)
       
-      toast.success('API创建成功！')
+              toast.success('API发布成功！')
       onSuccess()
     } catch (error: any) {
-      console.group('❌ [CreateAPIForm] API创建失败')
+              console.group('❌ [CreateAPIForm] API发布失败')
       console.error('完整错误对象:', error)
       console.error('错误消息:', error.message)
       console.error('错误堆栈:', error.stack)
@@ -159,7 +159,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
       console.error('⏰ 错误时间:', new Date().toISOString())
       console.groupEnd()
       
-      toast.error(`创建API失败: ${error.message || '未知错误'}`)
+      toast.error(`发布API失败: ${error.message || '未知错误'}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -169,7 +169,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 sticky top-0 bg-card z-10 border-b">
-          <CardTitle className="text-xl">Create New API</CardTitle>
+          <CardTitle className="text-xl">New API</CardTitle>
           <Button
             variant="ghost"
             size="sm"
@@ -429,12 +429,12 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    创建中...
+                    发布中...
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    创建API
+                    发布API
                   </>
                 )}
               </Button>

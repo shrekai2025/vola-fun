@@ -38,7 +38,7 @@ export interface UpdateUserAPIRequest {
 }
 
 /**
- * 获取当前用户创建的API列表
+ * 获取当前用户发布的API列表
  */
 export const getUserAPIs = async (params?: GetUserAPIsParams): Promise<MarketAPIListResponse> => {
   try {
@@ -163,14 +163,14 @@ export const deleteUserAPI = async (apiId: string): Promise<{ success: boolean; 
 }
 
 /**
- * 创建用户API (复用admin的创建逻辑，但状态默认为draft)
+ * 发布用户API (复用admin的发布逻辑，但状态默认为draft)
  */
-export const createUserAPI = async (data: any): Promise<UserAPIDetailResponse> => {
+export const publishUserAPI = async (data: any): Promise<UserAPIDetailResponse> => {
   try {
-    console.log('➕ [user-api] 开始创建用户API')
-    console.log('📤 [user-api] 创建数据:', JSON.stringify(data, null, 2))
+    console.log('➕ [user-api] 开始发布用户API')
+    console.log('📤 [user-api] 发布数据:', JSON.stringify(data, null, 2))
     
-    // 确保用户创建的API默认为草稿状态
+    // 确保用户发布的API默认为草稿状态
     const createData = {
       ...data,
       status: 'draft', // 强制设置为草稿状态
@@ -179,14 +179,14 @@ export const createUserAPI = async (data: any): Promise<UserAPIDetailResponse> =
     
     const response = await apiClient.post<UserAPIDetailResponse>('/api/v1/apis/', createData)
     
-    console.log('✅ [user-api] 用户API创建成功')
+    console.log('✅ [user-api] 用户API发布成功')
     
     return response.data
   } catch (error: unknown) {
-    console.error('❌ [user-api] 创建用户API失败:', error)
+    console.error('❌ [user-api] 发布用户API失败:', error)
     const errorMessage = error instanceof Error && 'response' in error 
       ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
       : undefined
-    throw new Error(errorMessage || '创建API失败，请稍后重试')
+          throw new Error(errorMessage || '发布API失败，请稍后重试')
   }
 }

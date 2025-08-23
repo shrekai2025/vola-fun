@@ -2,7 +2,7 @@
 
 ## 概览
 
-Admin Panel 是一个受保护的管理页面，仅供系统管理员使用。它提供了创建和管理 API 服务的功能。
+Admin Panel 是一个受保护的管理页面，仅供系统管理员使用。它提供了发布和管理 API 服务的功能。
 
 ## 访问权限
 
@@ -12,9 +12,9 @@ Admin Panel 是一个受保护的管理页面，仅供系统管理员使用。�
 
 ## 功能特性
 
-### 1. API 创建功能
+### 1. API 发布功能
 
-提供完整的 API 创建表单，支持以下字段：
+提供完整的 API 发布表单，支持以下字段：
 
 #### 必填字段
 - `name`: API 名称（最大 255 字符）
@@ -62,7 +62,7 @@ useEffect(() => {
 
 ### API 接口
 
-- **创建 API**: `POST /api/v1/apis/`
+- **发布 API**: `POST /api/v1/apis/`
 - **获取 API 列表**: `GET /api/v1/apis/`
 - **获取 API 详情**: `GET /api/v1/apis/{id}`
 - **更新 API**: `PUT /api/v1/apis/{id}`
@@ -83,7 +83,7 @@ useEffect(() => {
 src/app/admin2025/
 ├── page.tsx                    # 主页面组件
 ├── components/
-│   └── CreateAPIForm.tsx       # API 创建表单组件
+│   └── CreateAPIForm.tsx       # API 发布表单组件
 └── README.md                   # 文档说明
 
 src/services/
@@ -94,9 +94,9 @@ src/services/
 
 1. **登录**: 使用管理员账户登录系统
 2. **访问**: 点击导航栏的 "Admin" 链接或直接访问 `/admin2025`
-3. **创建 API**: 点击 "Create New API" 按钮
+3. **发布 API**: 点击 "Publish New API" 按钮
 4. **填写表单**: 输入所有必要的 API 信息
-5. **提交**: 点击 "创建API" 按钮完成创建
+5. **提交**: 点击 "发布API" 按钮完成发布
 
 ## 安全特性
 
@@ -107,7 +107,7 @@ src/services/
 
 ## 扩展功能
 
-当前版本主要实现了 API 创建功能，未来可扩展：
+当前版本主要实现了 API 发布功能，未来可扩展：
 
 - 用户管理
 - 系统指标监控  

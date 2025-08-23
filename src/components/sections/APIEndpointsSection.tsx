@@ -257,7 +257,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
         </div>
       ) : (
         <div className="space-y-4">
-          {/* 创建新端点表单 */}
+                      {/* 发布新端点表单 */}
           {creatingNew && (
             <EndpointForm
               apiId={apiId}

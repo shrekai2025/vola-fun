@@ -12,7 +12,7 @@
 
 ### 1. **Tab导航系统**
 在admin页面添加了tab切换功能：
-- **创建API** - 原有的API创建功能
+- **发布API** - 原有的API发布功能
 - **审核API** - 新增的API审核功能
 
 ### 2. **API审核服务层**
@@ -52,7 +52,7 @@ approveAPI(apiId: string): Promise<UpdateAPIResponse>
 
 #### **主要功能**
 - ✅ **获取draft API列表**: 自动加载所有待审核的API
-- ✅ **API详情展示**: 显示API名称、描述、分类、标签、创建者等信息
+- ✅ **API详情展示**: 显示API名称、描述、分类、标签、发布者等信息
 - ✅ **审核操作**: 一键通过审核，将API状态从draft改为published
 - ✅ **实时更新**: 审核后自动从列表中移除
 - ✅ **错误处理**: 完善的加载、错误和空状态处理
@@ -129,7 +129,7 @@ draft (待审核) → published (已发布) → 在首页市场中显示
 src/app/admin2025/
 ├── page.tsx                    # 主页面，包含tab切换
 └── components/
-    ├── CreateAPIForm.tsx       # 创建API表单（原有）
+    ├── CreateAPIForm.tsx       # 发布API表单（原有）
     └── APIReviewList.tsx       # 审核列表组件（新增）
 
 src/services/
@@ -141,7 +141,7 @@ src/services/
 ## 🎨 **界面设计**
 
 ### **Tab导航**
-- 创建API (Plus图标)
+- 发布API (Plus图标)
 - 审核API (Clock图标) 
 
 ### **审核列表卡片**
@@ -174,7 +174,7 @@ src/services/
 ## 🧪 **测试建议**
 
 ### **功能测试**
-1. ✅ **创建draft API**: 在创建页面创建draft状态API
+1. ✅ **发布draft API**: 在发布页面发布draft状态API
 2. ✅ **列表显示**: 确认API出现在审核列表中
 3. ✅ **审核操作**: 点击通过按钮，确认状态变更
 4. ✅ **列表更新**: 确认API从审核列表中移除
@@ -211,7 +211,7 @@ src/services/
 1. **批量操作**: 支持批量审核多个API
 2. **审核日志**: 记录审核历史和操作人
 3. **拒绝功能**: 添加拒绝审核并附带原因
-4. **通知系统**: 审核结果通知API创建者
+4. **通知系统**: 审核结果通知API发布者
 
 ### **性能优化**
 1. **分页加载**: 大量API时的分页处理

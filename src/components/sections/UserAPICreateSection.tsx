@@ -12,10 +12,10 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
-import { createUserAPI } from '@/services/user-api'
+import { publishUserAPI } from '@/services/user-api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 
-// 表单验证模式 - 使用函数创建以获取翻译
+// 表单验证模式 - 使用函数获取翻译
 const createUserAPISchema = (t: any) => z.object({
   name: z.string().min(1, t.validation.apiNameRequired).max(255, t.validation.apiNameMaxLength),
   slug: z.string()
@@ -82,14 +82,14 @@ export default function UserAPICreateSection() {
       const submitData = {
         ...data,
         tags: tags,
-        // 用户创建的API默认为草稿状态，不公开
+        // 用户发布的API默认为草稿状态，不公开
         status: 'draft',
         is_public: false,
       }
 
-      console.log('提交用户API创建:', submitData)
+      console.log('提交用户API发布:', submitData)
       
-      const response = await createUserAPI(submitData)
+      const response = await publishUserAPI(submitData)
       
       toast.success(t.toast.apiCreateSuccessDraft)
       
@@ -97,9 +97,9 @@ export default function UserAPICreateSection() {
       router.push('/api-provider')
       
     } catch (error: unknown) {
-      console.error('创建API失败:', error)
-      const errorMessage = error instanceof Error ? error.message : '创建失败'
-      toast.error(`API创建失败：${errorMessage}`)
+      console.error('发布API失败:', error)
+      const errorMessage = error instanceof Error ? error.message : '发布失败'
+      toast.error(`API发布失败：${errorMessage}`)
     } finally {
       setSubmitting(false)
     }
@@ -118,10 +118,10 @@ export default function UserAPICreateSection() {
           </Button>
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          创建新API
+          发布新API
         </h1>
         <p className="text-muted-foreground">
-          创建您的API并提交到Vola市场。API将首先保存为草稿状态，您可以随时编辑和完善。
+          发布您的API并提交到Vola市场。API将首先保存为草稿状态，您可以随时编辑和完善。
         </p>
       </div>
 
@@ -401,12 +401,12 @@ export default function UserAPICreateSection() {
             {submitting ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                创建中...
+                发布中...
               </>
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                创建 API
+                发布 API
               </>
             )}
           </Button>

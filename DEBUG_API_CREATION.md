@@ -1,4 +1,4 @@
-# 🔍 API创建功能调试指南
+# 🔍 API发布功能调试指南
 
 ## 🚀 当前状态：直接请求模式
 **已启用直接请求后端API，跳过代理层以排查问题**
@@ -40,9 +40,9 @@ POST请求在到达后端时可能被错误地转换为GET请求。
 3. ✅ 勾选 **"Preserve log"** (保留日志)
 4. ✅ 勾选 **"Disable cache"** (禁用缓存)
 
-### Step 2: 执行API创建测试
+### Step 2: 执行API发布测试
 1. 访问 `/admin2025` 页面
-2. 点击 "Create New API" 按钮
+2. 点击 "Publish New API" 按钮
 3. 填写表单（使用测试数据）：
    ```json
    {
@@ -53,14 +53,14 @@ POST请求在到达后端时可能被错误地转换为GET请求。
      "base_url": "https://api.myweather.com"
    }
    ```
-4. 点击"创建API"按钮
+4. 点击"发布API"按钮
 
 ### Step 3: 分析Network面板
 查找以下请求序列：
 
 #### 🔍 直接请求模式 - 正常情况（期望）:
 1. `OPTIONS https://api.vola.fun/api/v1/apis` - **Status: 200** (CORS预检)
-2. `POST https://api.vola.fun/api/v1/apis` - **Status: 200/201** (创建)
+2. `POST https://api.vola.fun/api/v1/apis` - **Status: 200/201** (发布)
 
 #### 🚨 直接请求模式 - CORS问题:
 1. `OPTIONS https://api.vola.fun/api/v1/apis` - **Status: Failed** ❌ (CORS预检失败)
@@ -80,7 +80,7 @@ POST请求在到达后端时可能被错误地转换为GET请求。
 控制台会显示详细的请求链路：
 
 #### 🔍 查找关键日志:
-- `🚀 [CreateAPIForm] 开始创建API请求`
+- `🚀 [CreateAPIForm] 开始发布API请求`
 - `🌐 [proxy] 接收到代理请求`
 - `✅ [proxy] POST请求验证`
 - `🚨 [proxy] 检测到重定向` (如果有重定向)

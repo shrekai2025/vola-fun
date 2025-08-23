@@ -93,7 +93,7 @@ export default function AdminPage() {
               }`}
             >
               <Plus className="h-4 w-4 inline mr-2" />
-              创建API
+              发布API
             </button>
             <button
               onClick={() => setActiveTab('review')}
@@ -113,15 +113,15 @@ export default function AdminPage() {
         <div className="min-h-[600px]">
           {activeTab === 'create' && (
             <div className="space-y-6">
-              {/* API创建页面 */}
+              {/* API发布页面 */}
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <Plus className="h-6 w-6 text-primary" />
-                    创建新的API服务
+                    发布新的API服务
                   </CardTitle>
                   <p className="text-muted-foreground">
-                    在API市场中创建和发布新的API服务
+                    在API市场中发布新的API服务
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -131,7 +131,7 @@ export default function AdminPage() {
                     className="w-full sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    开始创建API
+                    开始发布API
                   </Button>
                 </CardContent>
               </Card>
@@ -185,13 +185,13 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* API 创建表单模态框 */}
+        {/* API 发布表单模态框 */}
         {showCreateForm && (
           <CreateAPIForm 
             onClose={() => setShowCreateForm(false)}
             onSuccess={() => {
               setShowCreateForm(false)
-              toast.success('API创建成功!')
+                              toast.success('API发布成功!')
             }}
           />
         )}

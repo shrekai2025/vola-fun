@@ -15,7 +15,7 @@ const USE_DIRECT_API = true // 按用户要求改为直接请求服务器
 ## 🧪 测试现在即可进行
 
 1. **访问管理页面**: `http://localhost:3000/admin2025`
-2. **点击创建API**: 填写表单并提交  
+2. **点击发布API**: 填写表单并提交  
 3. **观察结果**:
    - Network面板：查看请求到 `https://api.vola.fun`
    - Console：查看详细的调试日志

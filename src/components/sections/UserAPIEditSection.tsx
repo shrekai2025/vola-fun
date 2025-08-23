@@ -16,8 +16,8 @@ import { getUserAPI, updateUserAPI } from '@/services/user-api'
 import type { MarketAPI } from '@/services/market-api'
 import { ArrowLeft, Save, Plus, X } from 'lucide-react'
 
-// 表单验证模式 - 使用函数创建以获取翻译
-const createUpdateUserAPISchema = (t: any) => z.object({
+// 表单验证模式 - 使用函数获取翻译
+const updateUserAPISchema = (t: any) => z.object({
   name: z.string().min(1, t.apiProvider.edit.nameRequired).max(255, t.apiProvider.edit.nameMaxLength),
   slug: z.string()
     .min(1, t.apiProvider.edit.slugRequired)
@@ -34,7 +34,7 @@ const createUpdateUserAPISchema = (t: any) => z.object({
   documentation_markdown: z.string().optional(),
 })
 
-type UpdateUserAPIFormData = z.infer<ReturnType<typeof createUpdateUserAPISchema>>
+type UpdateUserAPIFormData = z.infer<ReturnType<typeof updateUserAPISchema>>
 
 interface UserAPIEditSectionProps {
   apiId: string
@@ -73,7 +73,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
     setValue,
     reset,
   } = useForm<UpdateUserAPIFormData>({
-    resolver: zodResolver(createUpdateUserAPISchema(t)),
+    resolver: zodResolver(updateUserAPISchema(t)),
   })
 
   // 加载API详情

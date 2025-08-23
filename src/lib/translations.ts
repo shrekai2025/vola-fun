@@ -557,11 +557,11 @@ export const en: Translations = {
   apiProvider: {
     title: 'API Provider',
     description: 'Publish your API service and start earning service fees right away',
-    createNew: 'Create New API',
-    createFirst: 'Create Your First API',
+    createNew: 'Publish API',
+    createFirst: 'Publish Your First API',
     loading: 'Loading...',
     noAPIs: 'No APIs yet',
-    noAPIsDescription: 'You haven\'t created any APIs yet. Start by creating your first API to share with the community.',
+    noAPIsDescription: 'You haven\'t published any APIs yet. Start by publishing your first API to share with the community.',
     // Actions and labels
     totalCalls: 'Total Calls',
     createdAt: 'Created At',
@@ -649,7 +649,7 @@ Describe endpoint usage...`,
   endpoints: {
     title: 'API Endpoints',
     description: 'Manage endpoints for your API',
-    createNew: 'Create New Endpoint',
+    createNew: 'Publish New Endpoint',
     noEndpoints: 'No Endpoints',
     loading: 'Loading...',
     loadFailed: 'Load Failed',
@@ -690,10 +690,10 @@ Describe endpoint usage...`,
     // 状态和消息
     active: 'Active',
     inactive: 'Inactive',
-    createSuccess: 'Endpoint created successfully',
+    createSuccess: 'Endpoint published successfully',
     updateSuccess: 'Endpoint updated successfully',
     deleteSuccess: 'Endpoint deleted successfully',
-    createFailed: 'Failed to create endpoint',
+    createFailed: 'Failed to publish endpoint',
     updateFailed: 'Failed to update endpoint',
     deleteFailed: 'Failed to delete endpoint',
     
@@ -726,7 +726,7 @@ Describe endpoint usage...`,
     logoutSuccess: 'Safely logged out',
     // API related
     apiDeleteSuccess: 'API deleted successfully',
-    apiCreateSuccess: 'API created successfully!',
+    apiCreateSuccess: 'API published successfully!',
     apiCreateSuccessDraft: 'API created successfully! API is in draft status, can be further edited.',
     apiApprovalSuccess: 'API approved successfully!',
     // Auth related
@@ -747,7 +747,7 @@ Describe endpoint usage...`,
 
   admin: {
     title: 'Admin Dashboard',
-    createAPI: 'Create API',
+    createAPI: 'Publish API',
     reviewAPIs: 'Review APIs',
     loading: 'Loading...',
     loadingAPIs: 'Loading APIs to review...',
@@ -756,7 +756,7 @@ Describe endpoint usage...`,
     retry: 'Retry',
     approve: 'Approve',
     approving: 'Approving...',
-    createSuccess: 'API created successfully!',
+    createSuccess: 'API published successfully!',
     approvalSuccess: 'API approved successfully!',
     // Form related
     apiName: 'API Name',
@@ -957,11 +957,11 @@ export const zh: Translations = {
   apiProvider: {
     title: 'API 提供商',
     description: '发布您的API服务，立即开始赚取服务费',
-    createNew: '创建新API',
-    createFirst: '创建您的第一个API',
+    createNew: '发布API',
+    createFirst: '发布您的第一个API',
     loading: '加载中...',
     noAPIs: '暂无API',
-    noAPIsDescription: '您还没有创建任何API。开始创建您的第一个API来与社区分享吧。',
+    noAPIsDescription: '您还没有发布任何API。开始发布您的第一个API来与社区分享吧。',
     // Actions and labels
     totalCalls: '调用量',
     createdAt: '创建时间',
@@ -1049,7 +1049,7 @@ export const zh: Translations = {
   endpoints: {
     title: 'API 端点',
     description: '管理您的API端点',
-    createNew: '创建新端点',
+    createNew: '发布新端点',
     noEndpoints: '暂无Endpoint',
     loading: '加载中...',
     loadFailed: '加载失败',
@@ -1090,10 +1090,10 @@ export const zh: Translations = {
     // 状态和消息
     active: '激活',
     inactive: '未激活',
-    createSuccess: '端点创建成功',
+    createSuccess: '端点发布成功',
     updateSuccess: '端点更新成功',
     deleteSuccess: '端点删除成功',
-    createFailed: '端点创建失败',
+    createFailed: '端点发布失败',
     updateFailed: '端点更新失败',
     deleteFailed: '端点删除失败',
     
@@ -1126,8 +1126,8 @@ export const zh: Translations = {
     logoutSuccess: '已安全退出',
     // API相关
     apiDeleteSuccess: 'API删除成功',
-    apiCreateSuccess: 'API创建成功！',
-    apiCreateSuccessDraft: 'API创建成功！API处于草稿状态，可以进一步编辑完善。',
+    apiCreateSuccess: 'API发布成功！',
+    apiCreateSuccessDraft: 'API发布成功！API处于草稿状态，可以进一步编辑完善。',
     apiApprovalSuccess: 'API审核通过成功!',
     // 认证相关
     emailAlreadyExists: '该邮箱已被注册，请使用其他邮箱或尝试登录',
@@ -1147,7 +1147,7 @@ export const zh: Translations = {
 
   admin: {
     title: '管理员面板',
-    createAPI: '创建API',
+    createAPI: '发布API',
     reviewAPIs: '审核API',
     loading: '加载中...',
     loadingAPIs: '正在加载待审核API...',
@@ -1156,7 +1156,7 @@ export const zh: Translations = {
     retry: '重试',
     approve: '审核通过',
     approving: '审核中...',
-    createSuccess: 'API创建成功！',
+    createSuccess: 'API发布成功！',
     approvalSuccess: 'API审核通过成功!',
     // 表单相关
     apiName: 'API名称',

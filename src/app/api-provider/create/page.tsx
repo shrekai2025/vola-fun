@@ -42,7 +42,7 @@ export default function CreateAPIPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <p className="text-muted-foreground">请先登录以创建API</p>
+              <p className="text-muted-foreground">请先登录以发布API</p>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import apiClient from './api-client'
 
-// API创建数据类型
-export interface CreateAPIRequest {
+// API发布数据类型
+export interface PublishAPIRequest {
   name: string
   slug: string
   short_description: string
@@ -18,7 +18,7 @@ export interface CreateAPIRequest {
   documentation_markdown?: string
 }
 
-export interface CreateAPIResponse {
+export interface PublishAPIResponse {
   success: boolean
   code: string
   message: string
@@ -128,11 +128,11 @@ export interface UpdateAPIResponse {
 }
 
 /**
- * 创建新的API服务
+ * 发布新的API服务
  */
-export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIResponse> => {
+export const publishAPI = async (data: PublishAPIRequest): Promise<PublishAPIResponse> => {
   try {
-    console.log('🔄 [admin-api] 开始调用创建API接口')
+    console.log('🔄 [admin-api] 开始调用发布API接口')
     console.log('📤 [admin-api] 请求URL: /api/v1/apis/ (添加尾部斜杠避免重定向)')
     console.log('📤 [admin-api] 请求方法: POST')
     console.log('📤 [admin-api] 请求数据:', JSON.stringify(data, null, 2))
@@ -141,7 +141,7 @@ export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIRespon
     const response = await apiClient.post<CreateAPIResponse>('/api/v1/apis/', data)
     const endTime = Date.now()
     
-    console.log('✅ [admin-api] API创建请求成功')
+    console.log('✅ [admin-api] API发布请求成功')
     console.log('📥 [admin-api] 响应状态:', response.status)
     console.log('📥 [admin-api] 响应头:', response.headers)
     console.log('📥 [admin-api] 响应数据:', JSON.stringify(response.data, null, 2))
@@ -149,7 +149,7 @@ export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIRespon
     
     return response.data
   } catch (error: any) {
-    console.group('❌ [admin-api] API创建请求失败')
+    console.group('❌ [admin-api] API发布请求失败')
     console.error('完整错误对象:', error)
     console.error('错误类型:', error.constructor.name)
     console.error('错误消息:', error.message)
@@ -193,10 +193,10 @@ export const createAPI = async (data: CreateAPIRequest): Promise<CreateAPIRespon
     } else if (error.response?.status === 400) {
       throw new Error('请求参数有误，请检查输入内容')
     } else if (error.response?.status === 403) {
-      throw new Error('权限不足，无法创建API')
+      throw new Error('权限不足，无法发布API')
     }
     
-    throw new Error('创建API失败，请稍后重试')
+          throw new Error('发布API失败，请稍后重试')
   }
 }
 

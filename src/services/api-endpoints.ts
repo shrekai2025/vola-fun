@@ -58,8 +58,8 @@ export interface GetEndpointsParams {
   is_active?: boolean
 }
 
-// 创建端点请求参数
-export interface CreateEndpointRequest {
+// 发布端点请求参数
+export interface PublishEndpointRequest {
   name: string
   description: string
   path: string
@@ -144,27 +144,27 @@ export const getAPIEndpoints = async (
 }
 
 /**
- * 创建API端点
+ * 发布API端点
  */
-export const createAPIEndpoint = async (
+export const publishAPIEndpoint = async (
   apiId: string, 
-  data: CreateEndpointRequest
+  data: PublishEndpointRequest
 ): Promise<APIEndpointResponse> => {
   try {
-    console.log('➕ [api-endpoints] 开始创建API端点:', apiId)
-    console.log('📤 [api-endpoints] 创建数据:', JSON.stringify(data, null, 2))
+    console.log('➕ [api-endpoints] 开始发布API端点:', apiId)
+    console.log('📤 [api-endpoints] 发布数据:', JSON.stringify(data, null, 2))
     
     const response = await apiClient.post<APIEndpointResponse>(`/api/v1/apis/${apiId}/endpoints`, data)
     
-    console.log('✅ [api-endpoints] 端点创建成功')
+    console.log('✅ [api-endpoints] 端点发布成功')
     
     return response.data
   } catch (error: unknown) {
-    console.error('❌ [api-endpoints] 创建端点失败:', error)
+    console.error('❌ [api-endpoints] 发布端点失败:', error)
     const errorMessage = error instanceof Error && 'response' in error 
       ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
       : undefined
-    throw new Error(errorMessage || '创建端点失败，请稍后重试')
+          throw new Error(errorMessage || '发布端点失败，请稍后重试')
   }
 }
 
