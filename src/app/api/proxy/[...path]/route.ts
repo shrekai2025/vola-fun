@@ -38,7 +38,8 @@ export async function PATCH(
 
 async function handleRequest(request: NextRequest, params: { path: string[] }) {
   const path = params.path?.join('/') || ''
-  const url = `${API_CONFIG.BASE_URL}/${path}`
+  const searchParams = request.nextUrl.searchParams.toString()
+  const url = `${API_CONFIG.BASE_URL}/${path}${searchParams ? `?${searchParams}` : ''}`
 
   // 复制请求头，排除一些不需要的头
   const headers = new Headers()

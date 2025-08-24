@@ -204,8 +204,27 @@ class DataManager {
     return this.getData(
       key,
       async () => {
-        const response = await UserService.getCurrentUser()
-        return APIService.getUserAPIs(response.data.id, finalParams)
+        return APIService.getUserAPIs(user.id, finalParams)
+      },
+      CACHE_CONFIG.USER_APIS,
+      forceRefresh,
+      pageLevelRefresh
+    )
+  }
+
+  /**
+   * 获取API列表
+   */
+  async getAPIList(
+    params: APIListParams = {},
+    forceRefresh = false,
+    pageLevelRefresh = false
+  ): Promise<{ data: API[] }> {
+    const key = `api-list-${JSON.stringify(params)}`
+    return this.getData(
+      key,
+      async () => {
+        return APIService.getMarketAPIs(params)
       },
       CACHE_CONFIG.USER_APIS,
       forceRefresh,
