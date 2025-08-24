@@ -4,13 +4,7 @@
 
 import Cookies from 'js-cookie'
 import { COOKIE_KEYS, COOKIE_OPTIONS } from '@/constants'
-
-// Token存储接口
-export interface StoredTokens {
-  accessToken: string
-  refreshToken: string
-  tokenType: string
-}
+import type { StoredTokens } from '@/types/storage'
 
 /**
  * Token管理类

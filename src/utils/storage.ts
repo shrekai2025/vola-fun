@@ -138,14 +138,12 @@ export const SessionStorage = {
   },
 }
 
+import type { CachedStorageItem } from '@/types/storage'
+
 /**
  * 带过期时间的存储
  */
-interface CachedItem<T> {
-  value: T
-  timestamp: number
-  expiry: number
-}
+type CachedItem<T> = CachedStorageItem<T> & { timestamp: number }
 
 export const CachedStorage = {
   /**

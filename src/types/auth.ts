@@ -80,12 +80,8 @@ export interface AuthService {
   signOut: () => Promise<void>
 }
 
-// Cookie 存储的 Token 信息
-export interface StoredTokens {
-  accessToken: string
-  refreshToken: string
-  tokenType: string
-}
+// Cookie 存储的 Token 信息 - 重新导出统一类型
+export type { StoredTokens } from '@/types/storage'
 
 // 保留旧的用户接口，但推荐使用新的 User 类型
 export interface LegacyUser {

@@ -3,7 +3,8 @@
  */
 
 export { cn } from './cn'
-export { TokenManager, CookieUtils, type StoredTokens } from './cookie'
+export { TokenManager, CookieUtils } from './cookie'
+export type { StoredTokens } from '@/types/storage'
 export { LocalStorage, SessionStorage, CachedStorage, AppStorage } from './storage'
 export * from './format'
 export * from './validation'

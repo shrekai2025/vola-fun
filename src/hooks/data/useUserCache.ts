@@ -9,24 +9,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { User } from '@/types/api'
 import { AuthService } from '@/lib/api'
 import { TokenManager } from '@/utils/cookie'
-
-interface UseUserCacheReturn {
-  user: User | null
-  isLoggedIn: boolean
-  loading: boolean
-  error: string | null
-  refreshUser: (forceRefresh?: boolean) => Promise<void>
-  clearUser: () => void
-}
+import type { UseUserCacheReturn, GlobalUserCache } from '@/types/hooks'
 
 // 全局缓存（包含用户信息、头像和主题）
-export let globalUserCache: {
-  user: User | null
-  isLoggedIn: boolean
-  timestamp: number
-  avatar?: string
-  theme?: 'light' | 'dark'
-} = {
+export let globalUserCache: GlobalUserCache = {
   user: null,
   isLoggedIn: false,
   timestamp: 0,

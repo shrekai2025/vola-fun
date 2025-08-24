@@ -7,21 +7,7 @@
 import { AuthService, APIService, type APIListParams, type API } from '@/lib/api'
 import { TokenManager } from '@/utils/cookie'
 import type { User } from '@/types'
-
-// ======================== 类型定义 ========================
-
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
-  loading: boolean
-  error: string | null
-}
-
-interface PendingRequest {
-  promise: Promise<unknown>
-  resolve: (value: unknown) => void
-  reject: (error: unknown) => void
-}
+import type { CacheEntry, PendingRequest } from '@/types/data'
 
 // ======================== 配置常量 ========================
 
@@ -347,14 +333,11 @@ class DataManager {
 
 export const dataManager = DataManager.getInstance()
 
-// ======================== 便捷Hook接口 ========================
+// ======================== 导出类型 ========================
 
-export interface UseDataResult<T> {
-  data: T | null
-  loading: boolean
-  error: string | null
-  refresh: (forceRefresh?: boolean) => Promise<void>
-}
+export type { UseDataResult } from '@/types/data'
+
+// ======================== 便捷Hook接口 ========================
 
 /**
  * React Hook 接口
