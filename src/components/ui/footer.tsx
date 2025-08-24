@@ -1,13 +1,13 @@
 'use client'
 
-import React from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useTheme } from '@/components/providers/ThemeProvider'
-import { Github, Twitter, Mail, MessageCircle, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Toggle } from '@/components/ui/toggle'
+import { Github, Mail, MessageCircle, Moon, Sun, Twitter } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import React from 'react'
 
 interface FooterProps {
   className?: string
@@ -108,7 +108,7 @@ export const Footer = ({ className = '' }: FooterProps) => {
 
             {/* Description */}
             <p className='text-sm text-muted-foreground leading-relaxed'>
-              {t('footer.built')} VOLA - {t('footer.poweredBy')} Next.js
+              {t('footer.description')}
             </p>
 
             {/* Theme Toggle */}
@@ -188,7 +188,7 @@ export const Footer = ({ className = '' }: FooterProps) => {
         {/* Bottom section */}
         <div className='mt-12 flex flex-col justify-between gap-4 border-t border-border/40 pt-8 text-sm text-muted-foreground md:flex-row md:items-center'>
           <div className='flex items-center gap-1'>
-            <span>© 2024 VOLA.</span>
+            <span>© 2025 VOLA.</span>
             <span>{t('footer.copyright')}</span>
           </div>
 

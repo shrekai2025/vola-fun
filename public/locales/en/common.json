@@ -229,14 +229,6 @@
     "shortDescMaxLength": "Short description must be less than 100 characters",
     "responseTimeRange": "Response time must be between 1-600000 ms"
   },
-  "errors": {
-    "loadFailed": "Failed to load data",
-    "networkError": "Network error occurred",
-    "userInfoFailed": "Failed to load user information:",
-    "deleteAPIFailed": "Failed to delete API",
-    "loadAPIsFailed": "Failed to load APIs",
-    "updateFailed": "Update failed"
-  },
   "toast": {
     "networkError": "Network connection failed, please check network settings",
     "authError": "Authentication failed, please log in again",
@@ -376,8 +368,7 @@
     },
     "pricing": "Pricing",
     "copyright": "All rights reserved",
-    "built": "Built with",
-    "poweredBy": "Powered by"
+    "description": "The intelligent API marketplace. Command a curated ecosystem of APIs with a universal key."
   },
   "projectDetail": {
     "activeService": "Active Service",

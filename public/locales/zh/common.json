@@ -376,8 +376,7 @@
     },
     "pricing": "价格",
     "copyright": "版权所有",
-    "built": "构建于",
-    "poweredBy": "由以下提供支持"
+    "description": "智能API市场。通过统一密钥掌控精选API生态系统。"
   },
   "projectDetail": {
     "activeService": "活跃服务",
