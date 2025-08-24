@@ -5,11 +5,11 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { UserService } from '@/lib/api'
 import { User } from '@/types/api'
-import { AuthService } from '@/lib/api'
+import type { GlobalUserCache, UseUserCacheReturn } from '@/types/hooks'
 import { TokenManager } from '@/utils/cookie'
-import type { UseUserCacheReturn, GlobalUserCache } from '@/types/hooks'
+import { useCallback, useEffect, useState } from 'react'
 
 // 全局缓存（包含用户信息、头像和主题）
 export let globalUserCache: GlobalUserCache = {
@@ -86,7 +86,7 @@ export const useUserCache = (): UseUserCacheReturn => {
       try {
         setError(null)
         console.debug('🔄 刷新用户信息...')
-        const response = await AuthService.getCurrentUser()
+        const response = await UserService.getCurrentUser()
 
         if (!response.success || !response.data) {
           throw new Error('获取用户信息失败')
@@ -117,7 +117,7 @@ export const useUserCache = (): UseUserCacheReturn => {
         setUser(userInfo)
         setIsLoggedIn(true)
         console.debug('✅ 用户信息刷新成功', shouldUseAvatarCache ? '(使用头像缓存)' : '')
-      } catch (err: unknown) {
+      } catch (err) {
         console.error('❌ 获取用户信息失败:', err)
 
         // 如果是 401 错误，说明 token 已过期，清除本地状态

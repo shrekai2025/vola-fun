@@ -105,7 +105,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
         const endpointsResponse = await EndpointService.list(apiId)
         setEndpoints(endpointsResponse.data || [])
         setEndpointsError(null) // 清除之前的错误
-      } catch (endpointsError: unknown) {
+      } catch (endpointsError) {
         console.warn('获取端点列表失败，但API信息加载成功:', endpointsError)
 
         // 检查是否是响应格式验证错误
@@ -132,7 +132,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
         // 设置空端点列表，让用户可以继续操作
         setEndpoints([])
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('加载API信息失败:', error)
       const errorMessage = error instanceof Error ? error.message : '加载失败'
       toast.error(errorMessage)
@@ -151,7 +151,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       setEndpoints(endpointsResponse.data || [])
       setEndpointsError(null)
       toast.success(t('endpoints.refreshSuccess'))
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('重新加载端点失败:', error)
       const errorMessage = error instanceof Error ? error.message : t('endpoints.generalLoadFailed')
       setEndpointsError(errorMessage)
@@ -204,7 +204,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
         })
 
         toast.success(t('endpoints.deleteSuccess'))
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('删除端点失败:', error)
         const errorMessage = error instanceof Error ? error.message : t('endpoints.deleteFailed')
         toast.error(errorMessage)
@@ -342,7 +342,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
                   } else {
                     throw new Error(response.message || t('endpoints.createFailed'))
                   }
-                } catch (error: unknown) {
+                } catch (error) {
                   const errorMessage =
                     error instanceof Error ? error.message : t('endpoints.createFailed')
                   toast.error(errorMessage)
@@ -376,7 +376,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
                   } else {
                     throw new Error(response.message || t('endpoints.updateFailed'))
                   }
-                } catch (error: unknown) {
+                } catch (error) {
                   const errorMessage =
                     error instanceof Error ? error.message : t('endpoints.updateFailed')
                   toast.error(errorMessage)
@@ -666,7 +666,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
       }
 
       await onSave(data)
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('保存失败:', error)
     } finally {
       setSaving(false)

@@ -1,16 +1,16 @@
-import { apiClient } from '../client'
-import { API_ENDPOINTS } from '../config'
 import type {
   APIEndpoint,
-  EndpointListParams,
-  CreateEndpointData,
-  UpdateEndpointData,
-  PaginatedResponse,
   ApiResponse,
+  CreateEndpointData,
+  EndpointListParams,
+  PaginatedResponse,
+  UpdateEndpointData,
 } from '@/types/api'
+import { apiClient } from '../client'
+import { API_ENDPOINTS } from '../config'
 
 // 重新导出类型以保持向后兼容
-export type { APIEndpoint, EndpointListParams, CreateEndpointData, UpdateEndpointData }
+export type { APIEndpoint, CreateEndpointData, EndpointListParams, UpdateEndpointData }
 
 export class EndpointService {
   /**

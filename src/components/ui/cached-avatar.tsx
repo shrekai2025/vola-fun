@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Avatar, AvatarImage, AvatarFallback } from './avatar'
 import { User } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from './avatar'
 
 interface CachedAvatarProps {
   src?: string
@@ -123,7 +123,7 @@ export function CachedAvatar({
           console.warn('Avatar fetch failed with status:', response.status, response.statusText)
           setCachedSrc(src)
         }
-      } catch (error: unknown) {
+      } catch (error) {
         // 详细的错误处理
         const errorName = (error as Error)?.name
         const errorMessage = (error as Error)?.message

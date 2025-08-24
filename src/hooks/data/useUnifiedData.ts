@@ -5,9 +5,9 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
 import { dataManager, type UseDataResult } from '@/lib/data-manager'
-import type { User, API, APIListParams } from '@/types/api'
+import type { API, APIListParams, User } from '@/types/api'
+import { useCallback, useEffect, useState } from 'react'
 
 // ======================== 用户信息Hook ========================
 
@@ -22,7 +22,7 @@ export function useUser(): UseDataResult<User> {
       setError(null)
       const userData = await dataManager.getCurrentUser(true)
       setData(userData)
-    } catch (error: unknown) {
+    } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
     } finally {
@@ -37,7 +37,7 @@ export function useUser(): UseDataResult<User> {
         setError(null)
         const userData = await dataManager.getCurrentUser()
         setData(userData)
-      } catch (error: unknown) {
+      } catch (error) {
         setError(error instanceof Error ? error.message : String(error) || 'Unknown error')
         setData(null)
       } finally {
@@ -67,7 +67,7 @@ export function useAPIList(
       setError(null)
       const apiData = await dataManager.getUserAPIList(params, false, enablePageLevelRefresh)
       setData(apiData?.data || [])
-    } catch (error: unknown) {
+    } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
     } finally {
@@ -82,7 +82,7 @@ export function useAPIList(
         setError(null)
         const apiData = await dataManager.getUserAPIList(params, false, enablePageLevelRefresh)
         setData(apiData.data)
-      } catch (error: unknown) {
+      } catch (error) {
         setError(error instanceof Error ? error.message : String(error) || 'Unknown error')
         setData(null)
       } finally {
@@ -111,7 +111,7 @@ export function useAPIDetail(apiId: string): UseDataResult<API> {
       setError(null)
       const apiData = await dataManager.getAPIDetail(apiId, true)
       setData(apiData)
-    } catch (error: unknown) {
+    } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
     } finally {
@@ -128,7 +128,7 @@ export function useAPIDetail(apiId: string): UseDataResult<API> {
         setError(null)
         const apiData = await dataManager.getAPIDetail(apiId)
         setData(apiData)
-      } catch (error: unknown) {
+      } catch (error) {
         setError(error instanceof Error ? error.message : String(error) || 'Unknown error')
         setData(null)
       } finally {
@@ -155,7 +155,7 @@ export function useUserAPIList(): UseDataResult<API[]> {
       setError(null)
       const apiData = await dataManager.getUserAPIList(undefined, true)
       setData(apiData?.data || [])
-    } catch (error: unknown) {
+    } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
     } finally {
@@ -170,7 +170,7 @@ export function useUserAPIList(): UseDataResult<API[]> {
         setError(null)
         const apiData = await dataManager.getUserAPIList()
         setData(apiData?.data || [])
-      } catch (error: unknown) {
+      } catch (error) {
         setError(error instanceof Error ? error.message : String(error) || 'Unknown error')
         setData(null)
       } finally {

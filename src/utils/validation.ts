@@ -172,6 +172,7 @@ export function isValidFileSize(file: File, maxSizeInMB: number): boolean {
 /**
  * 通用必填字段验证
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isRequired(value: any): boolean {
   if (value === null || value === undefined) return false
   if (typeof value === 'string') return value.trim().length > 0
@@ -182,6 +183,7 @@ export function isRequired(value: any): boolean {
 /**
  * 验证对象是否包含必填字段
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateRequiredFields<T extends Record<string, any>>(
   obj: T,
   requiredFields: (keyof T)[]

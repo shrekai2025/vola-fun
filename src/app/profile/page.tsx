@@ -9,7 +9,7 @@ import { LanguageSelector } from '@/components/ui/language-selector'
 import { Loading } from '@/components/ui/loading'
 import { ThemeToggleWithLabel } from '@/components/ui/theme-toggle'
 import { useUserCache } from '@/hooks/data'
-import { AuthService, FirebaseAuthService } from '@/lib/api'
+import { AuthService, FirebaseAuthService, UserService } from '@/lib/api'
 import { User } from '@/types'
 import { LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -35,13 +35,13 @@ export default function ProfilePage() {
     const fetchUserInfo = async () => {
       try {
         setLoading(true)
-        const response = await AuthService.getCurrentUser()
+        const response = await UserService.getCurrentUser()
         if (response.success && response.data) {
           setUser(response.data)
         } else {
           throw new Error(response.message || 'Failed to get user info')
         }
-      } catch (err: unknown) {
+      } catch (err) {
         console.error('获取用户信息失败:', err)
         setError(err instanceof Error ? err.message : 'Failed to fetch user info')
       } finally {

@@ -1,4 +1,4 @@
-import type { ApiError, ApiResponse, HttpMethod, RequestConfig, RequestBody } from '@/types/api'
+import type { ApiError, ApiResponse, HttpMethod, RequestBody, RequestConfig } from '@/types/api'
 import { TokenManager } from '@/utils/cookie'
 import { API_CONFIG } from './config'
 
@@ -126,6 +126,7 @@ class ApiClient {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async request<T = any>(
     method: HttpMethod,
     endpoint: string,
@@ -216,7 +217,7 @@ class ApiClient {
       }
 
       return responseData as ApiResponse<T>
-    } catch (error: unknown) {
+    } catch (error) {
       const errorName = (error as Error)?.name
       if (errorName === 'AbortError') {
         throw new Error('Request timeout')
@@ -225,10 +226,12 @@ class ApiClient {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get<T = any>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>('GET', endpoint, undefined, config)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async post<T = any>(
     endpoint: string,
     data?: RequestBody,
@@ -237,6 +240,7 @@ class ApiClient {
     return this.request<T>('POST', endpoint, data, config)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async put<T = any>(
     endpoint: string,
     data?: RequestBody,
@@ -245,6 +249,7 @@ class ApiClient {
     return this.request<T>('PUT', endpoint, data, config)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async patch<T = any>(
     endpoint: string,
     data?: RequestBody,
@@ -253,6 +258,7 @@ class ApiClient {
     return this.request<T>('PATCH', endpoint, data, config)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async delete<T = any>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>('DELETE', endpoint, undefined, config)
   }

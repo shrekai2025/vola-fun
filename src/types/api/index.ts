@@ -36,6 +36,7 @@ export type {
   UserListParams,
   UpdateUserData,
   AdminUserParams,
+  AdminUserData,
 } from './user'
 
 // 认证相关类型
@@ -69,4 +70,59 @@ export type {
   APICallRequest,
   APICallResponse,
   APIStatistics,
+  APIVersion,
+  CreateAPIVersionData,
+  APIDocumentation,
 } from './apis'
+
+// API密钥相关类型
+export type { APIKey, KeyListParams, CreateKeyData, UpdateKeyData, RegeneratedKey } from './keys'
+
+// 计费相关类型
+export type {
+  AccountBalance,
+  Transaction,
+  UsageRecord,
+  UsageStats,
+  Subscription,
+  Invoice,
+  TransactionListParams,
+  UsageListParams,
+  InvoiceListParams,
+  ExportParams,
+} from './billing'
+
+// 收藏相关类型
+export type {
+  Favorite,
+  FavoriteListParams,
+  CreateFavoriteData,
+  FavoriteStats,
+  FavoriteCheckItem,
+} from './favorites'
+
+// 节点相关类型
+export type {
+  Node,
+  NodeVersion,
+  NodePurchase,
+  NodeListParams,
+  CreateNodeData,
+  UpdateNodeData,
+  CreateNodeVersionData,
+} from './nodes'
+
+// 支付相关类型
+export type {
+  PaymentPlan,
+  PaymentInfo as PaymentUserInfo,
+  Payment,
+  CreateStripeIntentData,
+  StripeIntentResponse,
+  CreateStripeCheckoutData,
+  StripeCheckoutResponse,
+  HelTransaction,
+} from './payments'
+
+// 网关相关类型
+export type { APIHealthStatus, ProxyRequestOptions, ProxyResponse } from './gateway'

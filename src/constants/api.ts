@@ -33,8 +33,9 @@ export const API_ENDPOINTS = {
     DETAIL: (userId: string) => `/api/v1/users/${userId}`,
     ADMIN_DETAIL: (userId: string) => `/api/v1/users/admin/${userId}`,
     ADMIN_UPDATE: (userId: string) => `/api/v1/users/admin/${userId}`,
+    ADMIN_VERIFY: (userId: string) => `/api/v1/users/admin/${userId}/verify`,
+    ADMIN_SUSPEND: (userId: string) => `/api/v1/users/admin/${userId}/suspend`,
     ADMIN_ACTIVATE: (userId: string) => `/api/v1/users/admin/${userId}/activate`,
-    ADMIN_DEACTIVATE: (userId: string) => `/api/v1/users/admin/${userId}/deactivate`,
   },
 
   // API市场相关
@@ -44,6 +45,7 @@ export const API_ENDPOINTS = {
     CREATE: '/api/v1/apis/',
     UPDATE: (apiId: string) => `/api/v1/apis/${apiId}`,
     DELETE: (apiId: string) => `/api/v1/apis/${apiId}`,
+    UPLOAD_AVATAR: (apiId: string) => `/api/v1/apis/${apiId}/avatar`,
 
     // 端点相关
     ENDPOINTS: {
@@ -56,6 +58,95 @@ export const API_ENDPOINTS = {
       DELETE: (apiId: string, endpointId: string) =>
         `/api/v1/apis/${apiId}/endpoints/${endpointId}`,
     },
+
+    // 版本相关
+    VERSIONS: {
+      LIST: (apiId: string) => `/api/v1/apis/${apiId}/versions`,
+      CREATE: (apiId: string) => `/api/v1/apis/${apiId}/versions`,
+    },
+
+    // 文档相关
+    DOCUMENTATION: {
+      GET: (apiId: string) => `/api/v1/apis/${apiId}/documentation`,
+      UPDATE: (apiId: string) => `/api/v1/apis/${apiId}/documentation`,
+    },
+  },
+
+  // API密钥管理
+  KEYS: {
+    LIST: '/api/v1/keys/',
+    DETAIL: (keyId: string) => `/api/v1/keys/${keyId}`,
+    CREATE: '/api/v1/keys/',
+    UPDATE: (keyId: string) => `/api/v1/keys/${keyId}`,
+    DELETE: (keyId: string) => `/api/v1/keys/${keyId}`,
+    REGENERATE: (keyId: string) => `/api/v1/keys/${keyId}/regenerate`,
+  },
+
+  // 计费相关
+  BILLING: {
+    BALANCE: '/api/v1/billing/balance',
+    TRANSACTIONS: '/api/v1/billing/transactions',
+    USAGE: '/api/v1/billing/usage',
+    STATS: '/api/v1/billing/stats',
+    SUBSCRIPTIONS: '/api/v1/billing/subscriptions',
+    INVOICES: '/api/v1/billing/invoices',
+    EXPORT: '/api/v1/billing/export',
+  },
+
+  // 收藏相关
+  FAVORITES: {
+    LIST: '/api/v1/favorites',
+    CREATE: '/api/v1/favorites',
+    DELETE: (favoriteId: string) => `/api/v1/favorites/${favoriteId}`,
+    APIS: '/api/v1/favorites/apis',
+    NODES: '/api/v1/favorites/nodes',
+    STATS: '/api/v1/favorites/stats',
+    CHECK: '/api/v1/favorites/check',
+  },
+
+  // 节点相关
+  NODES: {
+    LIST: '/api/v1/nodes/',
+    DETAIL: (nodeId: string) => `/api/v1/nodes/${nodeId}`,
+    CREATE: '/api/v1/nodes/',
+    UPDATE: (nodeId: string) => `/api/v1/nodes/${nodeId}`,
+    DELETE: (nodeId: string) => `/api/v1/nodes/${nodeId}`,
+    UPLOAD_AVATAR: (nodeId: string) => `/api/v1/nodes/${nodeId}/avatar`,
+    PURCHASE: (nodeId: string) => `/api/v1/nodes/${nodeId}/purchase`,
+    DOWNLOAD: (nodeId: string) => `/api/v1/nodes/${nodeId}/download`,
+    MY_PURCHASES: '/api/v1/nodes/my-purchases',
+
+    // 版本相关
+    VERSIONS: {
+      LIST: (nodeId: string) => `/api/v1/nodes/${nodeId}/versions`,
+      CREATE: (nodeId: string) => `/api/v1/nodes/${nodeId}/versions`,
+    },
+  },
+
+  // 支付相关
+  PAYMENTS: {
+    PLANS: '/api/v1/payments/plans',
+    INFO: '/api/v1/payments/info',
+    DETAIL: (paymentId: string) => `/api/v1/payments/${paymentId}`,
+
+    // Stripe
+    STRIPE: {
+      CREATE_INTENT: '/api/v1/payments/stripe/create-intent',
+      CREATE_CHECKOUT: '/api/v1/payments/stripe/create-checkout',
+      WEBHOOK: '/api/v1/payments/stripe/webhook',
+    },
+
+    // Hel
+    HEL: {
+      TRANSACTION: (signature: string) => `/api/v1/payments/hel/transaction/${signature}`,
+      WEBHOOK: '/api/v1/payments/hel/webhook',
+    },
+  },
+
+  // 网关相关
+  GATEWAY: {
+    PROXY: (path: string) => `/api/v1/gateway/${path}`,
+    HEALTH: (apiSlug: string) => `/api/v1/gateway/health/${apiSlug}`,
   },
 } as const
 

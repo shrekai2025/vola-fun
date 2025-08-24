@@ -18,7 +18,7 @@ import { getCategoryOptions } from '@/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Save, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 // 创建表单验证模式函数
@@ -132,7 +132,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
 
       toast.success(t('admin.createAPI.publishSuccess'))
       onSuccess()
-    } catch (error: unknown) {
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       const httpError = error as {
         response?: { status?: number; headers?: unknown; data?: unknown }

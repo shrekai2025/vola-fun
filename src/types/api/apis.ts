@@ -189,3 +189,30 @@ export interface APIStatistics {
     calls: number
   }[]
 }
+
+// API版本信息
+export interface APIVersion {
+  id: string
+  api_id: string
+  version: string
+  changelog?: string
+  is_current: boolean
+  created_at: string
+  updated_at: string
+}
+
+// 创建API版本数据
+export interface CreateAPIVersionData {
+  version: string
+  changelog?: string
+}
+
+// API文档信息
+export interface APIDocumentation {
+  id: string
+  api_id: string
+  content: string
+  format: 'markdown' | 'html'
+  last_updated: string
+  created_at: string
+}

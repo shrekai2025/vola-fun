@@ -80,7 +80,7 @@ export default function UserAPIListSection() {
         // 刷新API列表以反映删除结果（强制不使用缓存）
         await refreshAPIs(true)
         toast.success(t('toast.apiDeleteSuccess'))
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('删除API失败', error)
         const errorMessage = error instanceof Error ? error.message : t('errors.deleteAPIFailed')
         toast.error(errorMessage)
@@ -101,7 +101,7 @@ export default function UserAPIListSection() {
         // 刷新API列表以反映更新结果
         await refreshAPIs(true)
         toast.success(currentPublic ? t('toast.apiSetToPrivate') : t('toast.apiSetToPublic'))
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('更新API状态失败', error)
         const errorMessage = error instanceof Error ? error.message : t('toast.apiUpdateFailed')
         toast.error(`${t('toast.apiUpdateFailed')}：${errorMessage}`)

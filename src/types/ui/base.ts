@@ -53,6 +53,7 @@ export type StandardErrorHandler = (error: Error) => void
 /**
  * 异步操作处理器
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface AsyncOperationHandlers<T = any> {
   onSuccess?: (result: T) => void
   onError?: StandardErrorHandler
@@ -64,6 +65,7 @@ export interface AsyncOperationHandlers<T = any> {
 /**
  * 基础表单Props接口
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseFormProps<T = any> extends AsyncState {
   onSubmit?: StandardSubmitHandler<T>
   onReset?: () => void
@@ -92,7 +94,9 @@ export interface BaseFieldProps extends BaseComponentProps {
  * 表单验证接口
  */
 export interface ValidationProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rules?: Record<string, (value: any) => string | boolean>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validate?: (value: any) => string | boolean
   onValidate?: (isValid: boolean) => void
 }
@@ -136,6 +140,7 @@ export interface SortingProps<T = string> {
 /**
  * 筛选接口
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface FilteringProps<T = Record<string, any>> {
   filters?: T
   onFiltersChange?: (filters: T) => void
@@ -145,6 +150,7 @@ export interface FilteringProps<T = Record<string, any>> {
 /**
  * 选择接口
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface SelectionProps<TItem = any, TKey = string> {
   selected?: TKey[]
   onSelectionChange?: (selected: TKey[]) => void

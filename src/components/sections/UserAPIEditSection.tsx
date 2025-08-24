@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Loading, InlineLoading } from '@/components/ui/loading'
+import { InlineLoading, Loading } from '@/components/ui/loading'
 import {
   Select,
   SelectContent,
@@ -22,7 +22,7 @@ import { ArrowLeft, Plus, Save, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 // 表单验证模式 - 使用函数获取翻译
@@ -129,7 +129,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
       } else {
         throw new Error(response.message || 'Failed to load API')
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Failed to load API details:', error)
       const errorMessage = error instanceof Error ? error.message : t('errors.loadFailed')
       toast.error(errorMessage)
@@ -210,7 +210,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         setTimeout(() => {
           router.push('/apis')
         }, 800)
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('Failed to update API:', error)
         const errorMessage = error instanceof Error ? error.message : t('errors.updateFailed')
         toast.error(`${t('common.error')}：${errorMessage}`)

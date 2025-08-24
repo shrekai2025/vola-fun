@@ -50,14 +50,8 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProvider
   }
 
   const toggleTheme = () => {
-    let newTheme: Theme
-    if (theme === 'light') {
-      newTheme = 'dark'
-    } else if (theme === 'dark') {
-      newTheme = 'system'
-    } else {
-      newTheme = 'light'
-    }
+    // 简化切换逻辑：light <-> dark，暂时不使用 system 模式
+    const newTheme: Theme = theme === 'light' ? 'dark' : 'light'
     updateTheme(newTheme)
   }
 

@@ -98,7 +98,7 @@ export default function APIReviewList({ onAPIApproved }: APIReviewListProps) {
           '个API，总计:',
           response.pagination.total
         )
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('❌ [APIReviewList] 加载API列表失败:', error)
         setError(error instanceof Error ? error.message : t('admin.apiReview.loadError'))
       } finally {
@@ -155,7 +155,7 @@ export default function APIReviewList({ onAPIApproved }: APIReviewListProps) {
       onAPIApproved?.(api.id)
 
       toast.success(`API "${api.name}" ${t('toast.apiApprovalSuccess')}`)
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('❌ [APIReviewList] API审核失败:', error)
       toast.error(error instanceof Error ? error.message : '审核失败')
     } finally {

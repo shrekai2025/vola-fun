@@ -30,16 +30,27 @@ export function ThemeToggle({ size = 'default', variant = 'outline' }: ThemeTogg
 export function ThemeToggleWithLabel({ size = 'default', variant = 'outline' }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme()
 
+  // 根据当前主题显示正确的图标和文本
+  const getThemeDisplay = () => {
+    if (theme === 'dark') {
+      return {
+        icon: <Moon className='h-4 w-4' />,
+        text: '暗色模式',
+      }
+    } else {
+      return {
+        icon: <Sun className='h-4 w-4' />,
+        text: '明亮模式',
+      }
+    }
+  }
+
+  const { icon, text } = getThemeDisplay()
+
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={toggleTheme}
-      className='flex items-center space-x-2'
-    >
-      <Sun className='h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0' />
-      <Moon className='absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100' />
-      <span className='ml-2'>{theme === 'light' ? '暗色模式' : '明亮模式'}</span>
+    <Button variant={variant} size={size} onClick={toggleTheme}>
+      {icon}
+      <span>{text}</span>
     </Button>
   )
 }

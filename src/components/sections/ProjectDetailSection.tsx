@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@/components/providers/LanguageProvider'
+import { InlineLoading, PageLoading } from '@/components/ui/loading'
 import { useToast } from '@/components/ui/toast'
-import { PageLoading, InlineLoading } from '@/components/ui/loading'
 import { APIService, EndpointService, type API, type APIEndpoint } from '@/lib/api'
 import {
   Activity,
@@ -58,7 +58,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
         } else {
           throw new Error(response.message || 'API详情加载失败')
         }
-      } catch (error: unknown) {
+      } catch (error) {
         const errorMessage = error instanceof Error ? error.message : '加载失败，请稍后重试'
         console.error('加载API详情失败:', error)
         setError(errorMessage)
@@ -81,7 +81,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
       if (response.success) {
         setEndpoints(response.data)
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('加载端点列表失败:', error)
       // 端点加载失败不阻塞页面展示
     } finally {

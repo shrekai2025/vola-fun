@@ -1,18 +1,18 @@
 // Firebase 认证服务
 
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  GoogleAuthProvider,
-  signOut,
-  onAuthStateChanged,
-  User as FirebaseUser,
-} from 'firebase/auth'
 import { auth } from '@/lib/firebase-config'
 import type { AuthService, FirebaseAuthError } from '@/types/auth'
+import {
+  createUserWithEmailAndPassword,
+  User as FirebaseUser,
+  getRedirectResult,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+} from 'firebase/auth'
 
 /**
  * Firebase 认证服务实现

@@ -84,6 +84,7 @@ export interface UserStats {
 export interface UserListParams extends BaseQueryParams {
   role?: UserRole
   is_verified?: boolean
+  is_active?: boolean
 }
 
 // 用户更新数据
@@ -100,4 +101,13 @@ export interface UpdateUserData {
 export interface AdminUserParams {
   is_active?: boolean
   role?: UserRole
+}
+
+// 管理员用户详细数据
+export interface AdminUserData extends User {
+  last_login_at?: string
+  login_count: number
+  ip_address?: string
+  user_agent?: string
+  notes?: string
 }

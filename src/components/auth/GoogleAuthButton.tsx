@@ -39,7 +39,7 @@ export function GoogleAuthButton({
           // 尝试弹窗模式
           idToken = await FirebaseAuthService.signInWithGoogle()
           console.debug('🎯 Google 登录成功，获得 ID Token')
-        } catch (popupError: unknown) {
+        } catch (popupError) {
           console.warn('Popup failed, falling back to redirect:', popupError)
 
           // 如果是弹窗被阻止的错误，使用重定向模式
@@ -89,7 +89,7 @@ export function GoogleAuthButton({
 
       toast.loginSuccess()
       onSuccess()
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Google sign in error:', error)
 
       // 更详细的错误处理

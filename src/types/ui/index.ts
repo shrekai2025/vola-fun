@@ -102,10 +102,12 @@ export interface ModalProps extends BaseComponentProps {
 }
 
 // 表格列定义
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface TableColumn<T = any> {
   key: string
   title: string
   dataIndex?: keyof T
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: (value: any, record: T, index: number) => ReactNode
   sortable?: boolean
   width?: number | string

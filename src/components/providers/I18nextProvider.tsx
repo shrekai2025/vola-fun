@@ -1,15 +1,15 @@
 'use client'
 
+import i18n from '@/lib/i18n-config'
 import { ReactNode, useEffect, useState } from 'react'
 import { I18nextProvider } from 'react-i18next'
-import i18n from '@/lib/i18n-config'
 
 interface I18nextProviderWrapperProps {
   children: ReactNode
 }
 
 export function I18nextProviderWrapper({ children }: I18nextProviderWrapperProps) {
-  const [isHydrated, setIsHydrated] = useState(false)
+  const [, setIsHydrated] = useState(false)
 
   useEffect(() => {
     // Mark as hydrated after mount

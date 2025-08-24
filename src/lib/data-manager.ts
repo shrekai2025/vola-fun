@@ -4,9 +4,9 @@
  * 确保无重复请求，快速加载，安全可靠
  */
 
-import { APIService, AuthService, type API, type APIListParams } from '@/lib/api'
+import { APIService, UserService, type API, type APIListParams } from '@/lib/api'
 import type { User } from '@/types'
-import type { CacheEntry, PendingRequest } from '@/types/data'
+import type { CacheEntry, PendingRequest } from '@/types/data/cache'
 import { TokenManager } from '@/utils/cookie'
 
 // ======================== 配置常量 ========================
@@ -27,13 +27,13 @@ class DataManager {
   private static instance: DataManager
 
   // 缓存存储
-  private cache = new Map<string, CacheEntry<any>>()
+  private cache = new Map<string, CacheEntry<unknown>>()
 
   // 正在进行的请求（防重复）
-  private pendingRequests = new Map<string, PendingRequest<any>>()
+  private pendingRequests = new Map<string, PendingRequest<unknown>>()
 
   // 订阅者管理
-  private subscribers = new Map<string, Set<(data: any) => void>>()
+  private subscribers = new Map<string, Set<(data: unknown) => void>>()
 
   private constructor() {
     // 监听登出事件，清理缓存
@@ -115,8 +115,8 @@ class DataManager {
 
     // 存储请求信息
     this.pendingRequests.set(key, {
-      promise: promise as Promise<any>,
-      resolve: resolvePromise! as (value: any) => void,
+      promise: promise as Promise<unknown>,
+      resolve: resolvePromise! as (value: unknown) => void,
       reject: rejectPromise!,
     })
 
@@ -160,7 +160,7 @@ class DataManager {
   /**
    * 通知订阅者
    */
-  private notifySubscribers(key: string, update: any) {
+  private notifySubscribers(key: string, update: unknown) {
     const subs = this.subscribers.get(key)
     if (subs) {
       subs.forEach((callback) => callback(update))
@@ -180,11 +180,11 @@ class DataManager {
 
     const response = await this.getData(
       'user-info',
-      () => AuthService.getCurrentUser(),
+      () => UserService.getCurrentUser(),
       CACHE_CONFIG.USER_INFO,
       forceRefresh
     )
-    return response.data
+    return (response as { data: User }).data
   }
 
   /**
@@ -204,7 +204,7 @@ class DataManager {
     return this.getData(
       key,
       async () => {
-        const response = await AuthService.getCurrentUser()
+        const response = await UserService.getCurrentUser()
         return APIService.getUserAPIs(response.data.id, finalParams)
       },
       CACHE_CONFIG.USER_APIS,
@@ -245,7 +245,7 @@ class DataManager {
       forceRefresh,
       pageLevelRefresh
     )
-    return response.data
+    return (response as { data: API }).data
   }
 
   // ======================== 订阅和缓存管理 ========================
@@ -253,7 +253,7 @@ class DataManager {
   /**
    * 订阅数据变化
    */
-  subscribe(key: string, callback: (data: any) => void): () => void {
+  subscribe(key: string, callback: (data: unknown) => void): () => void {
     if (!this.subscribers.has(key)) {
       this.subscribers.set(key, new Set())
     }
@@ -335,7 +335,7 @@ export const dataManager = DataManager.getInstance()
 
 // ======================== 导出类型 ========================
 
-export type { UseDataResult } from '@/types/data'
+export type { UseDataResult } from '@/types/data/cache'
 
 // ======================== 便捷Hook接口 ========================
 

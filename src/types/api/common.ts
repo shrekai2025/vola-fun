@@ -33,6 +33,7 @@ export interface ApiError {
 export interface RequestConfig {
   headers?: Record<string, string>
   params?: Record<string, string | number | boolean>
+  timeout?: number
   signal?: AbortSignal
   retry?: boolean
   retryCount?: number
@@ -97,7 +98,8 @@ export interface BaseQueryParams extends PaginationConfig, SortConfig {
 }
 
 // 通用请求体类型
-export type RequestBody = Record<string, any> | FormData | string | null | undefined
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type RequestBody = any
 
 // 通用响应数据类型约束
-export type ResponseData = Record<string, any> | any[] | string | number | boolean | null
+export type ResponseData = Record<string, unknown> | unknown[] | string | number | boolean | null

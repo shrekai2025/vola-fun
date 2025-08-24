@@ -9,6 +9,7 @@ export interface CacheEntry<T> {
   error: string | null
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface PendingRequest<T = any> {
   promise: Promise<T>
   resolve: (value: T) => void

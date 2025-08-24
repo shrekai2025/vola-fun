@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { InlineLoading } from '@/components/ui/loading'
 import {
   Select,
   SelectContent,
@@ -12,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { InlineLoading } from '@/components/ui/loading'
 import { useToast } from '@/components/ui/toast'
 import { APIService, CreateAPIData } from '@/lib/api'
 import { dataManager } from '@/lib/data-manager'
@@ -173,7 +173,7 @@ export default function UserAPICreateSection() {
         setTimeout(() => {
           router.push('/apis')
         }, 800)
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('发布API失败:', error)
         const errorMessage = error instanceof Error ? error.message : '发布失败'
         toast.error(`API发布失败：${errorMessage}`)

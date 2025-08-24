@@ -6,6 +6,9 @@ import type {
   APIListParams,
   CreateAPIData,
   UpdateAPIData,
+  APIVersion,
+  CreateAPIVersionData,
+  APIDocumentation,
   PaginatedResponse,
   ApiResponse,
 } from '@/types/api'
@@ -207,6 +210,75 @@ export class APIService {
     } catch (error) {
       throw error
     }
+  }
+
+  /**
+   * 上传API头像
+   */
+  static async uploadAvatar(
+    apiId: string,
+    avatar: File
+  ): Promise<ApiResponse<{ avatar_url: string }>> {
+    const formData = new FormData()
+    formData.append('avatar', avatar)
+
+    const response = await apiClient.post<{ avatar_url: string }>(
+      API_ENDPOINTS.APIS.UPLOAD_AVATAR(apiId),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+
+    return response
+  }
+
+  /**
+   * 获取API版本历史
+   */
+  static async getVersions(apiId: string): Promise<ApiResponse<APIVersion[]>> {
+    const response = await apiClient.get<APIVersion[]>(API_ENDPOINTS.APIS.VERSIONS.LIST(apiId))
+    return response
+  }
+
+  /**
+   * 创建API版本
+   */
+  static async createVersion(
+    apiId: string,
+    data: CreateAPIVersionData
+  ): Promise<ApiResponse<APIVersion>> {
+    const response = await apiClient.post<APIVersion>(
+      API_ENDPOINTS.APIS.VERSIONS.CREATE(apiId),
+      data
+    )
+    return response
+  }
+
+  /**
+   * 获取API文档
+   */
+  static async getDocumentation(apiId: string): Promise<ApiResponse<APIDocumentation>> {
+    const response = await apiClient.get<APIDocumentation>(
+      API_ENDPOINTS.APIS.DOCUMENTATION.GET(apiId)
+    )
+    return response
+  }
+
+  /**
+   * 更新API文档
+   */
+  static async updateDocumentation(
+    apiId: string,
+    content: string
+  ): Promise<ApiResponse<APIDocumentation>> {
+    const response = await apiClient.put<APIDocumentation>(
+      API_ENDPOINTS.APIS.DOCUMENTATION.UPDATE(apiId),
+      { content }
+    )
+    return response
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { AuthService } from '../services'
+import { AuthService, UserService } from '../services'
 import type { User } from '@/types'
 import { TokenManager } from '@/utils/cookie'
 
@@ -23,7 +23,7 @@ export function useAuth() {
       })
 
       // 获取用户信息
-      const userInfo = await AuthService.getCurrentUser()
+      const userInfo = await UserService.getCurrentUser()
       setUser(userInfo.data)
 
       return tokenData
@@ -58,7 +58,7 @@ export function useAuth() {
     setError(null)
 
     try {
-      const response = await AuthService.getCurrentUser()
+      const response = await UserService.getCurrentUser()
       setUser(response.data)
       return response.data
     } catch (err) {
