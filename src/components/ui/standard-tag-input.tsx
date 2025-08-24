@@ -225,17 +225,19 @@ function StandardTagInputComponent(
             >
               <span>{tag}</span>
               {!disabled && (
-                <button
+                <Button
+                  variant='ghost'
+                  size='icon'
                   type='button'
                   onClick={(e) => {
                     e.stopPropagation()
                     removeTag(index)
                   }}
-                  className='ml-1 hover:bg-destructive/10 rounded-full p-0.5 transition-colors'
+                  className='ml-1 hover:bg-destructive/10 rounded-full p-0.5 transition-colors h-4 w-4'
                   data-testid={`${dataTestId}-remove-${index}`}
                 >
                   <X className='w-3 h-3' />
-                </button>
+                </Button>
               )}
             </Badge>
           ))}

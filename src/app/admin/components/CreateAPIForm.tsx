@@ -18,7 +18,7 @@ import { getCategoryOptions } from '@/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Save, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 
 // 创建表单验证模式函数
@@ -81,6 +81,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
     watch: _watch,
     formState: { errors },
     setValue: _setValue,
+    control,
   } = useForm({
     resolver: zodResolver(createAPISchema(t)),
     defaultValues: {
@@ -255,18 +256,24 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
                   <label className='text-sm font-medium text-foreground block mb-2'>
                     {t('admin.createAPI.apiCategory')} <span className='text-destructive'>*</span>
                   </label>
-                  <Select defaultValue='data' {...register('category')}>
-                    <SelectTrigger className={errors.category ? 'border-destructive' : ''}>
-                      <SelectValue placeholder={t('admin.createAPI.selectCategory')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(({ value, label }) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name='category'
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className={errors.category ? 'border-destructive' : ''}>
+                          <SelectValue placeholder={t('admin.createAPI.selectCategory')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map(({ value, label }) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.category && (
                     <p className='text-sm text-destructive mt-1'>{errors.category.message}</p>
                   )}
@@ -298,13 +305,15 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
                     {tags.map((tag) => (
                       <Badge key={tag} variant='secondary' className='px-2 py-1'>
                         {tag}
-                        <button
+                        <Button
                           type='button'
+                          variant='ghost'
+                          size='sm'
                           onClick={() => removeTag(tag)}
-                          className='ml-2 hover:text-destructive'
+                          className='ml-2 h-auto p-0 hover:text-destructive'
                         >
                           <X className='h-3 w-3' />
-                        </button>
+                        </Button>
                       </Badge>
                     ))}
                   </div>
@@ -401,7 +410,7 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
                 </div>
 
                 <div className='flex items-center space-x-2 pt-6'>
-                  <input
+                  <Input
                     type='checkbox'
                     {...register('is_public')}
                     className='h-4 w-4 rounded border border-input'

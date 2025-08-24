@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Loading, InlineLoading } from '@/components/ui/loading'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast'
 import { APIService, type API, type UpdateAPIData } from '@/lib/api'
 import { dataManager } from '@/lib/data-manager'
@@ -15,7 +22,7 @@ import { ArrowLeft, Plus, Save, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 
 // 表单验证模式 - 使用函数获取翻译
@@ -78,6 +85,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
     register,
     handleSubmit,
     formState: { errors },
+    control,
     reset,
   } = useForm<UpdateUserAPIFormData>({
     resolver: zodResolver(updateUserAPISchema(t)),
@@ -339,16 +347,24 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
               <label className='block text-sm font-medium mb-2'>
                 {t('apiProvider.edit.category')} <span className='text-destructive'>*</span>
               </label>
-              <select
-                {...register('category')}
-                className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-              >
-                {categories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name='category'
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className={errors.category ? 'border-destructive' : ''}>
+                      <SelectValue placeholder={t('apiProvider.edit.selectCategory')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.value} value={category.value}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
@@ -499,13 +515,15 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
                 {tags.map((tag) => (
                   <Badge key={tag} variant='secondary' className='flex items-center gap-1'>
                     {tag}
-                    <button
+                    <Button
                       type='button'
+                      variant='ghost'
+                      size='sm'
                       onClick={() => handleRemoveTag(tag)}
-                      className='text-muted-foreground hover:text-foreground'
+                      className='h-auto p-0 text-muted-foreground hover:text-foreground'
                     >
                       <X className='w-3 h-3' />
-                    </button>
+                    </Button>
                   </Badge>
                 ))}
               </div>

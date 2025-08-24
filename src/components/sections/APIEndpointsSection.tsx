@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { InlineLoading, Loading } from '@/components/ui/loading'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast'
 import {
   APIService,
@@ -709,29 +716,37 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               <label className='block text-sm font-medium mb-2'>
                 {t('endpoints.methodLabel')} <span className='text-destructive'>*</span>
               </label>
-              <select
+              <Select
                 value={formData.method}
-                onChange={(e) => handleChange('method', e.target.value)}
-                className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+                onValueChange={(value) => handleChange('method', value)}
                 required
               >
-                <option value='GET'>GET</option>
-                <option value='POST'>POST</option>
-                <option value='PUT'>PUT</option>
-                <option value='PATCH'>PATCH</option>
-                <option value='DELETE'>DELETE</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder='Select method' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='GET'>GET</SelectItem>
+                  <SelectItem value='POST'>POST</SelectItem>
+                  <SelectItem value='PUT'>PUT</SelectItem>
+                  <SelectItem value='PATCH'>PATCH</SelectItem>
+                  <SelectItem value='DELETE'>DELETE</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className='block text-sm font-medium mb-2'>{t('endpoints.typeLabel')}</label>
-              <select
+              <Select
                 value={formData.endpoint_type}
-                onChange={(e) => handleChange('endpoint_type', e.target.value)}
-                className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+                onValueChange={(value) => handleChange('endpoint_type', value)}
               >
-                <option value='rest'>REST</option>
-                <option value='graphql'>GraphQL</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder='Select type' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='rest'>REST</SelectItem>
+                  <SelectItem value='graphql'>GraphQL</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className='block text-sm font-medium mb-2'>{t('endpoints.priceLabel')}</label>
@@ -752,7 +767,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
             <textarea
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              className='flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
+              className='flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none'
               placeholder={t('endpoints.endpointDescPlaceholder')}
             />
           </div>
@@ -765,7 +780,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               <textarea
                 value={formData.headers}
                 onChange={(e) => handleChange('headers', e.target.value)}
-                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono'
+                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none'
                 placeholder='{"Authorization": {"name": "Authorization", "type": "string"}}'
               />
             </div>
@@ -776,7 +791,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               <textarea
                 value={formData.query_params}
                 onChange={(e) => handleChange('query_params', e.target.value)}
-                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono'
+                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none'
                 placeholder='{"page": {"name": "page", "type": "number"}}'
               />
             </div>
@@ -787,7 +802,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               <textarea
                 value={formData.body_params}
                 onChange={(e) => handleChange('body_params', e.target.value)}
-                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono'
+                className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none'
                 placeholder='{"data": {"name": "data", "type": "object"}}'
               />
             </div>
@@ -800,7 +815,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
             <textarea
               value={formData.response_body}
               onChange={(e) => handleChange('response_body', e.target.value)}
-              className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono'
+              className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none'
               placeholder='{"success": true, "data": {"id": "123", "name": "example"}}'
             />
             <p className='text-xs text-muted-foreground mt-1'>{t('endpoints.jsonFormatNote')}</p>

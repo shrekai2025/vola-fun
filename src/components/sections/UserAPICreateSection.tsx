@@ -5,6 +5,13 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { InlineLoading } from '@/components/ui/loading'
 import { useToast } from '@/components/ui/toast'
 import { APIService, CreateAPIData } from '@/lib/api'
@@ -266,16 +273,26 @@ export default function UserAPICreateSection() {
               <label className='block text-sm font-medium mb-2'>
                 {t('apiProvider.create.category')} <span className='text-destructive'>*</span>
               </label>
-              <select
-                {...register('category')}
-                className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+              <Select
+                onValueChange={(value) => {
+                  const event = {
+                    target: { name: 'category', value },
+                  } as React.ChangeEvent<HTMLSelectElement>
+                  register('category').onChange(event)
+                }}
+                defaultValue='other'
               >
-                {getCategoryOptions(t).map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('apiProvider.create.selectCategory')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {getCategoryOptions(t).map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -428,13 +445,14 @@ export default function UserAPICreateSection() {
                 {tags.map((tag) => (
                   <Badge key={tag} variant='secondary' className='flex items-center gap-1'>
                     {tag}
-                    <button
-                      type='button'
+                    <Button
+                      variant='ghost'
+                      size='icon'
                       onClick={() => handleRemoveTag(tag)}
-                      className='text-muted-foreground hover:text-foreground'
+                      className='h-4 w-4 text-muted-foreground hover:text-foreground p-0'
                     >
                       <X className='w-3 h-3' />
-                    </button>
+                    </Button>
                   </Badge>
                 ))}
               </div>

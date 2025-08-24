@@ -139,7 +139,11 @@ export function Header() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full'>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full p-0 h-auto'
+                >
                   <CachedAvatar
                     src={user.avatar_url || undefined}
                     alt={user.full_name || t('common.userAvatarAlt')}
@@ -153,7 +157,7 @@ export function Header() {
                       </div>
                     }
                   />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end' className='w-48'>
                 <DropdownMenuItem asChild>

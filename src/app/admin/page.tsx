@@ -82,9 +82,10 @@ export default function AdminPage() {
         {/* Tab 导航 */}
         <div className='border-b border-border mb-6'>
           <nav className='flex space-x-8'>
-            <button
+            <Button
+              variant='ghost'
               onClick={() => setActiveTab('create')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors h-auto rounded-none ${
                 activeTab === 'create'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
@@ -92,10 +93,11 @@ export default function AdminPage() {
             >
               <Plus className='h-4 w-4 inline mr-2' />
               {t('admin.publishAPI')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant='ghost'
               onClick={() => setActiveTab('review')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors h-auto rounded-none ${
                 activeTab === 'review'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
@@ -103,7 +105,7 @@ export default function AdminPage() {
             >
               <Clock className='h-4 w-4 inline mr-2' />
               {t('admin.reviewAPI')}
-            </button>
+            </Button>
           </nav>
         </div>
 

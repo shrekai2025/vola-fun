@@ -7,6 +7,7 @@
 
 import { authLoadingAtom, authModalAtom, setAuthLoadingAtom, setAuthModalAtom } from '@/atoms/auth'
 import { useTranslation } from '@/components/providers/LanguageProvider'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { StandardForm } from '@/components/ui/standard-form'
 import { useToast } from '@/components/ui/toast'
@@ -224,15 +225,16 @@ export function LoginForm({
 
         {/* 重置密码链接 */}
         <div className='text-center'>
-          <button
-            type='button'
+          <Button
+            variant='link'
+            size='sm'
             onClick={handleResetPassword}
-            className='text-sm text-primary hover:text-primary/80 underline underline-offset-4 transition-colors'
+            className='text-sm text-primary hover:text-primary/80 underline underline-offset-4 transition-colors p-0 h-auto'
             disabled={isLoading || isSubmitting}
             data-testid={`${dataTestId}-reset-password`}
           >
             {t('auth.resetPassword')}
-          </button>
+          </Button>
         </div>
       </StandardForm>
 
@@ -240,15 +242,16 @@ export function LoginForm({
       {onSwitchToSignup && (
         <div className='text-center text-sm'>
           <span className='text-muted-foreground'>{t('auth.noAccount')}</span>
-          <button
-            type='button'
+          <Button
+            variant='link'
+            size='sm'
             onClick={onSwitchToSignup}
-            className='text-primary hover:text-primary/80 underline underline-offset-4 transition-colors font-medium'
+            className='text-primary hover:text-primary/80 underline underline-offset-4 transition-colors font-medium p-0 h-auto'
             disabled={isLoading || isSubmitting}
             data-testid={`${dataTestId}-switch-signup`}
           >
             {t('auth.signUp')}
-          </button>
+          </Button>
         </div>
       )}
     </div>

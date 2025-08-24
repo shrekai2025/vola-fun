@@ -235,10 +235,12 @@ export default function UserAPIListSection() {
 
                   {/* Switch for is_public */}
                   <div className='flex-shrink-0'>
-                    <button
+                    <Button
+                      variant='ghost'
+                      size='sm'
                       onClick={() => handleTogglePublic(api.id, api.is_public || false)}
                       disabled={updating === api.id}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 p-0 ${
                         api.is_public ? 'bg-primary' : 'bg-muted-foreground/20'
                       } ${updating === api.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       title={
@@ -250,7 +252,7 @@ export default function UserAPIListSection() {
                           api.is_public ? 'translate-x-5' : 'translate-x-1'
                         }`}
                       />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </CardHeader>

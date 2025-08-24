@@ -287,19 +287,21 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
             {/* 自定义Tab切换器 */}
             <div className='border-b border-border'>
               <div className='flex space-x-8'>
-                <button
+                <Button
+                  variant='ghost'
                   onClick={() => setActiveTab('description')}
-                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors h-auto rounded-none ${
                     activeTab === 'description'
                       ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
                   }`}
                 >
                   {t('projectDetail.description')}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant='ghost'
                   onClick={() => setActiveTab('endpoints')}
-                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 h-auto rounded-none ${
                     activeTab === 'endpoints'
                       ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
@@ -307,7 +309,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                 >
                   {t('projectDetail.endpoints')}
                   <Zap className='h-3 w-3' />
-                </button>
+                </Button>
               </div>
             </div>
 

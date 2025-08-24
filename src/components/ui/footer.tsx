@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { Github, Twitter, Mail, MessageCircle, Moon, Sun } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Toggle } from '@/components/ui/toggle'
 
 interface FooterProps {
@@ -146,16 +147,18 @@ export const Footer = ({ className = '' }: FooterProps) => {
                     <li key={linkIdx}>
                       {link.onClick ? (
                         // 语言切换按钮
-                        <button
+                        <Button
+                          variant='ghost'
+                          size='sm'
                           onClick={link.onClick}
-                          className={`text-sm transition-colors duration-200 ${
+                          className={`text-sm transition-colors duration-200 p-0 h-auto font-normal ${
                             link.active
                               ? 'text-primary font-medium'
                               : 'text-muted-foreground hover:text-primary'
                           }`}
                         >
                           {link.name}
-                        </button>
+                        </Button>
                       ) : (
                         // 普通链接
                         <Link
