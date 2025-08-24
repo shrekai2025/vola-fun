@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { InlineLoading, PageLoading } from '@/components/ui/loading'
-import { useToast } from '@/components/ui/toast'
 import { APIService, EndpointService, type API, type APIEndpoint } from '@/lib/api'
 import {
   Activity,
@@ -27,13 +26,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 interface ProjectDetailSectionProps {
-  slug: string
+  apiId: string
 }
 
-export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
+export function ProjectDetailSection({ apiId }: ProjectDetailSectionProps) {
   const { t } = useTranslation()
   const router = useRouter()
-  const toast = useToast()
 
   // 状态管理
   const [api, setApi] = useState<API | null>(null)
@@ -51,7 +49,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
         setLoading(true)
         setError(null)
 
-        const response = await APIService.getMarketAPIDetailBySlug(slug)
+        const response = await APIService.get(apiId)
 
         if (response.success) {
           setApi(response.data)
@@ -62,16 +60,15 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
         const errorMessage = error instanceof Error ? error.message : '加载失败，请稍后重试'
         console.error('加载API详情失败:', error)
         setError(errorMessage)
-        toast.error(errorMessage || '加载API详情失败')
       } finally {
         setLoading(false)
       }
     }
 
-    if (slug) {
+    if (apiId) {
       loadAPIDetail()
     }
-  }, [slug, toast])
+  }, [apiId]) // 移除toast依赖
 
   // 加载API端点列表
   const loadEndpoints = useCallback(async (apiId: string) => {

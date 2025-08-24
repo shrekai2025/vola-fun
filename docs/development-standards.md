@@ -466,6 +466,85 @@ function MyComponent() {
 - **Organisms**: Header, ApiList等功能模块
 - **Templates**: MainLayout等页面模板
 
+### 核心开发规范
+
+#### UI组件使用优先级
+
+1. **首选**: 使用现有的UI组件 (`components/ui`)
+   - 优先检查项目中已有的基础组件
+   - 保持视觉风格和交互的一致性
+
+2. **次选**: 从 shadcn/ui 安装新组件
+
+   ```bash
+   npx shadcn@latest add [component-name]
+   ```
+
+   - 当现有组件无法满足需求时
+   - 确保与项目主题系统兼容
+
+3. **最后**: 自定义开发新组件
+   - 仅在前两种方案都无法满足需求时
+   - 需遵循项目的设计系统规范
+
+#### 文案国际化规范
+
+所有用户界面文本内容**严禁硬编码**，必须通过国际化系统管理：
+
+```typescript
+// ❌ 错误示例 - 硬编码文本
+const submitButton = <Button>提交</Button>
+const errorMessage = "请输入有效的邮箱地址"
+
+// ✅ 正确示例 - 使用i18n
+const { t } = useTranslation()
+const submitButton = <Button>{t.common.submit}</Button>
+const errorMessage = t.form.validation.invalidEmail
+```
+
+#### 项目结构组织规范
+
+避免将所有代码集中在单一目录，按功能模块合理分类：
+
+- **自定义Hooks**: 统一放置在 `hooks/` 目录
+- **类型定义**: 组织在 `types/` 或 `interfaces/` 目录
+- **常量配置**: 集中管理在 `constants/` 目录
+- **业务组件**: 按功能领域分类在 `components/` 的子目录中
+
+```
+src/
+├── hooks/              # 自定义Hooks
+│   ├── auth/          # 认证相关
+│   ├── data/          # 数据管理
+│   └── ui/            # UI交互
+├── types/             # TypeScript类型定义
+├── constants/         # 常量定义
+└── components/        # 组件按功能分类
+```
+
+#### 文件复杂度控制
+
+- **单文件代码行数上限**: 800行
+- **超出限制时必须进行拆分重构**:
+  - 提取独立的工具函数
+  - 分离业务逻辑和展示逻辑
+  - 拆分大型组件为更小的子组件
+  - 将复杂的状态逻辑提取为自定义Hooks
+
+**拆分策略示例**:
+
+```typescript
+// 原始大文件 (>800行)
+// UserProfilePage.tsx
+
+// 拆分后
+// UserProfilePage.tsx (主文件 <300行)
+// hooks/useUserProfile.ts (业务逻辑)
+// components/UserProfileForm.tsx (表单组件)
+// components/UserAvatarUpload.tsx (头像上传)
+// utils/userProfileValidation.ts (验证逻辑)
+```
+
 ### 组件开发规则
 
 #### 基础规范
@@ -481,7 +560,7 @@ interface ComponentProps {
 // 2. 使用统一数据管理
 import { useUser, useMarketAPIList } from '@/hooks/useUnifiedData'
 
-// 3. 国际化支持
+// 3. 国际化支持 - 必须使用，不能硬编码文本
 import { useTranslation } from '@/components/providers/LanguageProvider'
 
 // 4. 样式使用Tailwind + CSS变量

@@ -199,79 +199,77 @@ export default function APIMarketSection() {
                     key={api.id}
                     className='hover:shadow-lg transition-shadow cursor-pointer group'
                   >
-                    <Link href={`/project/${api.slug}`} className='block'>
-                      <CardHeader>
-                        <div className='flex justify-between items-start'>
-                          <div className='flex items-center space-x-2'>
-                            {api.avatar_url && (
-                              <Image
-                                src={api.avatar_url}
-                                alt={api.name}
-                                width={24}
-                                height={24}
-                                className='rounded'
-                              />
-                            )}
-                            <CardTitle className='text-lg group-hover:text-primary transition-colors'>
-                              {api.name}
-                            </CardTitle>
-                          </div>
+                    <CardHeader>
+                      <div className='flex justify-between items-start'>
+                        <div className='flex items-center space-x-2'>
+                          {api.avatar_url && (
+                            <Image
+                              src={api.avatar_url}
+                              alt={api.name}
+                              width={24}
+                              height={24}
+                              className='rounded'
+                            />
+                          )}
+                          <CardTitle className='text-lg group-hover:text-primary transition-colors'>
+                            {api.name}
+                          </CardTitle>
                         </div>
-                        <CardDescription className='line-clamp-2 h-10'>
-                          {api.short_description}
-                        </CardDescription>
-                      </CardHeader>
+                      </div>
+                      <CardDescription className='line-clamp-2 h-10'>
+                        {api.short_description}
+                      </CardDescription>
+                    </CardHeader>
 
-                      <CardContent>
-                        {/* 分类标签 */}
-                        <div className='flex flex-wrap gap-1 mb-4'>
-                          <Badge variant='secondary' className='text-xs'>
-                            {api.category}
+                    <CardContent>
+                      {/* 分类标签 */}
+                      <div className='flex flex-wrap gap-1 mb-4'>
+                        <Badge variant='secondary' className='text-xs'>
+                          {api.category}
+                        </Badge>
+                        {api.tags?.slice(0, 2).map((tag: string) => (
+                          <Badge key={tag} variant='outline' className='text-xs'>
+                            {tag}
                           </Badge>
-                          {api.tags?.slice(0, 2).map((tag: string) => (
-                            <Badge key={tag} variant='outline' className='text-xs'>
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
+                        ))}
+                      </div>
 
-                        {/* 统计信息 */}
-                        <div className='space-y-2 text-sm mb-4'>
-                          <div className='flex items-center justify-between'>
-                            <div className='flex items-center space-x-1'>
-                              <Clock className='w-4 h-4 text-muted-foreground' />
-                              <span className='text-xs text-muted-foreground'>
-                                {formatUsageCount(api.total_calls || 0)} {t('home.usageCount')}
-                              </span>
-                            </div>
-                            <div className='flex items-center space-x-1'>
-                              <FileText className='w-4 h-4 text-muted-foreground' />
-                              <span className='text-xs text-muted-foreground'>
-                                {formatResponseTime(api.estimated_response_time || 0)}
-                              </span>
-                            </div>
+                      {/* 统计信息 */}
+                      <div className='space-y-2 text-sm mb-4'>
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center space-x-1'>
+                            <Clock className='w-4 h-4 text-muted-foreground' />
+                            <span className='text-xs text-muted-foreground'>
+                              {formatUsageCount(api.total_calls || 0)} {t('home.usageCount')}
+                            </span>
+                          </div>
+                          <div className='flex items-center space-x-1'>
+                            <FileText className='w-4 h-4 text-muted-foreground' />
+                            <span className='text-xs text-muted-foreground'>
+                              {formatResponseTime(api.estimated_response_time || 0)}
+                            </span>
                           </div>
                         </div>
+                      </div>
 
-                        {/* 操作按钮 */}
-                        <div className='flex space-x-2'>
-                          <Button className='flex-1' size='sm' asChild>
-                            <Link href={`/project/${api.slug}`}>{t('home.viewDetails')}</Link>
-                          </Button>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            className='w-8 h-8 p-0'
-                            onClick={(e) => {
-                              e.preventDefault()
-                              // TODO: 添加到收藏
-                            }}
-                          >
-                            ♡
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Link>
+                      {/* 操作按钮 */}
+                      <div className='flex space-x-2'>
+                        <Button className='flex-1' size='sm' asChild>
+                          <Link href={`/project/${api.id}`}>{t('home.viewDetails')}</Link>
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='w-8 h-8 p-0'
+                          onClick={(e) => {
+                            e.preventDefault()
+                            // TODO: 添加到收藏
+                          }}
+                        >
+                          ♡
+                        </Button>
+                      </div>
+                    </CardContent>
                   </Card>
                 ))}
               </div>

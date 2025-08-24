@@ -169,15 +169,15 @@ export default function CreateAPIForm({ onClose, onSuccess }: CreateAPIFormProps
 
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50'>
-      <Card className='w-full max-w-4xl max-h-[90vh] overflow-y-auto'>
-        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4 sticky top-0 bg-card z-10 border-b'>
+      <Card className='w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col'>
+        <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4 bg-card border-b flex-shrink-0'>
           <CardTitle className='text-xl'>{t('admin.createAPI.title')}</CardTitle>
           <Button variant='ghost' size='sm' onClick={onClose} className='h-8 w-8 p-0'>
             <X className='h-4 w-4' />
           </Button>
         </CardHeader>
 
-        <CardContent className='pt-6'>
+        <CardContent className='pt-6 overflow-y-auto flex-1'>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
             {/* 基本信息 */}
             <div className='space-y-4'>

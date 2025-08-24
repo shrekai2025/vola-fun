@@ -217,7 +217,7 @@ export default function UserAPIListSection() {
                   <div className='flex-1 min-w-0'>
                     <CardTitle className='text-lg font-semibold truncate'>
                       <Link
-                        href={`/project/${api.slug}`}
+                        href={`/project/${api.id}`}
                         className='hover:text-primary transition-colors cursor-pointer'
                       >
                         {api.name}

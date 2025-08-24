@@ -40,9 +40,9 @@ export const API_ENDPOINTS = {
 
   // API市场相关
   APIS: {
-    LIST: '/api/v1/apis/',
+    LIST: '/api/v1/apis',
     DETAIL: (apiId: string) => `/api/v1/apis/${apiId}`,
-    CREATE: '/api/v1/apis/',
+    CREATE: '/api/v1/apis',
     UPDATE: (apiId: string) => `/api/v1/apis/${apiId}`,
     DELETE: (apiId: string) => `/api/v1/apis/${apiId}`,
     UPLOAD_AVATAR: (apiId: string) => `/api/v1/apis/${apiId}/avatar`,
@@ -74,9 +74,9 @@ export const API_ENDPOINTS = {
 
   // API密钥管理
   KEYS: {
-    LIST: '/api/v1/keys/',
+    LIST: '/api/v1/keys',
     DETAIL: (keyId: string) => `/api/v1/keys/${keyId}`,
-    CREATE: '/api/v1/keys/',
+    CREATE: '/api/v1/keys',
     UPDATE: (keyId: string) => `/api/v1/keys/${keyId}`,
     DELETE: (keyId: string) => `/api/v1/keys/${keyId}`,
     REGENERATE: (keyId: string) => `/api/v1/keys/${keyId}/regenerate`,
@@ -106,9 +106,9 @@ export const API_ENDPOINTS = {
 
   // 节点相关
   NODES: {
-    LIST: '/api/v1/nodes/',
+    LIST: '/api/v1/nodes',
     DETAIL: (nodeId: string) => `/api/v1/nodes/${nodeId}`,
-    CREATE: '/api/v1/nodes/',
+    CREATE: '/api/v1/nodes',
     UPDATE: (nodeId: string) => `/api/v1/nodes/${nodeId}`,
     DELETE: (nodeId: string) => `/api/v1/nodes/${nodeId}`,
     UPLOAD_AVATAR: (nodeId: string) => `/api/v1/nodes/${nodeId}/avatar`,

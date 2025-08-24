@@ -1,17 +1,17 @@
-import { apiClient } from '../client'
-import { API_ENDPOINTS } from '../config'
 import type {
   API,
   APICategory,
-  APIListParams,
-  CreateAPIData,
-  UpdateAPIData,
-  APIVersion,
-  CreateAPIVersionData,
   APIDocumentation,
-  PaginatedResponse,
+  APIListParams,
   ApiResponse,
+  APIVersion,
+  CreateAPIData,
+  CreateAPIVersionData,
+  PaginatedResponse,
+  UpdateAPIData,
 } from '@/types/api'
+import { apiClient } from '../client'
+import { API_ENDPOINTS } from '../config'
 
 // 重新导出类型以保持向后兼容
 export type { API, APIListParams, CreateAPIData, UpdateAPIData }
@@ -157,59 +157,6 @@ export class APIService {
       status: 'published',
       is_public: true,
     })
-  }
-
-  /**
-   * 根据slug获取市场API详情
-   */
-  static async getMarketAPIDetailBySlug(slug: string): Promise<ApiResponse<API>> {
-    try {
-      // 首先尝试搜索匹配的API
-      const response = await this.getMarketAPIs({
-        search: slug,
-        page: 1,
-        page_size: 100,
-      })
-
-      const targetApi = response.data.find((api) => api.slug === slug)
-
-      if (!targetApi) {
-        // 如果搜索没找到，尝试分页获取更多数据
-        let currentPage = 1
-        const maxPages = 5
-
-        while (currentPage <= maxPages) {
-          const listResponse = await this.getMarketAPIs({
-            page: currentPage,
-            page_size: 50,
-          })
-
-          const foundApi = listResponse.data.find((api) => api.slug === slug)
-          if (foundApi) {
-            return {
-              success: true,
-              code: 'SUCCESS',
-              message: 'API详情获取成功',
-              data: foundApi,
-            }
-          }
-
-          if (!listResponse.pagination.has_next) break
-          currentPage++
-        }
-
-        throw new Error('未找到对应的API')
-      }
-
-      return {
-        success: true,
-        code: 'SUCCESS',
-        message: 'API详情获取成功',
-        data: targetApi,
-      }
-    } catch (error) {
-      throw error
-    }
   }
 
   /**

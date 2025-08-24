@@ -1,15 +1,15 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import { ProjectDetailSection } from '@/components/sections/ProjectDetailSection'
+import { useParams } from 'next/navigation'
 
 export default function ProjectDetailPage() {
   const params = useParams()
-  const slug = params.slug as string
+  const id = params.id as string // 现在实际传的是ID
 
   return (
     <div className='min-h-screen bg-background'>
-      <ProjectDetailSection slug={slug} />
+      <ProjectDetailSection apiId={id} />
     </div>
   )
 }

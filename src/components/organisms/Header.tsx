@@ -116,7 +116,7 @@ export function Header() {
         {/* Admin Link - Only for Admins */}
         {isLoggedIn && user && user.role?.toUpperCase() === 'ADMIN' && (
           <Link
-            href='/admin2025'
+            href='/admin'
             className='text-primary hover:text-primary/80 font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4'
           >
             {t('nav.admin')}
