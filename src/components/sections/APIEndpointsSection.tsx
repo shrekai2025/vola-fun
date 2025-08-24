@@ -270,7 +270,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
         <div className='flex flex-col items-center justify-center min-h-[400px] text-center'>
           <div className='w-24 h-24 mb-6 flex items-center justify-center'>
             <Image
-              src={theme === 'dark' ? '/chipswhite.svg' : '/chipsblack.svg'}
+              src={theme === 'dark' ? '/icons/chipswhite.svg' : '/icons/chipsblack.svg'}
               alt='No endpoints'
               width={96}
               height={96}

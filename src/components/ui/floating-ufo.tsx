@@ -98,7 +98,7 @@ export function FloatingUFO() {
     return () => clearInterval(interval)
   }, [speedFactor])
 
-  const ufoSrc = theme === 'dark' ? '/ufowhite.svg' : '/ufoblack.svg'
+  const ufoSrc = theme === 'dark' ? '/icons/ufowhite.svg' : '/icons/ufoblack.svg'
 
   return (
     <>

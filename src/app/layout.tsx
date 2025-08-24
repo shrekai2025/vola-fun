@@ -14,9 +14,9 @@ export const metadata: Metadata = {
   description: '简化API管理，统一身份验证，集中化支付。专为AI应用场景设计的API生态平台。',
   keywords: ['API', 'AI', '开发者工具', 'API市场', '人工智能'],
   icons: {
-    icon: '/volaicon.svg',
-    shortcut: '/volaicon.svg',
-    apple: '/volaicon.svg',
+    icon: '/icons/volaicon.svg',
+    shortcut: '/icons/volaicon.svg',
+    apple: '/icons/volaicon.svg',
   },
 }
 

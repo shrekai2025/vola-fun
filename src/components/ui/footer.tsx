@@ -95,7 +95,13 @@ export const Footer = ({ className = '' }: FooterProps) => {
           <div className='flex w-full flex-col justify-between gap-6 lg:items-start lg:max-w-sm'>
             {/* Logo */}
             <Link href='/' className='flex items-center gap-3'>
-              <Image src='/volaicon.svg' alt='VOLA' width={32} height={32} className='h-8 w-8' />
+              <Image
+                src='/icons/volaicon.svg'
+                alt='VOLA'
+                width={32}
+                height={32}
+                className='h-8 w-8'
+              />
               <span className='text-xl font-bold text-foreground'>VOLA</span>
             </Link>
 

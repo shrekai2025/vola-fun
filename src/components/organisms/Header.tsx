@@ -38,7 +38,7 @@ export function Header() {
       <Link href='/' className='flex items-center'>
         <div className='w-[88px] h-[23px] relative'>
           <Image
-            src={theme === 'dark' ? '/volalogo.svg' : '/volalogol.svg'}
+            src={theme === 'dark' ? '/icons/volalogo.svg' : '/icons/volalogol.svg'}
             alt={t('common.volaLogoAlt')}
             width={88}
             height={23}
