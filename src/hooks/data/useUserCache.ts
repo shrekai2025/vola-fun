@@ -121,8 +121,8 @@ export const useUserCache = (): UseUserCacheReturn => {
         console.error('❌ 获取用户信息失败:', err)
 
         // 如果是 401 错误，说明 token 已过期，清除本地状态
-        const httpError = err as { response?: { status?: number } }
-        if (httpError.response?.status === 401) {
+        const error = err as Error & { response?: { status?: number } }
+        if (error.response?.status === 401) {
           console.debug('🔑 Token 已过期，清除本地状态')
           TokenManager.clearTokens()
           setUser(null)
@@ -130,7 +130,7 @@ export const useUserCache = (): UseUserCacheReturn => {
           setError('登录已过期，请重新登录')
           globalUserCache = { user: null, isLoggedIn: false, timestamp: 0, avatar: undefined }
         } else {
-          setError((err as Error).message || '获取用户信息失败')
+          setError(error.message || '获取用户信息失败')
         }
         throw err // 重新抛出错误以便其他等待的组件知道请求失败
       } finally {

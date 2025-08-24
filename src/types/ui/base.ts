@@ -53,7 +53,7 @@ export type StandardErrorHandler = (error: Error) => void
 /**
  * 异步操作处理器
  */
-export interface AsyncOperationHandlers<T = unknown> {
+export interface AsyncOperationHandlers<T = any> {
   onSuccess?: (result: T) => void
   onError?: StandardErrorHandler
   onComplete?: () => void
@@ -64,7 +64,7 @@ export interface AsyncOperationHandlers<T = unknown> {
 /**
  * 基础表单Props接口
  */
-export interface BaseFormProps<T = unknown> extends AsyncState {
+export interface BaseFormProps<T = any> extends AsyncState {
   onSubmit?: StandardSubmitHandler<T>
   onReset?: () => void
   onCancel?: () => void
@@ -92,8 +92,8 @@ export interface BaseFieldProps extends BaseComponentProps {
  * 表单验证接口
  */
 export interface ValidationProps {
-  rules?: Record<string, (value: unknown) => string | boolean>
-  validate?: (value: unknown) => string | boolean
+  rules?: Record<string, (value: any) => string | boolean>
+  validate?: (value: any) => string | boolean
   onValidate?: (isValid: boolean) => void
 }
 
@@ -136,7 +136,7 @@ export interface SortingProps<T = string> {
 /**
  * 筛选接口
  */
-export interface FilteringProps<T = Record<string, unknown>> {
+export interface FilteringProps<T = Record<string, any>> {
   filters?: T
   onFiltersChange?: (filters: T) => void
   onFilterReset?: () => void
@@ -145,7 +145,7 @@ export interface FilteringProps<T = Record<string, unknown>> {
 /**
  * 选择接口
  */
-export interface SelectionProps<TItem = unknown, TKey = string> {
+export interface SelectionProps<TItem = any, TKey = string> {
   selected?: TKey[]
   onSelectionChange?: (selected: TKey[]) => void
   selectionMode?: 'single' | 'multiple' | 'none'

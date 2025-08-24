@@ -172,7 +172,7 @@ export function isValidFileSize(file: File, maxSizeInMB: number): boolean {
 /**
  * 通用必填字段验证
  */
-export function isRequired(value: unknown): boolean {
+export function isRequired(value: any): boolean {
   if (value === null || value === undefined) return false
   if (typeof value === 'string') return value.trim().length > 0
   if (Array.isArray(value)) return value.length > 0
@@ -182,7 +182,7 @@ export function isRequired(value: unknown): boolean {
 /**
  * 验证对象是否包含必填字段
  */
-export function validateRequiredFields<T extends Record<string, unknown>>(
+export function validateRequiredFields<T extends Record<string, any>>(
   obj: T,
   requiredFields: (keyof T)[]
 ): { isValid: boolean; missingFields: string[] } {

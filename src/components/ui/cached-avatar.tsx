@@ -125,8 +125,8 @@ export function CachedAvatar({
         }
       } catch (error: unknown) {
         // 详细的错误处理
-        const errorName = (error as { name?: string })?.name
-        const errorMessage = (error as { message?: string })?.message
+        const errorName = (error as Error)?.name
+        const errorMessage = (error as Error)?.message
 
         if (errorName === 'AbortError') {
           console.warn('Avatar fetch timed out:', src)

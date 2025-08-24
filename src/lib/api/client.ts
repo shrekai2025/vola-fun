@@ -1,4 +1,4 @@
-import type { ApiError, ApiResponse, HttpMethod, RequestConfig } from '@/types/api'
+import type { ApiError, ApiResponse, HttpMethod, RequestConfig, RequestBody } from '@/types/api'
 import { TokenManager } from '@/utils/cookie'
 import { API_CONFIG } from './config'
 
@@ -11,7 +11,7 @@ class ApiClient {
   private isRefreshing = false
   private refreshQueue: Array<{
     resolve: (token: string) => void
-    reject: (error: unknown) => void
+    reject: (error: Error) => void
   }> = []
 
   constructor() {
@@ -63,7 +63,7 @@ class ApiClient {
     }
   }
 
-  private processRefreshQueue(error: unknown, token: string | null = null) {
+  private processRefreshQueue(error: Error | null, token: string | null = null) {
     this.refreshQueue.forEach(({ resolve, reject }) => {
       if (error) {
         reject(error)
@@ -77,7 +77,7 @@ class ApiClient {
   private async handleTokenRefresh<T>(
     method: HttpMethod,
     endpoint: string,
-    data?: unknown,
+    data?: RequestBody,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
     if (this.isRefreshing) {
@@ -119,17 +119,17 @@ class ApiClient {
 
       return await this.request<T>(method, endpoint, data, newConfig)
     } catch (err) {
-      this.processRefreshQueue(err)
+      this.processRefreshQueue(err instanceof Error ? err : new Error(String(err)))
       throw err
     } finally {
       this.isRefreshing = false
     }
   }
 
-  async request<T = unknown>(
+  async request<T = any>(
     method: HttpMethod,
     endpoint: string,
-    data?: unknown,
+    data?: RequestBody,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
     const url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`
@@ -217,7 +217,7 @@ class ApiClient {
 
       return responseData as ApiResponse<T>
     } catch (error: unknown) {
-      const errorName = (error as { name?: string })?.name
+      const errorName = (error as Error)?.name
       if (errorName === 'AbortError') {
         throw new Error('Request timeout')
       }
@@ -225,35 +225,35 @@ class ApiClient {
     }
   }
 
-  async get<T = unknown>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async get<T = any>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>('GET', endpoint, undefined, config)
   }
 
-  async post<T = unknown>(
+  async post<T = any>(
     endpoint: string,
-    data?: unknown,
+    data?: RequestBody,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
     return this.request<T>('POST', endpoint, data, config)
   }
 
-  async put<T = unknown>(
+  async put<T = any>(
     endpoint: string,
-    data?: unknown,
+    data?: RequestBody,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
     return this.request<T>('PUT', endpoint, data, config)
   }
 
-  async patch<T = unknown>(
+  async patch<T = any>(
     endpoint: string,
-    data?: unknown,
+    data?: RequestBody,
     config?: RequestConfig
   ): Promise<ApiResponse<T>> {
     return this.request<T>('PATCH', endpoint, data, config)
   }
 
-  async delete<T = unknown>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async delete<T = any>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>('DELETE', endpoint, undefined, config)
   }
 }

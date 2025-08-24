@@ -102,11 +102,11 @@ export interface ModalProps extends BaseComponentProps {
 }
 
 // 表格列定义
-export interface TableColumn<T = unknown> {
+export interface TableColumn<T = any> {
   key: string
   title: string
   dataIndex?: keyof T
-  render?: (value: unknown, record: T, index: number) => ReactNode
+  render?: (value: any, record: T, index: number) => ReactNode
   sortable?: boolean
   width?: number | string
   align?: 'left' | 'center' | 'right'

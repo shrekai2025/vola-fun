@@ -18,6 +18,8 @@ export type {
   SortConfig,
   PaginationConfig,
   BaseQueryParams,
+  RequestBody,
+  ResponseData,
 } from './common'
 
 // 用户相关类型

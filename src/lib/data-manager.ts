@@ -4,10 +4,10 @@
  * 确保无重复请求，快速加载，安全可靠
  */
 
-import { AuthService, APIService, type APIListParams, type API } from '@/lib/api'
-import { TokenManager } from '@/utils/cookie'
+import { APIService, AuthService, type API, type APIListParams } from '@/lib/api'
 import type { User } from '@/types'
 import type { CacheEntry, PendingRequest } from '@/types/data'
+import { TokenManager } from '@/utils/cookie'
 
 // ======================== 配置常量 ========================
 
@@ -27,13 +27,13 @@ class DataManager {
   private static instance: DataManager
 
   // 缓存存储
-  private cache = new Map<string, CacheEntry<unknown>>()
+  private cache = new Map<string, CacheEntry<any>>()
 
   // 正在进行的请求（防重复）
-  private pendingRequests = new Map<string, PendingRequest>()
+  private pendingRequests = new Map<string, PendingRequest<any>>()
 
   // 订阅者管理
-  private subscribers = new Map<string, Set<(data: unknown) => void>>()
+  private subscribers = new Map<string, Set<(data: any) => void>>()
 
   private constructor() {
     // 监听登出事件，清理缓存
@@ -106,7 +106,7 @@ class DataManager {
     console.debug(`🔄 [DataManager] 发起新请求: ${key}`)
 
     let resolvePromise: (value: T) => void
-    let rejectPromise: (error: unknown) => void
+    let rejectPromise: (error: Error) => void
 
     const promise = new Promise<T>((resolve, reject) => {
       resolvePromise = resolve
@@ -115,8 +115,8 @@ class DataManager {
 
     // 存储请求信息
     this.pendingRequests.set(key, {
-      promise: promise as Promise<unknown>,
-      resolve: resolvePromise! as (value: unknown) => void,
+      promise: promise as Promise<any>,
+      resolve: resolvePromise! as (value: any) => void,
       reject: rejectPromise!,
     })
 
@@ -160,7 +160,7 @@ class DataManager {
   /**
    * 通知订阅者
    */
-  private notifySubscribers(key: string, update: unknown) {
+  private notifySubscribers(key: string, update: any) {
     const subs = this.subscribers.get(key)
     if (subs) {
       subs.forEach((callback) => callback(update))
@@ -253,7 +253,7 @@ class DataManager {
   /**
    * 订阅数据变化
    */
-  subscribe(key: string, callback: (data: unknown) => void): () => void {
+  subscribe(key: string, callback: (data: any) => void): () => void {
     if (!this.subscribers.has(key)) {
       this.subscribers.set(key, new Set())
     }

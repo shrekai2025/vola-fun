@@ -9,10 +9,10 @@ export interface CacheEntry<T> {
   error: string | null
 }
 
-export interface PendingRequest {
-  promise: Promise<unknown>
-  resolve: (value: unknown) => void
-  reject: (error: unknown) => void
+export interface PendingRequest<T = any> {
+  promise: Promise<T>
+  resolve: (value: T) => void
+  reject: (error: Error) => void
 }
 
 export interface UseDataResult<T> {
