@@ -18,6 +18,9 @@ export class TokenManager {
       Cookies.set(COOKIE_KEYS.ACCESS_TOKEN, tokens.accessToken, COOKIE_OPTIONS)
       Cookies.set(COOKIE_KEYS.REFRESH_TOKEN, tokens.refreshToken, COOKIE_OPTIONS)
       Cookies.set(COOKIE_KEYS.TOKEN_TYPE, tokens.tokenType, COOKIE_OPTIONS)
+
+      // 触发自定义事件，通知所有组件token已更新
+      window.dispatchEvent(new CustomEvent('auth-tokens-updated', { detail: { tokens } }))
     } catch (error) {
       console.error('存储tokens失败:', error)
     }
@@ -87,6 +90,9 @@ export class TokenManager {
       Cookies.remove(COOKIE_KEYS.REFRESH_TOKEN)
       Cookies.remove(COOKIE_KEYS.TOKEN_TYPE)
       console.debug('🗑️ Tokens已清除')
+
+      // 触发自定义事件，通知所有组件token已清除
+      window.dispatchEvent(new CustomEvent('auth-tokens-cleared'))
     } catch (error) {
       console.error('清除tokens失败:', error)
     }

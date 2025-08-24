@@ -179,27 +179,38 @@ export const useUserCache = (): UseUserCacheReturn => {
     initializeUser()
   }, [refreshUser])
 
-  // 监听 storage 事件，处理多标签页同步
+  // 监听 token 清除事件和 storage 事件
   useEffect(() => {
+    const handleTokensCleared = () => {
+      console.debug('🔄 检测到token清除事件，清除用户状态')
+      setUser(null)
+      setIsLoggedIn(false)
+      setError(null)
+      globalUserCache = {
+        user: null,
+        isLoggedIn: false,
+        timestamp: 0,
+        avatar: undefined,
+        theme: globalUserCache.theme,
+      }
+    }
+
     const handleStorageChange = (e: StorageEvent) => {
       // 如果其他标签页清除了 token，同步清除本地状态
       if (e.key === 'vola_access_token' && !e.newValue) {
         console.debug('🔄 检测到其他标签页登出，同步清除状态')
-        setUser(null)
-        setIsLoggedIn(false)
-        setError(null)
-        globalUserCache = {
-          user: null,
-          isLoggedIn: false,
-          timestamp: 0,
-          avatar: undefined,
-          theme: globalUserCache.theme,
-        }
+        handleTokensCleared()
       }
     }
 
+    // 监听自定义事件
+    window.addEventListener('auth-tokens-cleared', handleTokensCleared)
     window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('auth-tokens-cleared', handleTokensCleared)
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
   return {

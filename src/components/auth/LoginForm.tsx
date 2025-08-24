@@ -74,7 +74,6 @@ export function LoginForm({
     setFormError(null)
     setAuthModal({ isOpen: false })
     onLoginSuccess?.()
-    window.location.reload()
   }
 
   // 邮箱登录处理
@@ -100,10 +99,12 @@ export function LoginForm({
         tokenType: response.data.token_type,
       })
 
+      // TokenManager.setTokens已经触发了auth-tokens-updated事件
+      // Header会自动监听这个事件并刷新用户信息
+
       toast.loginSuccess()
       setAuthModal({ isOpen: false })
       onLoginSuccess?.()
-      window.location.reload()
     } catch (error) {
       const firebaseError = error as FirebaseAuthError
 

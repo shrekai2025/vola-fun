@@ -100,9 +100,8 @@ export function SignupForm({
     // 显示欢迎弹窗（如果配置为显示）
     if (shouldShowWelcome()) {
       setWelcomeModal(true)
-    } else {
-      window.location.reload()
     }
+    // 用户状态已由GoogleAuthButton内部刷新，无需再刷新页面
   }
 
   // 邮箱注册处理
@@ -128,6 +127,9 @@ export function SignupForm({
         tokenType: response.data.token_type,
       })
 
+      // TokenManager.setTokens已经触发了auth-tokens-updated事件
+      // Header会自动监听这个事件并刷新用户信息
+
       toast.signupSuccess()
       setAuthModal({ isOpen: false })
       onSignupSuccess?.()
@@ -135,8 +137,6 @@ export function SignupForm({
       // 显示欢迎弹窗（如果配置为显示）
       if (shouldShowWelcome()) {
         setWelcomeModal(true)
-      } else {
-        window.location.reload()
       }
     } catch (error) {
       const firebaseError = error as FirebaseAuthError

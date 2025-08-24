@@ -271,6 +271,7 @@ const welcomeModalAtom = atom<boolean>(false)
 ### API接口规范
 
 **基础配置**:
+
 - **Base URL**: `https://api.vola.fun`
 - **认证方式**: `Authorization: Bearer <your-jwt-token>`
 

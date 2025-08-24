@@ -38,10 +38,10 @@ export const CACHE_EXPIRY = {
 
 // Cookie配置常量
 export const COOKIE_OPTIONS = {
-  EXPIRES: 7, // 7天过期
-  SECURE: process.env.NODE_ENV === 'production',
-  SAME_SITE: 'strict' as const,
-  PATH: '/',
+  expires: 7, // 7天过期
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  path: '/',
 } as const
 
 // API类别常量

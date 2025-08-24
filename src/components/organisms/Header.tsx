@@ -13,24 +13,64 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/auth'
 import { useUserCache } from '@/hooks/data'
+import { TokenManager } from '@/utils/cookie'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 export function Header() {
-  const { openAuthModal, loading: authLoading } = useAuth()
-  const { user, isLoggedIn, loading, clearUser } = useUserCache()
+  // 用户状态管理 - 唯一的用户状态来源
+  const { user, isLoggedIn, loading: userLoading, refreshUser } = useUserCache()
+
+  // 认证操作 - 只用于弹窗和登出操作
+  const { openAuthModal, logout, loading: authLoading } = useAuth()
+
   const { theme } = useTheme()
   const { t } = useTranslation()
 
+  // 监听token变化，自动刷新用户信息
+  useEffect(() => {
+    const handleTokensUpdated = () => {
+      console.debug('🔄 检测到token更新，刷新用户信息...')
+      refreshUser(true) // 强制刷新用户信息
+    }
+
+    // 监听自定义事件（清除事件由useAuth的logout处理）
+    window.addEventListener('auth-tokens-updated', handleTokensUpdated)
+
+    // 初始化时检查
+    if (TokenManager.isLoggedIn() && !user && !userLoading) {
+      refreshUser(true)
+    }
+
+    return () => {
+      window.removeEventListener('auth-tokens-updated', handleTokensUpdated)
+    }
+  }, [user, userLoading, refreshUser])
+
   const handleLogout = async () => {
     try {
-      clearUser()
-      // 刷新页面
-      window.location.reload()
+      await logout() // 使用统一的登出方法
+      // useAuth.logout 会触发 auth-tokens-cleared 事件
+      // useUserCache 会监听这个事件并清除用户状态
     } catch (error) {
       console.error('登出失败:', error)
     }
   }
+
+  // 统一的loading状态
+  const loading = userLoading || authLoading
+
+  // 调试用户头像信息
+  useEffect(() => {
+    if (user) {
+      console.debug('🖼️ Header用户头像信息:', {
+        avatar_url: user.avatar_url,
+        full_name: user.full_name,
+        username: user.username,
+      })
+    }
+  }, [user])
 
   return (
     <header className='fixed top-0 left-0 right-0 w-full h-[52px] bg-card/90 backdrop-blur-md border-b border-border/50 shadow-sm flex items-center justify-between px-8 z-50'>
@@ -39,7 +79,7 @@ export function Header() {
         <div className='w-[88px] h-[23px] relative'>
           <Image
             src={theme === 'dark' ? '/icons/volalogo.svg' : '/icons/volalogol.svg'}
-            alt={t('common.volaLogoAlt')}
+            alt='logo'
             width={88}
             height={23}
             className='object-contain'
@@ -139,7 +179,7 @@ export function Header() {
         ) : (
           <Button
             onClick={() => openAuthModal('email')}
-            disabled={authLoading}
+            disabled={loading}
             size='sm'
             className='bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm'
           >

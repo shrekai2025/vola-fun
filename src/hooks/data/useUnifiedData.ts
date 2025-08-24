@@ -66,7 +66,7 @@ export function useAPIList(
       setLoading(true)
       setError(null)
       const apiData = await dataManager.getUserAPIList(params, false, enablePageLevelRefresh)
-      setData(apiData.data)
+      setData(apiData?.data || [])
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
@@ -154,7 +154,7 @@ export function useUserAPIList(): UseDataResult<API[]> {
       setLoading(true)
       setError(null)
       const apiData = await dataManager.getUserAPIList(undefined, true)
-      setData(apiData.data)
+      setData(apiData?.data || [])
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'Unknown error')
       setData(null)
@@ -169,7 +169,7 @@ export function useUserAPIList(): UseDataResult<API[]> {
         setLoading(true)
         setError(null)
         const apiData = await dataManager.getUserAPIList()
-        setData(apiData.data)
+        setData(apiData?.data || [])
       } catch (error: unknown) {
         setError(error instanceof Error ? error.message : String(error) || 'Unknown error')
         setData(null)

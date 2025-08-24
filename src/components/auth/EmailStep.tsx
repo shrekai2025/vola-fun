@@ -40,9 +40,8 @@ export function EmailStep() {
 
   // Google 登录成功处理
   const handleGoogleSuccess = () => {
-    // 关闭弹窗并刷新页面
+    // 关闭弹窗，用户状态已由GoogleAuthButton内部刷新
     setAuthModal({ isOpen: false })
-    window.location.reload()
   }
 
   // 邮箱继续处理

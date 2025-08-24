@@ -22,7 +22,7 @@ export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
   }
 }
 
-// API错误结构  
+// API错误结构
 export interface ApiError {
   code: string
   message: string
@@ -97,18 +97,7 @@ export interface BaseQueryParams extends PaginationConfig, SortConfig {
 }
 
 // 通用请求体类型
-export type RequestBody = 
-  | Record<string, any>
-  | FormData
-  | string
-  | null
-  | undefined
+export type RequestBody = Record<string, any> | FormData | string | null | undefined
 
 // 通用响应数据类型约束
-export type ResponseData = 
-  | Record<string, any>
-  | any[]
-  | string
-  | number
-  | boolean
-  | null
+export type ResponseData = Record<string, any> | any[] | string | number | boolean | null

@@ -3,11 +3,10 @@
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
-import { AuthService } from '@/lib/api'
+import { AuthService, FirebaseAuthService } from '@/lib/api'
 import { TokenManager } from '@/utils/cookie'
-import { FirebaseAuthService } from '@/lib/api'
-import Image from 'next/image'
 import { useState } from 'react'
+import { FaGoogle } from 'react-icons/fa'
 
 interface GoogleAuthButtonProps {
   onSuccess: () => void
@@ -84,16 +83,9 @@ export function GoogleAuthButton({
         tokenType: response.data.token_type,
       })
 
-      // 获取用户信息
-      try {
-        console.debug('👤 获取用户信息...')
-        const userInfo = await AuthService.getCurrentUser()
-        console.debug('✅ 用户信息获取成功:', userInfo)
-        // 触发全局状态更新（通过 onSuccess 回调）
-      } catch (userError) {
-        console.warn('⚠️ 获取用户信息失败，但登录成功:', userError)
-        // 不阻断登录流程，用户信息获取失败不影响登录
-      }
+      // TokenManager.setTokens已经触发了auth-tokens-updated事件
+      // Header会自动监听这个事件并刷新用户信息
+      console.debug('✅ 登录成功，tokens已存储')
 
       toast.loginSuccess()
       onSuccess()
@@ -127,7 +119,7 @@ export function GoogleAuthButton({
       disabled={disabled || isLoading}
       className={className}
     >
-      <Image src='/icons/google.svg' alt='Google' width={20} height={20} />
+      <FaGoogle className='w-4 h-4' />
       {isLoading ? t('auth.connecting') : t('auth.continueWithGoogle')}
     </Button>
   )
