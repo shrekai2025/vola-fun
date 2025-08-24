@@ -9,8 +9,7 @@ import { LanguageSelector } from '@/components/ui/language-selector'
 import { Loading } from '@/components/ui/loading'
 import { ThemeToggleWithLabel } from '@/components/ui/theme-toggle'
 import { useUserCache } from '@/hooks/data'
-import { AuthService } from '@/lib/api'
-import { FirebaseAuthService } from '@/lib/api'
+import { AuthService, FirebaseAuthService } from '@/lib/api'
 import { User } from '@/types'
 import { LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -146,7 +145,10 @@ export default function ProfilePage() {
             <CardContent className='px-6'>
               <div className='flex items-center space-x-4'>
                 <Avatar className='h-16 w-16'>
-                  <AvatarImage src={user?.avatar_url} alt={user?.full_name || 'User'} />
+                  <AvatarImage
+                    src={user?.avatar_url || undefined}
+                    alt={user?.full_name || 'User'}
+                  />
                   <AvatarFallback className='bg-muted text-foreground text-lg font-semibold'>
                     {user?.full_name?.charAt(0) ||
                       user?.username?.charAt(0) ||

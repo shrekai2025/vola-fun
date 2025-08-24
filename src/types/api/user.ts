@@ -20,16 +20,16 @@ export interface User {
   email: string
   username: string
   full_name: string
-  avatar_url: string
+  avatar_url: string | null
   role: UserRole
   is_active: boolean
   is_verified: boolean
   subscription_balance: number
   one_time_balance: number
-  bio: string
-  company: string
-  website: string
-  location: string
+  bio: string | null
+  company: string | null
+  website: string | null
+  location: string | null
   plan?: SubscriptionPlan
   created_at: string
   updated_at: string
@@ -40,11 +40,11 @@ export interface PublicUser {
   id: string
   username: string
   full_name: string
-  avatar_url: string
-  bio: string
-  company: string
-  website: string
-  location: string
+  avatar_url: string | null
+  bio: string | null
+  company: string | null
+  website: string | null
+  location: string | null
   is_verified: boolean
   created_at: string
 }

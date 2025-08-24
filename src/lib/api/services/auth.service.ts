@@ -1,9 +1,16 @@
-import type { ApiResponse, LoginCredentials, TokenData, User } from '@/types/api'
+import type {
+  ApiResponse,
+  LoginCredentials,
+  TokenData,
+  User,
+  DetailedUser,
+  UserStats,
+} from '@/types/api'
 import { apiClient } from '../client'
 import { API_ENDPOINTS } from '../config'
 
 // 重新导出类型以保持向后兼容
-export type { LoginCredentials, TokenData, User }
+export type { LoginCredentials, TokenData, User, DetailedUser }
 
 export class AuthService {
   /**
@@ -49,33 +56,17 @@ export class AuthService {
   /**
    * 获取当前用户详细信息
    */
-  static async getCurrentUserDetailed(): Promise<ApiResponse<User>> {
-    const response = await apiClient.get<User>(API_ENDPOINTS.USERS.ME_DETAILED)
+  static async getCurrentUserDetailed(): Promise<ApiResponse<DetailedUser>> {
+    const response = await apiClient.get<DetailedUser>(API_ENDPOINTS.USERS.ME_DETAILED)
     return response
   }
 
   /**
    * 获取当前用户统计信息
    */
-  static async getCurrentUserStats(): Promise<
-    ApiResponse<{
-      total_apis: number
-      total_nodes: number
-      total_favorites: number
-      total_api_calls: number
-      total_revenue: number
-      member_since_days: number
-    }>
-  > {
-    const response = await apiClient.get(API_ENDPOINTS.USERS.ME_STATS)
-    return response as ApiResponse<{
-      total_apis: number
-      total_nodes: number
-      total_favorites: number
-      total_api_calls: number
-      total_revenue: number
-      member_since_days: number
-    }>
+  static async getCurrentUserStats(): Promise<ApiResponse<UserStats>> {
+    const response = await apiClient.get<UserStats>(API_ENDPOINTS.USERS.ME_STATS)
+    return response
   }
 }
 

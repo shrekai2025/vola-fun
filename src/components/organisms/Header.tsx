@@ -101,7 +101,7 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <button className='focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full'>
                   <CachedAvatar
-                    src={user.avatar_url}
+                    src={user.avatar_url || undefined}
                     alt={user.full_name || t('common.userAvatarAlt')}
                     className='cursor-pointer ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200'
                     size={29}

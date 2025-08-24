@@ -4,6 +4,13 @@
 
 import type { BaseQueryParams, ParamConfig } from './common'
 
+// API所有者信息
+export interface APIOwner {
+  username: string
+  full_name: string
+  avatar_url: string | null
+}
+
 // API状态类型
 export type APIStatus = 'draft' | 'published' | 'deprecated' | 'suspended'
 
@@ -47,6 +54,7 @@ export interface API {
   total_revenue: number
   rating: number | null
   owner_id: string
+  owner?: APIOwner
   estimated_response_time: number
   is_favorited?: boolean
   created_at: string
@@ -85,6 +93,7 @@ export interface APIListParams extends BaseQueryParams {
   owner_id?: string
   tags?: string[]
   sort_by?: 'total_calls' | 'rating' | 'created_at'
+  sort_order?: 'asc' | 'desc'
 }
 
 // API端点参数配置

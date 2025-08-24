@@ -2,6 +2,7 @@ import { apiClient } from '../client'
 import { API_ENDPOINTS } from '../config'
 import type {
   API,
+  APICategory,
   APIListParams,
   CreateAPIData,
   UpdateAPIData,
@@ -118,12 +119,12 @@ export class APIService {
    * 根据分类获取API
    */
   static async getAPIsByCategory(
-    category: string,
+    category: APICategory,
     params?: Omit<APIListParams, 'category'>
   ): Promise<PaginatedResponse<API>> {
     return this.list({
       ...params,
-      category: category as any, // 临时类型断言
+      category,
       status: 'published',
       is_public: true,
     })

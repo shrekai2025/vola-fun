@@ -106,7 +106,7 @@ export const useUserCache = (): UseUserCacheReturn => {
           user: userInfo,
           isLoggedIn: true,
           timestamp: now,
-          avatar: shouldUseAvatarCache ? existingAvatar : userInfo.avatar_url,
+          avatar: shouldUseAvatarCache ? existingAvatar : userInfo.avatar_url || undefined,
         }
 
         // 如果使用头像缓存，临时替换头像URL
