@@ -235,7 +235,9 @@
     "userInfoFailed": "加载用户信息失败：",
     "deleteAPIFailed": "删除API失败",
     "loadAPIsFailed": "加载API列表失败",
-    "updateFailed": "更新失败"
+    "updateFailed": "更新失败",
+    "pageNotFound": "页面未找到",
+    "pageNotFoundMessage": "您要查找的页面不存在或您没有访问权限。"
   },
   "toast": {
     "networkError": "网络连接失败，请检查网络设置",
@@ -463,16 +465,6 @@
       "result": "结果",
       "cost": "费用"
     }
-  },
-  "errors": {
-    "pageNotFound": "页面未找到",
-    "pageNotFoundMessage": "您要查找的页面不存在或您没有访问权限。",
-    "loadFailed": "数据加载失败",
-    "networkError": "网络错误",
-    "userInfoFailed": "用户信息加载失败：",
-    "deleteAPIFailed": "删除API失败",
-    "loadAPIsFailed": "加载API失败",
-    "updateFailed": "更新失败"
   },
   "languages": {
     "chinese": "中文",
