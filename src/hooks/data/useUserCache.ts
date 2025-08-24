@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { User } from '@/types/api'
 import { AuthService } from '@/lib/api'
-import { TokenManager } from '@/lib/cookie'
+import { TokenManager } from '@/utils/cookie'
 
 interface UseUserCacheReturn {
   user: User | null

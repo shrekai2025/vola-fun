@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { AuthService } from '../services'
 import type { User } from '@/types'
-import { TokenManager } from '@/lib/cookie'
+import { TokenManager } from '@/utils/cookie'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)

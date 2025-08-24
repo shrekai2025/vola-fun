@@ -1,6 +1,6 @@
+import type { ApiResponse, LoginCredentials, TokenData, User } from '@/types/api'
 import { apiClient } from '../client'
 import { API_ENDPOINTS } from '../config'
-import type { LoginCredentials, TokenData, User, ApiResponse } from '@/types/api'
 
 // 重新导出类型以保持向后兼容
 export type { LoginCredentials, TokenData, User }
@@ -46,9 +46,6 @@ export class AuthService {
     return response
   }
 
-  /**
-   * 获取当前用户详细信息
-   */
   /**
    * 获取当前用户详细信息
    */

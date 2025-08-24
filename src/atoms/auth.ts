@@ -2,7 +2,7 @@
 
 import { atom } from 'jotai'
 import type { User, AuthModalState, StoredTokens } from '@/types/auth'
-import { TokenManager } from '@/lib/cookie'
+import { TokenManager } from '@/utils/cookie'
 
 // 基础认证状态
 export const userAtom = atom<User | null>(null)

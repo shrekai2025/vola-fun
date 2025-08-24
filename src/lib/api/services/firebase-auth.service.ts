@@ -11,7 +11,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth'
-import { auth } from '@/config/firebase'
+import { auth } from '@/lib/firebase-config'
 import type { AuthService, FirebaseAuthError } from '@/types/auth'
 
 /**

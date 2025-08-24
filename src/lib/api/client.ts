@@ -1,6 +1,9 @@
-import { API_CONFIG } from './config'
-import type { ApiResponse, ApiError, RequestConfig, HttpMethod } from '@/types/api'
+import type { ApiError, ApiResponse, HttpMethod, RequestConfig } from '@/types/api'
 import { TokenManager } from '@/utils/cookie'
+import { API_CONFIG } from './config'
+
+// 🔧 调试开关：设置为true直接请求后端，false使用代理
+const USE_DIRECT_API = false // 开发环境调试开关
 
 class ApiClient {
   private baseURL: string
@@ -12,15 +15,21 @@ class ApiClient {
   }> = []
 
   constructor() {
-    this.baseURL = API_CONFIG.BASE_URL
+    // 支持调试模式的 URL 配置
+    this.baseURL =
+      process.env.NODE_ENV === 'development'
+        ? USE_DIRECT_API
+          ? 'https://api.vola.fun'
+          : '/api/proxy' // 开发环境：直接访问或使用代理
+        : '/api/proxy' // 🔧 生产环境使用代理避免CORS问题
     this.timeout = API_CONFIG.TIMEOUT
   }
 
   private async refreshToken(): Promise<string> {
-    const refreshToken = TokenManager.getRefreshToken()
+    const refreshTokenValue = TokenManager.getRefreshToken()
 
-    if (!refreshToken) {
-      throw new Error('No refresh token available')
+    if (!refreshTokenValue) {
+      throw new Error('没有可用的刷新令牌')
     }
 
     try {
@@ -31,7 +40,7 @@ class ApiClient {
       }>(
         'POST',
         '/api/v1/auth/refresh',
-        { refresh_token: refreshToken },
+        { refresh_token: refreshTokenValue },
         {
           retry: false,
         }
@@ -46,10 +55,11 @@ class ApiClient {
         return response.data.access_token
       }
 
-      throw new Error('Failed to refresh token')
-    } catch (err) {
+      throw new Error(response.message || '刷新令牌失败')
+    } catch (error) {
+      console.error('Token refresh failed:', error)
       TokenManager.clearTokens()
-      throw err
+      throw error
     }
   }
 
@@ -170,15 +180,28 @@ class ApiClient {
 
       clearTimeout(timeoutId)
 
-      if (response.status === 401 && config?.retry !== false) {
-        const isAuthEndpoint =
-          endpoint.includes('/auth/login') ||
-          endpoint.includes('/auth/refresh') ||
-          endpoint.includes('/auth/logout')
+      // 只在严重错误时打印必要信息
+      if (response.status >= 500) {
+        console.error('服务器错误:', response.status, endpoint)
+      }
 
-        if (!isAuthEndpoint) {
-          return this.handleTokenRefresh<T>(method, endpoint, data, config)
+      if (response.status === 401 && config?.retry !== false) {
+        const isAuthLogin = endpoint.includes('/api/v1/auth/login')
+        const isAuthRefresh = endpoint.includes('/api/v1/auth/refresh')
+        const isAuthLogout = endpoint.includes('/api/v1/auth/logout')
+
+        // 登录/刷新/登出接口出现 401 时不触发刷新逻辑，直接抛错
+        if (isAuthLogin || isAuthRefresh || isAuthLogout) {
+          const responseData = await response.json()
+          const error: ApiError = {
+            code: responseData.code || response.status.toString(),
+            message: responseData.message || 'Request failed',
+            details: responseData.details,
+          }
+          throw error
         }
+
+        return this.handleTokenRefresh<T>(method, endpoint, data, config)
       }
 
       const responseData = await response.json()

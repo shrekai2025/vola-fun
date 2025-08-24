@@ -4,15 +4,15 @@ import { initializeApp, getApps } from 'firebase/app'
 import { getAuth, Auth } from 'firebase/auth'
 import { getAnalytics, Analytics } from 'firebase/analytics'
 
-// Firebase 配置
+// Firebase 配置 - 从环境变量获取
 const firebaseConfig = {
-  apiKey: 'AIzaSyBKU7M3aZNtd0cjRF7-H86dhyP4w1_8oOY',
-  authDomain: 'vola-fun-f6ff8.firebaseapp.com',
-  projectId: 'vola-fun-f6ff8',
-  storageBucket: 'vola-fun-f6ff8.firebasestorage.app',
-  messagingSenderId: '924230806239',
-  appId: '1:924230806239:web:1cd3ac8b40b7d01b1d976a',
-  measurementId: 'G-PZLK1D0E0K',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
 // 初始化 Firebase（避免重复初始化）

@@ -17,9 +17,9 @@ import {
 } from '@/atoms/auth'
 import { useToast } from '@/components/ui/toast'
 import { AuthService } from '@/lib/api'
-import { TokenManager } from '@/lib/cookie'
+import { TokenManager } from '@/utils/cookie'
 import { dataManager } from '@/lib/data-manager'
-import FirebaseAuthService from '@/services/firebase-auth'
+import { FirebaseAuthService } from '@/lib/api'
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 

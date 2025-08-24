@@ -5,7 +5,7 @@
  */
 
 import { AuthService, APIService, type APIListParams, type API } from '@/lib/api'
-import { TokenManager } from '@/lib/cookie'
+import { TokenManager } from '@/utils/cookie'
 import type { User } from '@/types'
 
 // ======================== 类型定义 ========================

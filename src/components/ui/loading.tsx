@@ -1,5 +1,5 @@
 import { useTranslation } from '@/components/providers/LanguageProvider'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/cn'
 import { Skeleton } from './skeleton'
 
 interface LoadingProps {
