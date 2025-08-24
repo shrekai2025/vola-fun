@@ -114,16 +114,17 @@ src/
 ### 前端框架
 
 - **框架**: Next.js 15.5.0 (App Router)
-- **语言**: TypeScript (严格模式)
-- **样式**: Tailwind CSS 4
+- **语言**: TypeScript 5 (严格模式)
+- **样式**: Tailwind CSS 4 + CSS Variables
 - **运行时**: React 19.1.0
 
 ### UI组件和样式
 
-- **组件库**: shadcn/ui (原子设计模式)
-- **图标**: Lucide React
-- **CSS方案**: Tailwind CSS + CSS Variables
-- **主题系统**: Dark/Light Mode
+- **组件库**: shadcn/ui (基于 Radix UI)
+- **图标**: Lucide React + React Icons
+- **CSS方案**: Tailwind CSS 4 + CSS Variables
+- **主题系统**: Dark/Light Mode 自动切换
+- **动画**: Framer Motion + 自定义动画
 
 ### 状态管理
 
@@ -133,20 +134,28 @@ src/
 
 ### 网络和认证
 
-- **HTTP客户端**: Axios + 拦截器
-- **认证系统**: Firebase Authentication v9+
-- **数据缓存**: 内存缓存 + localStorage
-- **Token管理**: JWT + Cookie 存储
+- **HTTP客户端**: Axios 1.11.0 + 拦截器
+- **认证系统**: Firebase Authentication v12 + NextAuth.js 4
+- **数据管理**: 统一数据管理器 (DataManager)
+- **数据缓存**: 内存缓存 + 页面级强制刷新策略
+- **Token管理**: JWT + httpOnly Cookie 存储
 
-### 开发工具
+### 开发工具链
 
 ```bash
+# 代码质量工具
+npm run lint          # ESLint 9 检查
+npm run format        # Prettier 3 格式化
+npm run type-check    # TypeScript 类型检查
+npm run code-quality  # 全面质量检查
+
 # 添加新的UI组件
 npx shadcn@latest add [component-name]
 
-# 核心依赖
-npm install jotai axios firebase react-hook-form @hookform/resolvers zod
-npm install js-cookie @types/js-cookie react-hot-toast lucide-react
+# 核心依赖包
+npm install jotai@^2.13.1 axios@^1.11.0 firebase@^12.1.0
+npm install react-hook-form@^7.62.0 @hookform/resolvers@^5.2.1 zod@^4.0.17
+npm install i18next@^25.4.0 react-i18next@^15.7.1 framer-motion@^12.23.12
 ```
 
 ---
@@ -387,11 +396,12 @@ Headers: Authorization: Bearer <access-token>
 
 ## 🌍 多语言系统
 
-### 语言支持
+### 多语言支持
 
 - **默认语言**: 英文 (en)
 - **支持语言**: 中文 (zh)
 - **检测机制**: 浏览器语言 → 用户偏好 → 默认英文
+- **技术栈**: i18next + react-i18next + 浏览器语言检测器
 
 ### 语言配置
 
@@ -737,20 +747,26 @@ cp .env.example .env.local
 npm run dev
 ```
 
-### 日常开发
+### 日常开发工作流
 
 ```bash
-# 添加新的UI组件
-npx shadcn@latest add [component-name]
+# 开发环境启动
+npm run dev
 
-# 运行类型检查
-npm run type-check
+# 代码质量检查
+npm run lint              # ESLint 检查
+npm run lint:fix          # 自动修复 ESLint 错误
+npm run format            # Prettier 格式化
+npm run format:check      # 检查格式化
+npm run type-check        # TypeScript 类型检查
+npm run code-quality      # 运行所有质量检查
 
-# 运行代码检查
-npm run lint
+# 组件开发
+npx shadcn@latest add [component-name]  # 添加 UI 组件
 
-# 构建项目
+# 项目构建
 npm run build
+npm run start
 ```
 
 ### 新功能开发检查清单
@@ -782,6 +798,7 @@ git push origin feature/new-feature
 
 ---
 
-**文档版本**: v1.0.0  
+**文档版本**: v2.0.0  
 **最后更新**: 2025-08-24  
+**技术栈版本**: Next.js 15.5.0 + React 19.1.0 + TypeScript 5  
 **维护者**: Vola.fun 开发团队
