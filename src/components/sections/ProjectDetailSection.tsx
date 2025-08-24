@@ -1,27 +1,27 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
+import { PageLoading, InlineLoading } from '@/components/ui/loading'
 import { APIService, EndpointService, type API, type APIEndpoint } from '@/lib/api'
 import {
-  ArrowLeft,
-  Clock,
-  Loader2,
+  Activity,
   AlertCircle,
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
+  Clock,
   ExternalLink,
   FileText,
   Globe,
-  ChevronDown,
-  ChevronRight,
-  Zap,
-  Activity,
   Shield,
+  Zap,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -185,14 +185,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
 
   // 加载状态
   if (loading) {
-    return (
-      <div className='container mx-auto px-4 py-8'>
-        <div className='flex items-center justify-center py-20'>
-          <Loader2 className='h-8 w-8 animate-spin text-primary' />
-          <span className='ml-2 text-muted-foreground'>{t('projectDetail.loading')}</span>
-        </div>
-      </div>
-    )
+    return <PageLoading text={t('projectDetail.loading')} />
   }
 
   // 错误状态
@@ -341,10 +334,7 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                 <div>
                   {endpointsLoading ? (
                     <div className='flex items-center justify-center py-8'>
-                      <Loader2 className='h-6 w-6 animate-spin mr-2' />
-                      <span className='text-muted-foreground'>
-                        {t('projectDetail.loadingEndpoints')}
-                      </span>
+                      <InlineLoading text={t('projectDetail.loadingEndpoints')} size='md' />
                     </div>
                   ) : endpoints.length > 0 ? (
                     <div className='space-y-4'>
@@ -420,14 +410,14 @@ export function ProjectDetailSection({ slug }: ProjectDetailSectionProps) {
                                     </div>
                                   )}
 
-                                {endpoint.response_body &&
-                                  Object.keys(endpoint.response_body).length > 0 && (
+                                {endpoint.response_params &&
+                                  Object.keys(endpoint.response_params).length > 0 && (
                                     <div>
                                       <h4 className='font-medium mb-2'>
                                         {t('projectDetail.responseExample')}
                                       </h4>
                                       <pre className='text-xs bg-background p-3 rounded overflow-x-auto'>
-                                        {JSON.stringify(endpoint.response_body, null, 2)}
+                                        {JSON.stringify(endpoint.response_params, null, 2)}
                                       </pre>
                                     </div>
                                   )}

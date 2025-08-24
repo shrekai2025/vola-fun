@@ -9,7 +9,13 @@
     "save": "保存",
     "edit": "编辑",
     "delete": "删除",
-    "close": "关闭"
+    "close": "关闭",
+    "or": "或",
+    "volaLogoAlt": "Vola Logo",
+    "userAvatarAlt": "用户头像",
+    "backToHome": "返回首页",
+    "exploreApis": "探索我们的API",
+    "welcomeToVola": "欢迎来到 VOLA"
   },
   "nav": {
     "docs": "文档",
@@ -17,7 +23,10 @@
     "getStarted": "开始使用",
     "profile": "个人资料",
     "logout": "退出登录",
-    "apiProvider": "API 提供商"
+    "apiProvider": "API 提供商",
+    "apiMarket": "API 市场",
+    "admin": "管理员",
+    "publishApi": "发布API"
   },
   "home": {
     "categories": {
@@ -256,8 +265,102 @@
     "deleteAPIMessage": "您确定要删除 {name} 吗？"
   },
   "admin": {
+    "systemAdministration": "系统管理",
+    "manageAPIServicesDescription": "管理API服务和系统配置",
+    "adminPanel": "管理面板",
+    "publishAPI": "发布API",
+    "reviewAPI": "审核API",
+    "publishNewAPIService": "发布新的API服务",
+    "publishAPIMarketDescription": "在API市场中发布新的API服务",
+    "startPublishAPI": "开始发布API",
+    "userManagement": "用户管理",
+    "manageUserAccounts": "管理用户账户和权限设置",
+    "systemStatistics": "系统统计",
+    "viewSystemPerformance": "查看系统性能和使用统计数据",
+    "comingSoon": "即将推出",
+    "apiReviewSuccess": "API审核通过成功!",
+    "apiPublishSuccess": "API发布成功!",
     "estimatedResponseTime": "预估响应时间",
-    "estimatedResponseTimePlaceholder": "响应时间（毫秒）"
+    "estimatedResponseTimePlaceholder": "响应时间（毫秒）",
+    "apiReview": {
+      "title": "API审核列表",
+      "loadingList": "加载待审核API列表...",
+      "reloadList": "重新加载",
+      "refreshList": "刷新列表",
+      "noReviewAPIs": "暂无待审核API",
+      "allReviewed": "所有API都已完成审核",
+      "countInfo": "共 {count} 个API等待审核",
+      "pendingReview": "待审核",
+      "category": "分类:",
+      "publicStatus": "公开状态:",
+      "public": "公开",
+      "private": "私有",
+      "submitTime": "提交时间:",
+      "creator": "创建者:",
+      "detailDescription": "详细描述:",
+      "website": "网站",
+      "documentation": "文档",
+      "approving": "审核中...",
+      "approve": "通过",
+      "loadError": "加载失败，请稍后重试"
+    },
+    "createAPI": {
+      "title": "新建API",
+      "basicInfo": "基本信息",
+      "apiName": "API名称",
+      "apiNameRequired": "API名称不能为空",
+      "apiNameMaxLength": "API名称不能超过255个字符",
+      "apiSlug": "API标识",
+      "apiSlugRequired": "API标识不能为空",
+      "apiSlugFormat": "API标识只能包含小写字母、数字和连字符",
+      "shortDescription": "简短描述",
+      "shortDescRequired": "简短描述不能为空",
+      "shortDescMaxLength": "简短描述不能超过100个字符",
+      "longDescription": "详细描述",
+      "categoryAndTags": "分类和标签",
+      "apiCategory": "API分类",
+      "tags": "标签 (最多3个)",
+      "addTag": "添加标签",
+      "urlConfig": "URL配置",
+      "baseUrl": "API基础URL",
+      "validUrl": "请输入有效的URL",
+      "healthCheckUrl": "健康检查URL",
+      "websiteUrl": "官方网站URL",
+      "documentationUrl": "API文档URL",
+      "termsUrl": "服务条款URL",
+      "otherSettings": "其他设置",
+      "gatewayKey": "网关密钥",
+      "gatewayKeyHelper": "用于自动填充请求中的 x-vola-gateway 头",
+      "publicApi": "公开API（其他用户可见）",
+      "apiDocs": "Markdown格式的API文档",
+      "cancel": "取消",
+      "publishing": "发布中...",
+      "publishApi": "发布API",
+      "publishSuccess": "API发布成功！",
+      "publishFailed": "发布API失败",
+      "unknownError": "未知错误",
+      "placeholders": {
+        "apiName": "例: Weather API",
+        "apiSlug": "例: weather-api",
+        "shortDesc": "例: 提供全球天气信息查询服务",
+        "longDesc": "详细描述API的功能和特性...",
+        "baseUrl": "https://api.myweather.com",
+        "healthCheck": "https://api.myweather.com/health",
+        "website": "https://myweather.com",
+        "documentation": "https://docs.myweather.com",
+        "terms": "https://myweather.com/terms",
+        "gatewayKey": "secret_key_for_gateway_authentication",
+        "apiDocs": "# Weather API\\n\\n## 使用说明\\n\\n这个API提供全球天气信息查询服务。"
+      }
+    },
+    "pagination": {
+      "showing": "显示 {total} 中的 {count} 项",
+      "page": "第 {current} 页，共 {total} 页",
+      "firstPage": "第一页",
+      "previousPage": "上一页",
+      "nextPage": "下一页",
+      "lastPage": "最后一页"
+    }
   },
   "footer": {
     "product": {
@@ -308,5 +411,75 @@
     "healthCheck": "健康检查",
     "createdAt": "创建时间",
     "updatedAt": "更新时间"
+  },
+  "auth": {
+    "connecting": "连接中...",
+    "continueWithGoogle": "使用 Google 继续",
+    "welcomeToVola": "欢迎来到 VOLA",
+    "emailPlaceholder": "邮箱",
+    "passwordPlaceholder": "密码",
+    "confirmPasswordPlaceholder": "确认密码",
+    "continueWithEmail": "使用邮箱继续",
+    "logIn": "登录",
+    "resetPassword": "重置密码",
+    "createAccount": "创建账户",
+    "alreadyHaveAccount": "已有账户？",
+    "privacyNotice": "点击「使用 Google 继续」或「创建账户」即表示您同意",
+    "privacyPolicy": "隐私政策",
+    "validEmailRequired": "请输入有效的邮箱地址",
+    "invalidEmailFormat": "邮箱格式不正确",
+    "accountDisabled": "该账户已被禁用",
+    "emailCheckError": "检查邮箱时出现错误，请重试",
+    "resetPasswordNotice": "密码重置功能即将推出",
+    "noAccount": "还没有账户？",
+    "signUp": "注册"
+  },
+  "welcome": {
+    "title": "🎉 欢迎加入 vola.fun！",
+    "successMessage": "注册成功！",
+    "description": "感谢您选择 vola.fun！我们是专为 AI 应用设计的 API 市场平台， 致力于简化您的 API 集成和管理流程。",
+    "nextStepsTitle": "接下来您可以：",
+    "nextSteps": {
+      "explore": "• 探索我们的 API 市场",
+      "getApiKey": "• 获取您的专属 API 密钥",
+      "integrate": "• 开始集成您需要的 API 服务"
+    },
+    "getStarted": "开始体验 vola.fun",
+    "later": "稍后再说"
+  },
+  "profile": {
+    "title": "个人资料",
+    "loggingOut": "正在退出登录...",
+    "logOut": "退出登录",
+    "email": "邮箱",
+    "plan": "套餐",
+    "planFree": "免费",
+    "manageSubscription": "管理订阅",
+    "remainingCredit": "剩余积分",
+    "extraCredit": "额外积分",
+    "callLog": "调用日志",
+    "callLogHeaders": {
+      "date": "日期",
+      "apiName": "API名称",
+      "result": "结果",
+      "cost": "费用"
+    }
+  },
+  "errors": {
+    "pageNotFound": "页面未找到",
+    "pageNotFoundMessage": "您要查找的页面不存在或您没有访问权限。",
+    "loadFailed": "数据加载失败",
+    "networkError": "网络错误",
+    "userInfoFailed": "用户信息加载失败：",
+    "deleteAPIFailed": "删除API失败",
+    "loadAPIsFailed": "加载API失败",
+    "updateFailed": "更新失败"
+  },
+  "languages": {
+    "chinese": "中文",
+    "english": "English"
+  },
+  "accessibility": {
+    "switchTo": "切换到"
   }
 }

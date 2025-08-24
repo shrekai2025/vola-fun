@@ -1,6 +1,7 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+/**
+ * 工具函数 (向后兼容)
+ * 重新导出新的utils目录中的函数
+ */
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+export { cn } from '@/utils/cn'
+export type { ClassValue } from 'clsx'

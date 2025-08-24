@@ -1,67 +1,26 @@
 import { apiClient } from '../client'
 import { API_ENDPOINTS } from '../config'
-import { PaginatedResponse, RequestConfig } from '../types'
+import type {
+  APIEndpoint,
+  EndpointListParams,
+  CreateEndpointData,
+  UpdateEndpointData,
+  PaginatedResponse,
+  ApiResponse,
+} from '@/types/api'
 
-export interface APIEndpoint {
-  id: string
-  api_id: string
-  name: string
-  description: string
-  path: string
-  method: string
-  endpoint_type: 'rest' | 'graphql'
-  headers: Record<string, unknown>
-  query_params: Record<string, unknown>
-  body_params: Record<string, unknown>
-  response_body: Record<string, unknown>
-  graphql_query?: string
-  graphql_variables?: Record<string, unknown>
-  graphql_operation_name?: string
-  graphql_schema?: string
-  price_per_call: number
-  total_calls: number
-  avg_response_time: number
-  success_rate: number
-  is_active: boolean
-  created_at: string
-  updated_at: string
-}
-
-export interface EndpointListParams {
-  page?: number
-  page_size?: number
-  is_active?: boolean
-}
-
-export interface CreateEndpointData {
-  name: string
-  description: string
-  path: string
-  method: string
-  endpoint_type: 'rest' | 'graphql'
-  headers?: Record<string, unknown>
-  query_params?: Record<string, unknown>
-  body_params?: Record<string, unknown>
-  response_body?: Record<string, unknown>
-  graphql_query?: string
-  graphql_variables?: Record<string, unknown>
-  graphql_operation_name?: string
-  graphql_schema?: string
-  price_per_call?: number
-}
-
-export interface UpdateEndpointData extends Partial<CreateEndpointData> {
-  is_active?: boolean
-}
+// 重新导出类型以保持向后兼容
+export type { APIEndpoint, EndpointListParams, CreateEndpointData, UpdateEndpointData }
 
 export class EndpointService {
+  /**
+   * 获取API的端点列表
+   */
   static async list(
     apiId: string,
-    params?: EndpointListParams,
-    config?: RequestConfig
+    params?: EndpointListParams
   ): Promise<PaginatedResponse<APIEndpoint>> {
     const response = (await apiClient.get<APIEndpoint[]>(API_ENDPOINTS.APIS.ENDPOINTS.LIST(apiId), {
-      ...config,
       params: {
         page: 1,
         page_size: 50,
@@ -69,66 +28,56 @@ export class EndpointService {
       },
     })) as PaginatedResponse<APIEndpoint>
 
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to fetch endpoints')
-    }
+    return response
+  }
+
+  /**
+   * 获取端点详情
+   */
+  static async get(apiId: string, endpointId: string): Promise<ApiResponse<APIEndpoint>> {
+    const response = await apiClient.get<APIEndpoint>(
+      API_ENDPOINTS.APIS.ENDPOINTS.DETAIL(apiId, endpointId)
+    )
 
     return response
   }
 
-  static async get(
-    apiId: string,
-    endpointId: string,
-    config?: RequestConfig
-  ): Promise<APIEndpoint> {
-    const response = await apiClient.get<APIEndpoint>(
-      API_ENDPOINTS.APIS.ENDPOINTS.DETAIL(apiId, endpointId),
-      config
-    )
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to fetch endpoint details')
-    }
-
-    return response.data
-  }
-
-  static async create(apiId: string, data: CreateEndpointData): Promise<APIEndpoint> {
+  /**
+   * 创建端点
+   */
+  static async create(apiId: string, data: CreateEndpointData): Promise<ApiResponse<APIEndpoint>> {
     const response = await apiClient.post<APIEndpoint>(
       API_ENDPOINTS.APIS.ENDPOINTS.CREATE(apiId),
       data
     )
 
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to create endpoint')
-    }
-
-    return response.data
+    return response
   }
 
+  /**
+   * 更新端点
+   */
   static async update(
     apiId: string,
     endpointId: string,
     data: UpdateEndpointData
-  ): Promise<APIEndpoint> {
+  ): Promise<ApiResponse<APIEndpoint>> {
     const response = await apiClient.patch<APIEndpoint>(
       API_ENDPOINTS.APIS.ENDPOINTS.UPDATE(apiId, endpointId),
       data
     )
 
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to update endpoint')
-    }
-
-    return response.data
+    return response
   }
 
-  static async delete(apiId: string, endpointId: string): Promise<void> {
-    const response = await apiClient.delete(API_ENDPOINTS.APIS.ENDPOINTS.DELETE(apiId, endpointId))
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to delete endpoint')
-    }
+  /**
+   * 删除端点
+   */
+  static async delete(apiId: string, endpointId: string): Promise<ApiResponse<null>> {
+    const response = (await apiClient.delete(
+      API_ENDPOINTS.APIS.ENDPOINTS.DELETE(apiId, endpointId)
+    )) as ApiResponse<null>
+    return response
   }
 }
 

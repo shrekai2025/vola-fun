@@ -192,12 +192,13 @@ class DataManager {
       throw new Error('用户未登录')
     }
 
-    return this.getData(
+    const response = await this.getData(
       'user-info',
       () => AuthService.getCurrentUser(),
       CACHE_CONFIG.USER_INFO,
       forceRefresh
     )
+    return response.data
   }
 
   /**
@@ -217,8 +218,8 @@ class DataManager {
     return this.getData(
       key,
       async () => {
-        const user = await AuthService.getCurrentUser()
-        return APIService.getUserAPIs(user.id, finalParams)
+        const response = await AuthService.getCurrentUser()
+        return APIService.getUserAPIs(response.data.id, finalParams)
       },
       CACHE_CONFIG.USER_APIS,
       forceRefresh,
@@ -251,13 +252,14 @@ class DataManager {
   async getAPIDetail(apiId: string, forceRefresh = false, pageLevelRefresh = false): Promise<API> {
     const key = `api-detail-${apiId}`
 
-    return this.getData(
+    const response = await this.getData(
       key,
       () => APIService.get(apiId),
       CACHE_CONFIG.API_DETAIL,
       forceRefresh,
       pageLevelRefresh
     )
+    return response.data
   }
 
   // ======================== 订阅和缓存管理 ========================

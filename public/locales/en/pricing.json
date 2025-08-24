@@ -1,0 +1,40 @@
+{
+  "title": "Pricing Plans",
+  "subtitle": "Understand the core value of vola.fun and choose the right plan for you",
+  "whyChoose": "Why Choose vola.fun?",
+  "features": {
+    "apiManagement": {
+      "title": "Simplified API Management",
+      "description": "Unified API keys, one authentication for all APIs. Say goodbye to complex key management and focus on business logic."
+    },
+    "centralizedPayment": {
+      "title": "Centralized Payment",
+      "description": "Single payment gateway with unified billing. Just pay to vola and access all API services in the marketplace."
+    },
+    "aiOptimized": {
+      "title": "AI-Optimized",
+      "description": "API ecosystem designed specifically for AI applications, providing high-quality, stable and reliable AI tools and data services."
+    }
+  },
+  "useCases": {
+    "title": "Use Cases",
+    "independentDeveloper": {
+      "title": "Independent Developers",
+      "description": "Quickly validate ideas with a \"playground\" that easily calls multiple APIs. No need to register and manage keys for each API separately."
+    },
+    "aiDeveloper": {
+      "title": "AI Application Developers",
+      "description": "Need to call various utility APIs (data processing, image recognition, natural language processing) to build and optimize AI models or applications."
+    }
+  },
+  "pricingPlans": {
+    "title": "Pricing Plans",
+    "comingSoon": "Pricing plans are being developed...",
+    "stayTuned": "We will soon launch flexible pricing plans, stay tuned!"
+  },
+  "cta": {
+    "title": "Start Building Your AI Applications",
+    "subtitle": "Join thousands of developers using vola.fun to simplify your API integration process",
+    "browseMarket": "Browse API Market"
+  }
+}

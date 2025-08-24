@@ -1,6 +1,6 @@
 import { API_CONFIG } from './config'
-import { ApiResponse, ApiError, RequestConfig, HttpMethod } from './types'
-import { TokenManager } from '@/lib/cookie'
+import type { ApiResponse, ApiError, RequestConfig, HttpMethod } from '@/types/api'
+import { TokenManager } from '@/utils/cookie'
 
 class ApiClient {
   private baseURL: string

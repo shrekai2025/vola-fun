@@ -1,8 +1,9 @@
 'use client'
 
-import { useAtom } from 'jotai'
 import { authModalAtom, closeAuthModalAtom } from '@/atoms/auth'
+import { useTranslation } from '@/components/providers/LanguageProvider'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useAtom } from 'jotai'
 import { EmailStep } from './EmailStep'
 import { LoginForm } from './LoginForm'
 import { SignupForm } from './SignupForm'
@@ -13,6 +14,7 @@ import { SignupForm } from './SignupForm'
 export function AuthModal() {
   const [authModal] = useAtom(authModalAtom)
   const [, closeModal] = useAtom(closeAuthModalAtom)
+  const { t } = useTranslation()
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -23,13 +25,13 @@ export function AuthModal() {
   const getModalTitle = () => {
     switch (authModal.step) {
       case 'email':
-        return 'Welcome to VOLA'
+        return t('common.welcomeToVola')
       case 'login':
-        return 'Welcome to VOLA'
+        return t('common.welcomeToVola')
       case 'signup':
-        return 'Welcome to VOLA'
+        return t('common.welcomeToVola')
       default:
-        return 'Welcome to VOLA'
+        return t('common.welcomeToVola')
     }
   }
 

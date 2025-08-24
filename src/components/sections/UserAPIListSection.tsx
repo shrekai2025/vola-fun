@@ -1,18 +1,17 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
-import Link from 'next/link'
+import { useTranslation } from '@/components/providers/LanguageProvider'
+import { APICardSkeletonGrid } from '@/components/ui/api-card-skeleton'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useTranslation } from '@/components/providers/LanguageProvider'
 import { useToast } from '@/components/ui/toast'
-import { useUserCache } from '@/hooks/useUserCache'
-import { useUserAPIList } from '@/hooks/useUnifiedData'
-import { APIService, type APIListParams } from '@/lib/api'
+import { useUserAPIList, useUserCache } from '@/hooks/data'
+import { APIService } from '@/lib/api'
 import { dataManager } from '@/lib/data-manager'
-import { Plus, Eye, Edit, Trash2, Info } from 'lucide-react'
-import { APICardSkeletonGrid } from '@/components/ui/api-card-skeleton'
+import { Edit, Eye, Info, Plus, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useCallback, useState } from 'react'
 
 // 纯函数，移到组件外部避免重新创建
 const formatDate = (dateString: string) => {
@@ -62,24 +61,8 @@ export default function UserAPIListSection() {
   const toast = useToast()
   const { isLoggedIn, loading: userLoading } = useUserCache()
 
-  // 固定查询参数，避免对象引用每次变化导致Hook重复执行
-  const queryParams: APIListParams = useMemo(
-    () => ({
-      page: 1,
-      page_size: 50,
-      sort_by: 'created_at',
-      sort_order: 'desc',
-    }),
-    []
-  )
-
   // 使用统一数据管理Hook，启用页面级强制刷新
-  const {
-    data: apis,
-    loading: apiLoading,
-    error,
-    refresh: refreshAPIs,
-  } = useUserAPIList(queryParams, true)
+  const { data: apis, loading: apiLoading, error, refresh: refreshAPIs } = useUserAPIList()
 
   const loading = userLoading || apiLoading
 
@@ -158,7 +141,7 @@ export default function UserAPIListSection() {
           </div>
         </div>
         <Button asChild size='default'>
-          <Link href='/api-provider/create' className='flex items-center gap-2'>
+          <Link href='/apis/create' className='flex items-center gap-2'>
             <Plus className='w-4 h-4' />
             {t('apiProvider.createNew')}
           </Link>
@@ -218,7 +201,7 @@ export default function UserAPIListSection() {
             {t('apiProvider.noAPIsDescription')}
           </p>
           <Button asChild>
-            <Link href='/api-provider/create' className='flex items-center gap-2'>
+            <Link href='/apis/create' className='flex items-center gap-2'>
               <Plus className='w-4 h-4' />
               {t('apiProvider.createFirst')}
             </Link>
@@ -279,11 +262,11 @@ export default function UserAPIListSection() {
 
                 <div className='space-y-2 text-xs text-muted-foreground mb-4'>
                   <div className='flex justify-between'>
-                    <span>{t('apiProvider.totalCalls')}：</span>
+                    <span>{t('apiProvider.totalCalls')}:</span>
                     <span>{api.total_calls?.toLocaleString() || 0}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span>{t('apiProvider.createdAt')}：</span>
+                    <span>{t('apiProvider.createdAt')}:</span>
                     <span>{formatDate(api.created_at)}</span>
                   </div>
                 </div>
@@ -291,13 +274,13 @@ export default function UserAPIListSection() {
                 <div className='flex flex-col gap-2'>
                   <div className='flex gap-2'>
                     <Button variant='outline' size='sm' className='flex-1 text-xs' asChild>
-                      <Link href={`/api-provider/edit/${api.id}`}>
+                      <Link href={`/apis/edit/${api.id}`}>
                         <Edit className='w-3 h-3 mr-1' />
                         {t('apiProvider.editProject')}
                       </Link>
                     </Button>
                     <Button variant='outline' size='sm' className='flex-1 text-xs' asChild>
-                      <Link href={`/api-provider/${api.id}/endpoints`}>
+                      <Link href={`/apis/${api.id}/endpoints`}>
                         <Eye className='w-3 h-3 mr-1' />
                         {t('apiProvider.viewEndpoints')}
                       </Link>

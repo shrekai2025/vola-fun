@@ -10,8 +10,9 @@ import { APICardSkeletonGrid } from '@/components/ui/api-card-skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAPIList } from '@/hooks/useUnifiedData'
+import { useAPIList } from '@/hooks/data'
 import type { APIListParams } from '@/lib/api'
+import type { APICategory } from '@/types/api/apis'
 import { AlertCircle, Clock, FileText } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -37,7 +38,7 @@ export default function APIMarketSection() {
     }
 
     if (selectedCategory && selectedCategory !== 'all') {
-      params.category = selectedCategory
+      params.category = selectedCategory as APICategory
     }
 
     return params

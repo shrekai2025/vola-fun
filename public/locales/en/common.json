@@ -9,7 +9,13 @@
     "save": "Save",
     "edit": "Edit",
     "delete": "Delete",
-    "close": "Close"
+    "close": "Close",
+    "or": "or",
+    "volaLogoAlt": "Vola Logo",
+    "userAvatarAlt": "User Avatar",
+    "backToHome": "Back to Home",
+    "exploreApis": "Explore Our APIs",
+    "welcomeToVola": "Welcome to VOLA"
   },
   "nav": {
     "docs": "Docs",
@@ -17,7 +23,10 @@
     "getStarted": "Get started",
     "profile": "Profile",
     "logout": "Logout",
-    "apiProvider": "API Provider"
+    "apiProvider": "API Provider",
+    "apiMarket": "API Market",
+    "admin": "Admin",
+    "publishApi": "Publish an API"
   },
   "home": {
     "categories": {
@@ -256,8 +265,102 @@
     "deleteAPIMessage": "Are you sure you want to delete {name}?"
   },
   "admin": {
+    "systemAdministration": "System Administration",
+    "manageAPIServicesDescription": "Manage API services and system configuration",
+    "adminPanel": "Admin Panel",
+    "publishAPI": "Publish API",
+    "reviewAPI": "Review API",
+    "publishNewAPIService": "Publish new API service",
+    "publishAPIMarketDescription": "Publish new API service in the API market",
+    "startPublishAPI": "Start Publishing API",
+    "userManagement": "User Management",
+    "manageUserAccounts": "Manage user accounts and permission settings",
+    "systemStatistics": "System Statistics",
+    "viewSystemPerformance": "View system performance and usage statistics",
+    "comingSoon": "Coming Soon",
+    "apiReviewSuccess": "API review passed successfully!",
+    "apiPublishSuccess": "API published successfully!",
     "estimatedResponseTime": "Estimated Response Time",
-    "estimatedResponseTimePlaceholder": "Response time in milliseconds"
+    "estimatedResponseTimePlaceholder": "Response time in milliseconds",
+    "apiReview": {
+      "title": "API Review List",
+      "loadingList": "Loading pending API review list...",
+      "reloadList": "Reload",
+      "refreshList": "Refresh List",
+      "noReviewAPIs": "No APIs Pending Review",
+      "allReviewed": "All APIs have been reviewed",
+      "countInfo": "{count} APIs pending review",
+      "pendingReview": "Pending Review",
+      "category": "Category:",
+      "publicStatus": "Public Status:",
+      "public": "Public",
+      "private": "Private",
+      "submitTime": "Submit Time:",
+      "creator": "Creator:",
+      "detailDescription": "Detailed Description:",
+      "website": "Website",
+      "documentation": "Documentation",
+      "approving": "Reviewing...",
+      "approve": "Approve",
+      "loadError": "Failed to load, please try again later"
+    },
+    "createAPI": {
+      "title": "New API",
+      "basicInfo": "Basic Information",
+      "apiName": "API Name",
+      "apiNameRequired": "API name cannot be empty",
+      "apiNameMaxLength": "API name cannot exceed 255 characters",
+      "apiSlug": "API Identifier",
+      "apiSlugRequired": "API identifier cannot be empty",
+      "apiSlugFormat": "API identifier can only contain lowercase letters, numbers and hyphens",
+      "shortDescription": "Short Description",
+      "shortDescRequired": "Short description cannot be empty",
+      "shortDescMaxLength": "Short description cannot exceed 100 characters",
+      "longDescription": "Detailed Description",
+      "categoryAndTags": "Category and Tags",
+      "apiCategory": "API Category",
+      "tags": "Tags (max 3)",
+      "addTag": "Add tag",
+      "urlConfig": "URL Configuration",
+      "baseUrl": "API Base URL",
+      "validUrl": "Please enter a valid URL",
+      "healthCheckUrl": "Health Check URL",
+      "websiteUrl": "Official Website URL",
+      "documentationUrl": "API Documentation URL",
+      "termsUrl": "Terms of Service URL",
+      "otherSettings": "Other Settings",
+      "gatewayKey": "Gateway Key",
+      "gatewayKeyHelper": "Used to auto-fill x-vola-gateway header in requests",
+      "publicApi": "Public API (visible to other users)",
+      "apiDocs": "API Documentation in Markdown Format",
+      "cancel": "Cancel",
+      "publishing": "Publishing...",
+      "publishApi": "Publish API",
+      "publishSuccess": "API published successfully!",
+      "publishFailed": "Failed to publish API",
+      "unknownError": "Unknown error",
+      "placeholders": {
+        "apiName": "e.g: Weather API",
+        "apiSlug": "e.g: weather-api",
+        "shortDesc": "e.g: Provides global weather information query service",
+        "longDesc": "Detailed description of API features and characteristics...",
+        "baseUrl": "https://api.myweather.com",
+        "healthCheck": "https://api.myweather.com/health",
+        "website": "https://myweather.com",
+        "documentation": "https://docs.myweather.com",
+        "terms": "https://myweather.com/terms",
+        "gatewayKey": "secret_key_for_gateway_authentication",
+        "apiDocs": "# Weather API\\n\\n## Usage Instructions\\n\\nThis API provides global weather information query service."
+      }
+    },
+    "pagination": {
+      "showing": "Showing {count} of {total} items",
+      "page": "Page {current} of {total}",
+      "firstPage": "First page",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "lastPage": "Last page"
+    }
   },
   "footer": {
     "product": {
@@ -308,5 +411,75 @@
     "healthCheck": "Health Check",
     "createdAt": "Created At",
     "updatedAt": "Updated At"
+  },
+  "auth": {
+    "connecting": "Connecting...",
+    "continueWithGoogle": "Continue with Google",
+    "welcomeToVola": "Welcome to VOLA",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "confirmPasswordPlaceholder": "Confirm Password",
+    "continueWithEmail": "Continue with Email",
+    "logIn": "Log in",
+    "resetPassword": "Reset password",
+    "createAccount": "Create account",
+    "alreadyHaveAccount": "Already have an account? ",
+    "privacyNotice": "By clicking \"Continue with Google\" or \"Create account\", you agree to the",
+    "privacyPolicy": "Privacy Policy",
+    "validEmailRequired": "Please enter a valid email address",
+    "invalidEmailFormat": "Invalid email format",
+    "accountDisabled": "This account has been disabled",
+    "emailCheckError": "Error occurred while checking email, please try again",
+    "resetPasswordNotice": "Password reset feature coming soon",
+    "noAccount": "Don't have an account? ",
+    "signUp": "Sign up"
+  },
+  "welcome": {
+    "title": "🎉 Welcome to vola.fun!",
+    "successMessage": "Registration successful!",
+    "description": "Thank you for choosing vola.fun! We are an API marketplace platform designed specifically for AI applications, dedicated to simplifying your API integration and management process.",
+    "nextStepsTitle": "Here's what you can do next:",
+    "nextSteps": {
+      "explore": "• Explore our API marketplace",
+      "getApiKey": "• Get your exclusive API key",
+      "integrate": "• Start integrating the API services you need"
+    },
+    "getStarted": "Get started with vola.fun",
+    "later": "Maybe later"
+  },
+  "profile": {
+    "title": "Profile",
+    "loggingOut": "Logging out...",
+    "logOut": "Log out",
+    "email": "Email",
+    "plan": "Plan",
+    "planFree": "Free",
+    "manageSubscription": "Manage Subscription",
+    "remainingCredit": "Remaining Credit",
+    "extraCredit": "Extra Credit",
+    "callLog": "Call log",
+    "callLogHeaders": {
+      "date": "Date",
+      "apiName": "API Name",
+      "result": "Result",
+      "cost": "Cost"
+    }
+  },
+  "errors": {
+    "pageNotFound": "Page Not Found",
+    "pageNotFoundMessage": "The page you are looking for doesn't exist or you don't have permission to access it.",
+    "loadFailed": "Failed to load data",
+    "networkError": "Network error occurred",
+    "userInfoFailed": "Failed to load user information:",
+    "deleteAPIFailed": "Failed to delete API",
+    "loadAPIsFailed": "Failed to load APIs",
+    "updateFailed": "Update failed"
+  },
+  "languages": {
+    "chinese": "Chinese",
+    "english": "English"
+  },
+  "accessibility": {
+    "switchTo": "Switch to "
   }
 }

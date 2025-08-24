@@ -14,16 +14,17 @@ export const isLoggedInAtom = atom((get) => {
   return user !== null && hasTokens
 })
 
-// 用户积分余额（派生原子）
-export const userCreditsAtom = atom((get) => get(userAtom)?.credits ?? 0)
+// 用户余额（派生原子）
+export const userBalanceAtom = atom((get) => {
+  const user = get(userAtom)
+  return (user?.subscription_balance ?? 0) + (user?.one_time_balance ?? 0)
+})
 
-// 用户API密钥列表（派生原子）
-export const userApiKeysAtom = atom((get) => get(userAtom)?.apiKeys ?? [])
+// 订阅余额（派生原子）
+export const subscriptionBalanceAtom = atom((get) => get(userAtom)?.subscription_balance ?? 0)
 
-// 主要API密钥（第一个激活的密钥）
-export const primaryApiKeyAtom = atom(
-  (get) => get(userApiKeysAtom).find((key) => key.isActive) ?? null
-)
+// 一次性余额（派生原子）
+export const oneTimeBalanceAtom = atom((get) => get(userAtom)?.one_time_balance ?? 0)
 
 // 认证弹窗状态
 export const authModalAtom = atom<AuthModalState>({

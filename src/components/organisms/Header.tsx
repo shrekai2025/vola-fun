@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import Image from 'next/image'
+import { useTranslation } from '@/components/providers/LanguageProvider'
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/button'
 import { CachedAvatar } from '@/components/ui/cached-avatar'
 import {
@@ -11,14 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAuth } from '@/hooks/useAuth'
-import { useUnifiedUserCache } from '@/hooks/useUnifiedData'
-import { useTheme } from '@/components/providers/ThemeProvider'
-import { useTranslation } from '@/components/providers/LanguageProvider'
+import { useAuth } from '@/hooks/auth'
+import { useUserCache } from '@/hooks/data'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export function Header() {
-  const { showAuthModal, authLoading } = useAuth()
-  const { user, isLoggedIn, loading, clearUser } = useUnifiedUserCache()
+  const { openAuthModal, loading: authLoading } = useAuth()
+  const { user, isLoggedIn, loading, clearUser } = useUserCache()
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -39,7 +39,7 @@ export function Header() {
         <div className='w-[88px] h-[23px] relative'>
           <Image
             src={theme === 'dark' ? '/volalogo.svg' : '/volalogol.svg'}
-            alt='Vola Logo'
+            alt={t('common.volaLogoAlt')}
             width={88}
             height={23}
             className='object-contain'
@@ -54,7 +54,7 @@ export function Header() {
           href='/#api-market-section'
           className='text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4'
         >
-          API Market
+          {t('nav.apiMarket')}
         </Link>
 
         {/* DOCs - 第二位 */}
@@ -62,9 +62,10 @@ export function Header() {
           href='#'
           className='text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4'
         >
-          DOCs
+          {t('nav.docs')}
         </Link>
 
+        {/* Pricing - 第三位 */}
         <Link
           href='/pricing'
           className='text-foreground/80 hover:text-foreground font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4'
@@ -78,7 +79,7 @@ export function Header() {
             href='/admin2025'
             className='text-primary hover:text-primary/80 font-medium text-sm transition-colors duration-200 hover:underline underline-offset-4'
           >
-            Admin
+            {t('nav.admin')}
           </Link>
         )}
 
@@ -93,7 +94,7 @@ export function Header() {
               size='sm'
               className='bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-sm border-0'
             >
-              <Link href='/api-provider'>Publish an API</Link>
+              <Link href='/apis'>{t('nav.publishApi')}</Link>
             </Button>
 
             <DropdownMenu>
@@ -101,7 +102,7 @@ export function Header() {
                 <button className='focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-full'>
                   <CachedAvatar
                     src={user.avatar_url}
-                    alt={user.full_name || 'User Avatar'}
+                    alt={user.full_name || t('common.userAvatarAlt')}
                     className='cursor-pointer ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200'
                     size={29}
                     fallback={
@@ -116,7 +117,7 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end' className='w-48'>
                 <DropdownMenuItem asChild>
-                  <Link href='/api-provider' className='cursor-pointer'>
+                  <Link href='/apis' className='cursor-pointer'>
                     {t('nav.apiProvider')}
                   </Link>
                 </DropdownMenuItem>
@@ -137,7 +138,7 @@ export function Header() {
           </div>
         ) : (
           <Button
-            onClick={() => showAuthModal('email')}
+            onClick={() => openAuthModal('email')}
             disabled={authLoading}
             size='sm'
             className='bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-sm'

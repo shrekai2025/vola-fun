@@ -1,16 +1,13 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import { JotaiProvider } from '@/components/providers/JotaiProvider'
-import { ThemeProvider } from '@/components/providers/ThemeProvider'
-import { LanguageProvider } from '@/components/providers/LanguageProvider'
-import { I18nextProviderWrapper } from '@/components/providers/I18nextProvider'
-import { Toaster } from '@/components/ui/toast'
 import AuthModal from '@/components/auth/AuthModal'
 import WelcomeModal from '@/components/auth/WelcomeModal'
-import { Header } from '@/components/organisms/Header'
-import { Footer } from '@/components/ui/footer'
-
-// 暂时使用系统字体避免 Turbopack 下 Google Fonts 的兼容性问题
+import { I18nextProviderWrapper } from '@/components/providers/I18nextProvider'
+import { JotaiProvider } from '@/components/providers/JotaiProvider'
+import { LanguageProvider } from '@/components/providers/LanguageProvider'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { Toaster } from '@/components/ui/toast'
+import type { Metadata } from 'next'
+import { MainLayout } from '../components/templates/MainLayout'
+import '../styles/globals.css'
 
 export const metadata: Metadata = {
   title: 'vola.fun - 面向AI的API市场',
@@ -61,11 +58,7 @@ export default function RootLayout({
           <I18nextProviderWrapper>
             <LanguageProvider>
               <JotaiProvider>
-                <div className='min-h-screen bg-background flex flex-col'>
-                  <Header />
-                  <main className='flex-1 pt-[60px]'>{children}</main>
-                  <Footer />
-                </div>
+                <MainLayout>{children}</MainLayout>
                 <Toaster />
                 {/* 认证相关弹窗 */}
                 <AuthModal />

@@ -1,18 +1,18 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { useUserCache } from '@/hooks/useUserCache'
 import { useTranslation } from '@/components/providers/LanguageProvider'
-import { motion } from 'framer-motion'
-import { Key, Zap, ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { FloatingUFO } from '@/components/ui/floating-ufo'
+import { useUserCache } from '@/hooks/data'
+import { motion } from 'framer-motion'
+import { ArrowRight, Key, Zap } from 'lucide-react'
 
 export function HeroSection() {
   const { user, isLoggedIn, loading } = useUserCache()
   const { t } = useTranslation()
 
   // 判断用户是否已订阅
-  const isSubscribed = user?.plan && user.plan.toLowerCase() !== 'basic' && user.plan !== ''
+  const isSubscribed = user?.plan && user.plan !== 'basic'
 
   // 处理"获得API Key"按钮点击
   const handleGetApiKey = () => {

@@ -1,5 +1,51 @@
-// 基础类型定义
+/**
+ * 统一类型定义导出
+ * 重新导出所有分类的类型定义
+ */
 
+// API相关类型
+export * from './api'
+
+// UI组件相关类型
+export * from './ui'
+
+// 通用类型 (排除与UI冲突的类型)
+export type {
+  BaseEntity,
+  Optional,
+  DeepPartial,
+  KeyOf,
+  ValueOf,
+  NonNullable,
+  ArrayElement,
+  Parameters,
+  ReturnType,
+  Awaited,
+  Environment,
+  AppError,
+  ServiceResponse,
+  PaginatedData,
+  FileInfo,
+  Coordinate,
+  Dimension,
+  Rectangle,
+  Color,
+  Timestamp,
+  UrlString,
+  EmailAddress,
+  PhoneNumber,
+  UUID,
+  JsonValue,
+  JsonObject,
+  JsonArray,
+  Config,
+  EventHandler,
+  Callback,
+  CancelFunction,
+  CleanupFunction,
+} from './common'
+
+// 保留兼容性的旧类型定义（将逐步替换）
 export interface ApiKey {
   id: string
   name: string
@@ -9,27 +55,7 @@ export interface ApiKey {
   isActive: boolean
 }
 
-export interface User {
-  id: string
-  firebase_uid: string
-  email: string
-  username: string
-  full_name: string
-  avatar_url: string
-  role: string
-  is_active: boolean
-  is_verified: boolean
-  subscription_balance: number
-  one_time_balance: number
-  bio: string
-  company: string
-  website: string
-  location: string
-  plan?: string // 订阅计划：basic/BASIC 或空表示未订阅，其他值表示已订阅
-  created_at: string
-  updated_at: string
-}
-
+// 旧的API服务接口，保留向后兼容
 export interface ApiService {
   id: string
   projectName: string
@@ -52,8 +78,8 @@ export interface ApiDocumentation {
   responseParams: ApiParam[]
   statusCodes: StatusCode[]
   examples: {
-    request: unknown
-    response: unknown
+    request: Record<string, unknown>
+    response: Record<string, unknown>
   }
 }
 
@@ -91,6 +117,7 @@ export interface ApiUsageLog {
   responseData?: Record<string, unknown>
 }
 
+// 已被新的API类型替代，保留兼容性
 export interface ApiCallRequest {
   apiId: string
   params: Record<string, unknown>

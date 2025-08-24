@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
-import { AuthService, UserInfo } from '../services'
+import { AuthService } from '../services'
+import type { User } from '@/types'
 import { TokenManager } from '@/lib/cookie'
 
 export function useAuth() {
-  const [user, setUser] = useState<UserInfo | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -12,7 +13,8 @@ export function useAuth() {
     setError(null)
 
     try {
-      const tokenData = await AuthService.login(firebaseIdToken)
+      const response = await AuthService.login({ firebase_id_token: firebaseIdToken })
+      const tokenData = response.data
 
       TokenManager.setTokens({
         accessToken: tokenData.access_token,
@@ -20,12 +22,9 @@ export function useAuth() {
         tokenType: tokenData.token_type,
       })
 
-      if (tokenData.user) {
-        setUser(tokenData.user)
-      } else {
-        const userInfo = await AuthService.getCurrentUser()
-        setUser(userInfo)
-      }
+      // 获取用户信息
+      const userInfo = await AuthService.getCurrentUser()
+      setUser(userInfo.data)
 
       return tokenData
     } catch (err) {
@@ -59,9 +58,9 @@ export function useAuth() {
     setError(null)
 
     try {
-      const userInfo = await AuthService.getCurrentUser()
-      setUser(userInfo)
-      return userInfo
+      const response = await AuthService.getCurrentUser()
+      setUser(response.data)
+      return response.data
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to get user info')
       setError(error)

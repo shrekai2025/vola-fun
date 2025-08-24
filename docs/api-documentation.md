@@ -960,6 +960,11 @@ GET /api/v1/apis/
       "total_revenue": 10.0,
       "rating": 4.8,
       "owner_id": "user-uuid",
+      "owner": {
+        "username": "john_weather",
+        "full_name": "John Weather",
+        "avatar_url": "https://s3.amazonaws.com/vola/avatars/john_weather.jpg"
+      },
       "estimated_response_time": 100,
       "is_favorited": false,
       "created_at": "2024-01-01T00:00:00Z"
@@ -998,6 +1003,7 @@ GET /api/v1/apis/
 | total_revenue           | number  | API 总收入（美元）                                                                           |
 | rating                  | number  | API 平均评分（1-5分，null 表示暂无评分）                                                     |
 | owner_id                | string  | API 所有者用户 ID                                                                            |
+| owner                   | object  | API 所有者信息，包含 username、full_name、avatar_url                                         |
 | estimated_response_time | number  | 预估响应时间（毫秒），用于性能预期                                                           |
 | is_favorited            | boolean | 是否已被当前用户收藏（仅已认证用户有此字段）                                                 |
 | created_at              | string  | 创建时间（ISO 8601格式）                                                                     |
@@ -1156,6 +1162,11 @@ GET /api/v1/apis/{api_id}
     "rating": 4.8,
     "estimated_response_time": 100,
     "owner_id": "user-uuid",
+    "owner": {
+      "username": "john_weather",
+      "full_name": "John Weather",
+      "avatar_url": "https://s3.amazonaws.com/vola/avatars/john_weather.jpg"
+    },
     "is_favorited": false,
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-15T00:00:00Z"
@@ -1188,6 +1199,7 @@ GET /api/v1/apis/{api_id}
 | rating                  | number        | API 平均评分（1-5分，null 表示暂无评分）                                                     |
 | estimated_response_time | number        | 预估响应时间（毫秒），用于性能预期                                                           |
 | owner_id                | string        | API 所有者用户 ID                                                                            |
+| owner                   | object        | API 所有者信息，包含 username、full_name、avatar_url                                         |
 | is_favorited            | boolean       | 是否已被当前用户收藏（仅已认证用户有此字段）                                                 |
 | created_at              | string        | 创建时间（ISO 8601格式）                                                                     |
 | updated_at              | string        | 最后更新时间（ISO 8601格式）                                                                 |
@@ -3441,6 +3453,11 @@ GET /api/v1/nodes/
       "total_revenue": 1498.5,
       "rating": 4.8,
       "owner_id": "user-uuid",
+      "owner": {
+        "username": "automation_master",
+        "full_name": "Automation Master",
+        "avatar_url": "https://s3.amazonaws.com/vola/avatars/automation_master.jpg"
+      },
       "is_favorited": false,
       "created_at": "2024-01-01T00:00:00Z",
       "updated_at": "2024-01-15T10:00:00Z"
@@ -3480,6 +3497,7 @@ GET /api/v1/nodes/
 | total_revenue     | number        | 总收入（美元）                                                                               |
 | rating            | number        | 平均评分（1-5分）                                                                            |
 | owner_id          | string        | 节点所有者用户 ID                                                                            |
+| owner             | object        | 节点所有者信息，包含 username、full_name、avatar_url                                         |
 | is_favorited      | boolean       | 是否已被当前用户收藏（仅已认证用户有此字段）                                                 |
 | created_at        | string        | 创建时间（ISO 8601格式）                                                                     |
 | updated_at        | string        | 最后更新时间（ISO 8601格式）                                                                 |
@@ -3631,6 +3649,11 @@ GET /api/v1/nodes/{node_id}
     "total_revenue": 1498.5,
     "rating": 4.8,
     "owner_id": "user-uuid",
+    "owner": {
+      "username": "automation_master",
+      "full_name": "Automation Master",
+      "avatar_url": "https://s3.amazonaws.com/vola/avatars/automation_master.jpg"
+    },
     "is_favorited": false,
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-15T10:00:00Z"
@@ -3658,6 +3681,7 @@ GET /api/v1/nodes/{node_id}
 | total_revenue | number  | 总收入（美元）                                                                               |
 | rating        | number  | 平均评分（1-5分，null 表示暂无评分）                                                         |
 | owner_id      | string  | 节点所有者用户 ID                                                                            |
+| owner         | object  | 节点所有者信息，包含 username、full_name、avatar_url                                         |
 | created_at    | string  | 创建时间（ISO 8601格式）                                                                     |
 | updated_at    | string  | 最后更新时间（ISO 8601格式）                                                                 |
 
@@ -3743,6 +3767,7 @@ PATCH /api/v1/nodes/{node_id}
 | total_revenue | number  | 总收入（美元）                                                                               |
 | rating        | number  | 平均评分（1-5分，null 表示暂无评分）                                                         |
 | owner_id      | string  | 节点所有者用户 ID                                                                            |
+| owner         | object  | 节点所有者信息，包含 username、full_name、avatar_url                                         |
 | created_at    | string  | 创建时间（ISO 8601格式）                                                                     |
 | updated_at    | string  | 最后更新时间（ISO 8601格式）                                                                 |
 

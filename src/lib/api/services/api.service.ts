@@ -1,141 +1,83 @@
 import { apiClient } from '../client'
 import { API_ENDPOINTS } from '../config'
-import { PaginatedResponse, RequestConfig } from '../types'
+import type {
+  API,
+  APIListParams,
+  CreateAPIData,
+  UpdateAPIData,
+  PaginatedResponse,
+  ApiResponse,
+} from '@/types/api'
 
-export interface API {
-  id: string
-  name: string
-  slug: string
-  short_description: string
-  long_description?: string
-  avatar_url?: string
-  category: string
-  tags: string[]
-  base_url: string
-  health_check_url?: string
-  status: 'draft' | 'published' | 'deprecated' | 'suspended'
-  is_public: boolean
-  website_url?: string
-  documentation_url?: string
-  terms_url?: string
-  documentation_markdown?: string
-  total_calls: number
-  total_revenue: number
-  rating?: number
-  estimated_response_time?: number
-  owner_id: string
-  owner?: {
-    id: string
-    username: string
-    full_name?: string
-    avatar_url?: string
-  }
-  created_at: string
-  updated_at: string
-}
-
-export interface APIListParams {
-  page?: number
-  page_size?: number
-  status?: 'draft' | 'published' | 'deprecated' | 'suspended'
-  category?: string
-  search?: string
-  owner_id?: string
-  tags?: string[]
-  sort_by?: 'total_calls' | 'rating' | 'created_at' | 'updated_at'
-  sort_order?: 'asc' | 'desc'
-  is_public?: boolean
-}
-
-export interface CreateAPIData {
-  name: string
-  slug: string
-  short_description: string
-  long_description?: string
-  category: string
-  tags: string[]
-  base_url: string
-  health_check_url?: string
-  is_public: boolean
-  website_url?: string
-  documentation_url?: string
-  terms_url?: string
-  gateway_key?: string
-  documentation_markdown?: string
-  estimated_response_time?: number
-}
-
-export interface UpdateAPIData extends Partial<CreateAPIData> {
-  status?: 'draft' | 'published' | 'deprecated' | 'suspended'
-}
+// 重新导出类型以保持向后兼容
+export type { API, APIListParams, CreateAPIData, UpdateAPIData }
 
 export class APIService {
-  static async list(
-    params?: APIListParams,
-    config?: RequestConfig
-  ): Promise<PaginatedResponse<API>> {
-    const response = (await apiClient.get<API[]>(API_ENDPOINTS.APIS.LIST, {
-      ...config,
-      params: {
-        page: 1,
-        page_size: 20,
-        ...params,
-      },
-    })) as PaginatedResponse<API>
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to fetch APIs')
+  /**
+   * 获取API列表
+   */
+  static async list(params?: APIListParams): Promise<PaginatedResponse<API>> {
+    // 处理数组参数的序列化
+    const processedParams: Record<string, string | number | boolean> = {
+      page: 1,
+      page_size: 20,
     }
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          if (Array.isArray(value)) {
+            // 将数组转换为逗号分隔的字符串
+            processedParams[key] = value.join(',')
+          } else {
+            processedParams[key] = value
+          }
+        }
+      })
+    }
+
+    const response = (await apiClient.get<API[]>(API_ENDPOINTS.APIS.LIST, {
+      params: processedParams,
+    })) as PaginatedResponse<API>
 
     return response
   }
 
-  static async get(id: string, config?: RequestConfig): Promise<API> {
-    const response = await apiClient.get<API>(API_ENDPOINTS.APIS.DETAIL(id), config)
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to fetch API details')
-    }
-
-    return response.data
+  /**
+   * 获取API详情
+   */
+  static async get(id: string): Promise<ApiResponse<API>> {
+    const response = await apiClient.get<API>(API_ENDPOINTS.APIS.DETAIL(id))
+    return response
   }
 
-  static async create(data: CreateAPIData): Promise<API> {
+  /**
+   * 创建API
+   */
+  static async create(data: CreateAPIData): Promise<ApiResponse<API>> {
     const response = await apiClient.post<API>(API_ENDPOINTS.APIS.CREATE, data)
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to create API')
-    }
-
-    return response.data
+    return response
   }
 
-  static async update(id: string, data: UpdateAPIData): Promise<API> {
+  /**
+   * 更新API
+   */
+  static async update(id: string, data: UpdateAPIData): Promise<ApiResponse<API>> {
     const response = await apiClient.patch<API>(API_ENDPOINTS.APIS.UPDATE(id), data)
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to update API')
-    }
-
-    return response.data
+    return response
   }
 
-  static async delete(id: string): Promise<void> {
-    const response = await apiClient.delete(API_ENDPOINTS.APIS.DELETE(id))
-
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to delete API')
-    }
+  /**
+   * 删除API
+   */
+  static async delete(id: string): Promise<ApiResponse<null>> {
+    const response = (await apiClient.delete(API_ENDPOINTS.APIS.DELETE(id))) as ApiResponse<null>
+    return response
   }
 
-  static async getAPIs(params?: APIListParams): Promise<PaginatedResponse<API>> {
-    return this.list({
-      ...params,
-      status: 'published',
-      is_public: true,
-    })
-  }
-
+  /**
+   * 获取市场API列表（公开且已发布）
+   */
   static async getMarketAPIs(params?: APIListParams): Promise<PaginatedResponse<API>> {
     return this.list({
       ...params,
@@ -144,8 +86,11 @@ export class APIService {
     })
   }
 
+  /**
+   * 获取用户的API列表
+   */
   static async getUserAPIs(
-    userId: string,
+    userId?: string,
     params?: APIListParams
   ): Promise<PaginatedResponse<API>> {
     return this.list({
@@ -154,6 +99,9 @@ export class APIService {
     })
   }
 
+  /**
+   * 搜索API
+   */
   static async searchAPIs(
     query: string,
     params?: Omit<APIListParams, 'search'>
@@ -161,40 +109,58 @@ export class APIService {
     return this.list({
       ...params,
       search: query,
+      status: 'published',
+      is_public: true,
     })
   }
 
+  /**
+   * 根据分类获取API
+   */
   static async getAPIsByCategory(
     category: string,
     params?: Omit<APIListParams, 'category'>
   ): Promise<PaginatedResponse<API>> {
     return this.list({
       ...params,
-      category,
+      category: category as any, // 临时类型断言
+      status: 'published',
+      is_public: true,
     })
   }
 
+  /**
+   * 获取热门API
+   */
   static async getPopularAPIs(params?: APIListParams): Promise<PaginatedResponse<API>> {
     return this.list({
       ...params,
       sort_by: 'total_calls',
       sort_order: 'desc',
+      status: 'published',
+      is_public: true,
     })
   }
 
+  /**
+   * 获取最新API
+   */
   static async getLatestAPIs(params?: APIListParams): Promise<PaginatedResponse<API>> {
     return this.list({
       ...params,
       sort_by: 'created_at',
       sort_order: 'desc',
+      status: 'published',
+      is_public: true,
     })
   }
 
-  static async getMarketAPIDetailBySlug(
-    slug: string
-  ): Promise<{ success: boolean; data: API; message?: string }> {
+  /**
+   * 根据slug获取市场API详情
+   */
+  static async getMarketAPIDetailBySlug(slug: string): Promise<ApiResponse<API>> {
     try {
-      // 搜索匹配的 API
+      // 首先尝试搜索匹配的API
       const response = await this.getMarketAPIs({
         search: slug,
         page: 1,
@@ -204,7 +170,7 @@ export class APIService {
       const targetApi = response.data.find((api) => api.slug === slug)
 
       if (!targetApi) {
-        // 如果搜索没找到，尝试获取更多数据
+        // 如果搜索没找到，尝试分页获取更多数据
         let currentPage = 1
         const maxPages = 5
 
@@ -218,8 +184,9 @@ export class APIService {
           if (foundApi) {
             return {
               success: true,
-              data: foundApi,
+              code: 'SUCCESS',
               message: 'API详情获取成功',
+              data: foundApi,
             }
           }
 
@@ -232,12 +199,12 @@ export class APIService {
 
       return {
         success: true,
-        data: targetApi,
+        code: 'SUCCESS',
         message: 'API详情获取成功',
+        data: targetApi,
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '获取API详情失败，请稍后重试'
-      throw new Error(errorMessage)
+    } catch (error) {
+      throw error
     }
   }
 }

@@ -1,23 +1,24 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useAtom } from 'jotai'
-import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/config/firebase'
-
+import { authLoadingAtom, setAuthLoadingAtom, setAuthModalAtom } from '@/atoms/auth'
+import { useTranslation } from '@/components/providers/LanguageProvider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import GoogleAuthButton from './GoogleAuthButton'
-import { setAuthModalAtom, authLoadingAtom, setAuthLoadingAtom } from '@/atoms/auth'
 import { useToast } from '@/components/ui/toast'
+import { auth } from '@/config/firebase'
 import type { EmailFormData, FirebaseAuthError } from '@/types/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { useAtom } from 'jotai'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import GoogleAuthButton from './GoogleAuthButton'
 
-// 表单验证 Schema
-const emailSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-})
+// 表单验证 Schema - 使用函数获取翻译
+const createEmailSchema = (t: (key: string) => string) =>
+  z.object({
+    email: z.email(t('auth.validEmailRequired')),
+  })
 
 /**
  * 邮箱输入步骤组件
@@ -27,13 +28,14 @@ export function EmailStep() {
   const [isLoading] = useAtom(authLoadingAtom)
   const [, setLoading] = useAtom(setAuthLoadingAtom)
   const toast = useToast()
+  const { t } = useTranslation()
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<EmailFormData>({
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(createEmailSchema(t)),
   })
 
   // Google 登录成功处理
@@ -65,12 +67,12 @@ export function EmailStep() {
           email: data.email,
         })
       } else if (firebaseError.code === 'auth/invalid-email') {
-        toast.error('邮箱格式不正确')
+        toast.error(t('auth.invalidEmailFormat'))
       } else if (firebaseError.code === 'auth/user-disabled') {
-        toast.error('该账户已被禁用')
+        toast.error(t('auth.accountDisabled'))
       } else {
         console.error('Email check error:', error)
-        toast.error('检查邮箱时出现错误，请重试')
+        toast.error(t('auth.emailCheckError'))
       }
     } finally {
       setLoading(false)
@@ -92,7 +94,7 @@ export function EmailStep() {
           <span className='w-full border-t' />
         </div>
         <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-background px-2 text-muted-foreground'>or</span>
+          <span className='bg-background px-2 text-muted-foreground'>{t('common.or')}</span>
         </div>
       </div>
 
@@ -102,7 +104,7 @@ export function EmailStep() {
           <Input
             {...register('email')}
             type='email'
-            placeholder='Email'
+            placeholder={t('auth.emailPlaceholder')}
             className='h-12 text-base'
             disabled={isLoading || isSubmitting}
           />
@@ -114,7 +116,7 @@ export function EmailStep() {
           disabled={isLoading || isSubmitting}
           className='w-full h-12 text-base font-medium bg-black text-white hover:bg-gray-800'
         >
-          Continue with Email
+          {t('auth.continueWithEmail')}
         </Button>
       </form>
     </div>

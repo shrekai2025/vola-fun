@@ -13,8 +13,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 }
 
 // Legacy hook for backwards compatibility - redirects to useI18n
-export function useTranslation() {
-  const { t, i18n } = useI18nextTranslation('common')
+export function useTranslation(namespace: string = 'common') {
+  const { t, i18n } = useI18nextTranslation(namespace)
 
   const changeLanguage = (lang: SupportedLanguage) => {
     i18n.changeLanguage(lang)

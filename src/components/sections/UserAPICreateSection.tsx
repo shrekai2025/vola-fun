@@ -1,20 +1,21 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { useTranslation } from '@/components/providers/LanguageProvider'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { InlineLoading } from '@/components/ui/loading'
 import { useToast } from '@/components/ui/toast'
-import { dataManager } from '@/lib/data-manager'
 import { APIService, CreateAPIData } from '@/lib/api'
-import { ArrowLeft, Save, Plus, X } from 'lucide-react'
+import { dataManager } from '@/lib/data-manager'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowLeft, Plus, Save, X } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 // 表单验证模式 - 使用函数获取翻译
 const createUserAPISchema = (t: (key: string) => string) =>
@@ -163,7 +164,7 @@ export default function UserAPICreateSection() {
 
         // 延迟跳转，确保Toast显示完成
         setTimeout(() => {
-          router.push('/api-provider')
+          router.push('/apis')
         }, 800)
       } catch (error: unknown) {
         console.error('发布API失败:', error)
@@ -183,7 +184,7 @@ export default function UserAPICreateSection() {
       <div className='mb-8'>
         <div className='flex items-center gap-4 mb-4'>
           <Button variant='ghost' size='sm' asChild>
-            <Link href='/api-provider' className='flex items-center gap-2'>
+            <Link href='/apis' className='flex items-center gap-2'>
               <ArrowLeft className='w-4 h-4' />
               {t('endpoints.backToList')}
             </Link>
@@ -456,12 +457,12 @@ export default function UserAPICreateSection() {
         {/* 提交按钮 */}
         <div className='flex items-center justify-end gap-4'>
           <Button type='button' variant='outline' asChild>
-            <Link href='/api-provider'>{t('apiProvider.create.cancel')}</Link>
+            <Link href='/apis'>{t('apiProvider.create.cancel')}</Link>
           </Button>
           <Button type='submit' disabled={submitting} className='flex items-center gap-2'>
             {submitting ? (
               <>
-                <div className='w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin' />
+                <InlineLoading size='sm' />
                 {t('apiProvider.create.publishing')}
               </>
             ) : (

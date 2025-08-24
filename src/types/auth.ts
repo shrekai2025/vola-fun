@@ -1,56 +1,24 @@
-// 认证相关类型定义
+/**
+ * 认证相关类型定义（兼容性文件）
+ * 重新导出新的API类型，保持向后兼容性
+ */
 
-// Firebase 用户信息
-export interface FirebaseUser {
-  uid: string
-  email: string | null
-  displayName: string | null
-  photoURL: string | null
-  emailVerified: boolean
-}
+// 导入新的类型
+export type {
+  TokenData,
+  LoginResponse,
+  RefreshTokenResponse,
+  SignupData,
+  FirebaseUser,
+  AuthErrorCode,
+  AuthState,
+} from './api/auth'
 
-// JWT Token 数据
-export interface TokenData {
-  access_token: string
-  refresh_token: string
-  token_type: 'bearer'
-}
+export type { ApiResponse } from './api/common'
+export type { User } from './api/user'
 
-// API 响应基础结构
-export interface ApiResponse<T = unknown> {
-  success: boolean
-  code: string
-  message: string
-  data: T
-}
-
-// 登录API响应
-export type LoginResponse = ApiResponse<TokenData>
-
-// 刷新Token API响应
-export type RefreshTokenResponse = ApiResponse<TokenData>
-
-// 登出API响应
-export type LogoutResponse = ApiResponse<null>
-
-// 用户状态
-export interface User {
-  id: string
-  email: string
-  name?: string
-  credits: number
-  subscription?: 'free' | 'pro'
-  apiKeys: ApiKey[]
-}
-
-// API密钥
-export interface ApiKey {
-  id: string
-  key: string
-  name: string
-  createdAt: string
-  isActive: boolean
-}
+// 保留旧接口的兼容性定义
+export type LogoutResponse = import('./api/common').ApiResponse<null>
 
 // 认证弹窗状态
 export type AuthModalStep = 'email' | 'login' | 'signup'
@@ -77,7 +45,7 @@ export interface SignupFormData {
   confirmPassword: string
 }
 
-// Firebase 错误代码
+// Firebase 错误代码（向后兼容）
 export type FirebaseAuthErrorCode =
   | 'auth/user-not-found'
   | 'auth/wrong-password'
@@ -117,4 +85,23 @@ export interface StoredTokens {
   accessToken: string
   refreshToken: string
   tokenType: string
+}
+
+// 保留旧的用户接口，但推荐使用新的 User 类型
+export interface LegacyUser {
+  id: string
+  email: string
+  name?: string
+  credits: number
+  subscription?: 'free' | 'pro'
+  apiKeys: LegacyApiKey[]
+}
+
+// 保留旧的ApiKey接口
+export interface LegacyApiKey {
+  id: string
+  key: string
+  name: string
+  createdAt: string
+  isActive: boolean
 }

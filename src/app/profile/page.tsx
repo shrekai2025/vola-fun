@@ -1,19 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/components/providers/LanguageProvider'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { LanguageSelector } from '@/components/ui/language-selector'
+import { Loading } from '@/components/ui/loading'
+import { ThemeToggleWithLabel } from '@/components/ui/theme-toggle'
+import { useUserCache } from '@/hooks/data'
 import { AuthService } from '@/lib/api'
 import { FirebaseAuthService } from '@/services/firebase-auth'
-import { useUserCache } from '@/hooks/useUserCache'
 import { User } from '@/types'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { ThemeToggleWithLabel } from '@/components/ui/theme-toggle'
-import { LanguageSelector } from '@/components/ui/language-selector'
-import { useTranslation } from '@/components/providers/LanguageProvider'
 import { LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 // 模拟API调用记录数据
 const mockCallLogs = [
@@ -35,8 +36,12 @@ export default function ProfilePage() {
     const fetchUserInfo = async () => {
       try {
         setLoading(true)
-        const userInfo = await AuthService.getCurrentUser()
-        setUser(userInfo)
+        const response = await AuthService.getCurrentUser()
+        if (response.success && response.data) {
+          setUser(response.data)
+        } else {
+          throw new Error(response.message || 'Failed to get user info')
+        }
       } catch (err: unknown) {
         console.error('获取用户信息失败:', err)
         setError(err instanceof Error ? err.message : 'Failed to fetch user info')
@@ -84,13 +89,14 @@ export default function ProfilePage() {
     return (
       <div className='container mx-auto px-4 py-8'>
         <div className='max-w-4xl mx-auto'>
-          <div className='animate-pulse'>
-            <div className='h-8 bg-muted rounded w-1/4 mb-6' />
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-              <div className='h-64 bg-muted rounded' />
-              <div className='h-64 bg-muted rounded' />
-            </div>
-          </div>
+          <Loading
+            variant='skeleton'
+            skeleton={{
+              rows: 3,
+              cols: 1,
+              showTitle: true,
+            }}
+          />
         </div>
       </div>
     )
@@ -117,7 +123,7 @@ export default function ProfilePage() {
     <div className='container mx-auto px-4 py-8'>
       <div className='max-w-6xl mx-auto'>
         <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-3xl font-bold text-foreground'>Profile</h1>
+          <h1 className='text-3xl font-bold text-foreground'>{t('profile.title')}</h1>
           <div className='flex items-center space-x-2'>
             <LanguageSelector variant='outline' size='sm' showLabel />
             <ThemeToggleWithLabel variant='outline' size='sm' />
@@ -129,7 +135,7 @@ export default function ProfilePage() {
               className='flex items-center gap-2'
             >
               <LogOut className='h-4 w-4' />
-              {logoutLoading ? 'Logging out...' : 'Log out'}
+              {logoutLoading ? t('profile.loggingOut') : t('profile.logOut')}
             </Button>
           </div>
         </div>
@@ -154,16 +160,18 @@ export default function ProfilePage() {
                   </h2>
                   <div className='space-y-1'>
                     <div className='flex items-center space-x-2 text-muted-foreground'>
-                      <span className='text-sm'>Email</span>
+                      <span className='text-sm'>{t('profile.email')}</span>
                       <span className='text-foreground'>{user?.email || 'a2424234@gmail.com'}</span>
                     </div>
                     <div className='flex items-center space-x-2 text-muted-foreground'>
-                      <span className='text-sm'>Plan</span>
+                      <span className='text-sm'>{t('profile.plan')}</span>
                       <Badge variant='secondary' className='bg-muted text-foreground'>
-                        {user?.plan === 'basic' ? 'Free' : user?.plan || 'Free'}
+                        {user?.plan === 'basic'
+                          ? t('profile.planFree')
+                          : user?.plan || t('profile.planFree')}
                       </Badge>
                       <Button variant='outline' size='sm' className='ml-2 h-6 px-2 text-xs'>
-                        Manage Subscription
+                        {t('profile.manageSubscription')}
                       </Button>
                     </div>
                   </div>
@@ -177,11 +185,13 @@ export default function ProfilePage() {
             <CardContent className='px-6'>
               <div className='grid grid-cols-2 gap-6'>
                 <div>
-                  <p className='text-muted-foreground text-sm mb-1'>Remaining Credit</p>
+                  <p className='text-muted-foreground text-sm mb-1'>
+                    {t('profile.remainingCredit')}
+                  </p>
                   <p className='text-2xl font-semibold text-foreground'>1,245</p>
                 </div>
                 <div>
-                  <p className='text-muted-foreground text-sm mb-1'>Extra Credit</p>
+                  <p className='text-muted-foreground text-sm mb-1'>{t('profile.extraCredit')}</p>
                   <p className='text-2xl font-semibold text-foreground'>1,245</p>
                 </div>
               </div>
@@ -191,7 +201,7 @@ export default function ProfilePage() {
           {/* Call log卡片 */}
           <Card>
             <CardHeader>
-              <CardTitle>Call log</CardTitle>
+              <CardTitle>{t('profile.callLog')}</CardTitle>
             </CardHeader>
             <CardContent className='py-4'>
               <div className='overflow-x-auto'>
@@ -199,16 +209,16 @@ export default function ProfilePage() {
                   <thead>
                     <tr className='border-b border-border'>
                       <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
-                        Date
+                        {t('profile.callLogHeaders.date')}
                       </th>
                       <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
-                        API Name
+                        {t('profile.callLogHeaders.apiName')}
                       </th>
                       <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
-                        Result
+                        {t('profile.callLogHeaders.result')}
                       </th>
                       <th className='text-left py-3 text-sm font-medium text-muted-foreground'>
-                        Cost
+                        {t('profile.callLogHeaders.cost')}
                       </th>
                     </tr>
                   </thead>

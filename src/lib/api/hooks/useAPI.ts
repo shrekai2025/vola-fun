@@ -14,8 +14,8 @@ export function useAPI(id?: string) {
     setError(null)
 
     try {
-      const data = await APIService.get(id)
-      setAPI(data)
+      const response = await APIService.get(id)
+      setAPI(response.data)
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch API'))
     } finally {
@@ -43,8 +43,8 @@ export function useAPIs(params?: APIListParams) {
       setError(null)
 
       try {
-        const data = await APIService.list(newParams || params)
-        setAPIs(data)
+        const response = await APIService.list(newParams || params)
+        setAPIs(response)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch APIs'))
       } finally {

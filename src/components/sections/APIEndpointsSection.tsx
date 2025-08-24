@@ -1,24 +1,26 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from '@/components/providers/LanguageProvider'
+import { useTheme } from '@/components/providers/ThemeProvider'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { InlineLoading, Loading } from '@/components/ui/loading'
+import { useToast } from '@/components/ui/toast'
+import {
+  APIService,
+  EndpointService,
+  type API,
+  type APIEndpoint,
+  type CreateEndpointData,
+  type UpdateEndpointData,
+} from '@/lib/api'
+import { ArrowLeft, ChevronDown, ChevronRight, Edit, Plus, Save, Trash2, X } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useTheme } from '@/components/providers/ThemeProvider'
-import { useTranslation } from '@/components/providers/LanguageProvider'
-import { useToast } from '@/components/ui/toast'
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import {
-  EndpointService,
-  APIService,
-  type APIEndpoint,
-  type UpdateEndpointData,
-  type API,
-} from '@/lib/api'
-import { ArrowLeft, Plus, ChevronDown, ChevronRight, Edit, Trash2, Save, X } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface APIEndpointsSectionProps {
   apiId: string
@@ -38,68 +40,6 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
   const { t } = useTranslation()
   const toast = useToast()
   const router = useRouter()
-
-  // 稳定化翻译对象
-  const translations = useMemo(
-    () => ({
-      dataFormatError: t('endpoints.dataFormatError'),
-      refreshSuccess: t('endpoints.refreshSuccess'),
-      generalLoadFailed: t('endpoints.generalLoadFailed'),
-      deleteConfirmMessage: t('endpoints.deleteConfirmMessage'),
-      deleteSuccess: t('endpoints.deleteSuccess'),
-      deleteFailed: t('endpoints.deleteFailed'),
-      loading: t('endpoints.loading'),
-      apiNotFound: t('endpoints.apiNotFound'),
-      backToList: t('endpoints.backToList'),
-      title: t('endpoints.title'),
-      description: t('endpoints.description'),
-      createNew: t('endpoints.createNew'),
-      endpointLoadFailed: t('endpoints.endpointLoadFailed'),
-      noEndpoints: t('endpoints.noEndpoints'),
-      firstEndpoint: t('endpoints.firstEndpoint'),
-      retryEndpoints: t('endpoints.retryEndpoints'),
-      refreshAndRetry: t('endpoints.refreshAndRetry'),
-      createSuccess: t('endpoints.createSuccess'),
-      createFailed: t('endpoints.createFailed'),
-      updateSuccess: t('endpoints.updateSuccess'),
-      updateFailed: t('endpoints.updateFailed'),
-      active: t('endpoints.active'),
-      inactive: t('endpoints.inactive'),
-      basicInfo: t('endpoints.basicInfo'),
-      endpointName: t('endpoints.endpointName'),
-      endpointDescription: t('endpoints.endpointDescription'),
-      type: t('endpoints.type'),
-      pricePerCall: t('endpoints.pricePerCall'),
-      statisticsInfo: t('endpoints.statisticsInfo'),
-      totalCalls: t('endpoints.totalCalls'),
-      successRate: t('endpoints.successRate'),
-      avgResponseTime: t('endpoints.avgResponseTime'),
-      requestParams: t('endpoints.requestParams'),
-      headersLabel: t('endpoints.headersLabel'),
-      queryParamsLabel: t('endpoints.queryParamsLabel'),
-      bodyParamsLabel: t('endpoints.bodyParamsLabel'),
-      none: t('endpoints.none'),
-      edit: t('endpoints.edit'),
-      delete: t('endpoints.delete'),
-      deleting: t('endpoints.deleting'),
-      nameLabel: t('endpoints.nameLabel'),
-      pathLabel: t('endpoints.pathLabel'),
-      methodLabel: t('endpoints.methodLabel'),
-      typeLabel: t('endpoints.typeLabel'),
-      priceLabel: t('endpoints.priceLabel'),
-      descriptionLabel: t('endpoints.descriptionLabel'),
-      responseBodyLabel: t('endpoints.responseBodyLabel'),
-      endpointNamePlaceholder: t('endpoints.endpointNamePlaceholder'),
-      endpointPathPlaceholder: t('endpoints.endpointPathPlaceholder'),
-      endpointDescPlaceholder: t('endpoints.endpointDescPlaceholder'),
-      jsonFormatNote: t('endpoints.jsonFormatNote'),
-      saving: t('endpoints.saving'),
-      save: t('endpoints.save'),
-      cancel: t('endpoints.cancel'),
-      // Add other translations as needed
-    }),
-    [t]
-  )
 
   // 获取HTTP方法的样式
   const getMethodStyle = useCallback((method: string) => {
@@ -146,8 +86,12 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       setLoading(true)
 
       // 先加载API信息
-      const apiData = await APIService.get(apiId)
-      setApi(apiData)
+      const apiResponse = await APIService.get(apiId)
+      if (apiResponse.success && apiResponse.data) {
+        setApi(apiResponse.data)
+      } else {
+        throw new Error(apiResponse.message || 'Failed to load API')
+      }
 
       // 然后尝试加载端点列表，如果失败则继续，只是设置空数组
       try {
@@ -164,11 +108,13 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
             endpointsError.message.includes('invalid response format'))
 
         const errorMessage =
-          endpointsError instanceof Error ? endpointsError.message : translations.generalLoadFailed
+          endpointsError instanceof Error
+            ? endpointsError.message
+            : t('endpoints.generalLoadFailed')
 
         if (isValidationError) {
-          setEndpointsError(translations.dataFormatError)
-          toast.error(translations.dataFormatError)
+          setEndpointsError(t('endpoints.dataFormatError'))
+          toast.error(t('endpoints.dataFormatError'))
           console.error('端点数据格式验证失败，这可能是由于后端数据格式不兼容导致的')
         } else {
           // 其他错误则显示通用错误信息
@@ -184,7 +130,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       const errorMessage = error instanceof Error ? error.message : '加载失败'
       toast.error(errorMessage)
       // 只有API信息也加载失败时才返回列表页
-      router.push('/api-provider')
+      router.push('/apis')
     } finally {
       setLoading(false)
     }
@@ -197,14 +143,14 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       const endpointsResponse = await EndpointService.list(apiId)
       setEndpoints(endpointsResponse.data || [])
       setEndpointsError(null)
-      toast.success(translations.refreshSuccess)
+      toast.success(t('endpoints.refreshSuccess'))
     } catch (error: unknown) {
       console.error('重新加载端点失败:', error)
-      const errorMessage = error instanceof Error ? error.message : translations.generalLoadFailed
+      const errorMessage = error instanceof Error ? error.message : t('endpoints.generalLoadFailed')
       setEndpointsError(errorMessage)
       toast.error(errorMessage)
     }
-  }, [apiId, toast, translations])
+  }, [apiId, toast, t])
 
   // 切换端点展开/收起状态
   const toggleEndpoint = useCallback((endpointId: string) => {
@@ -234,7 +180,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
   // 删除端点
   const handleDeleteEndpoint = useCallback(
     async (endpointId: string, endpointName: string) => {
-      if (!confirm(`${translations.deleteConfirmMessage}\n端点: ${endpointName}`)) {
+      if (!confirm(`${t('endpoints.deleteConfirmMessage')}\n端点: ${endpointName}`)) {
         return
       }
 
@@ -250,17 +196,17 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
           return newSet
         })
 
-        toast.success(translations.deleteSuccess)
+        toast.success(t('endpoints.deleteSuccess'))
       } catch (error: unknown) {
         console.error('删除端点失败:', error)
-        const errorMessage = error instanceof Error ? error.message : translations.deleteFailed
+        const errorMessage = error instanceof Error ? error.message : t('endpoints.deleteFailed')
         toast.error(errorMessage)
       } finally {
         setDeletingEndpoint(null)
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [apiId, translations]
+    [apiId, t]
   ) // 移除toast依赖避免无限循环
 
   useEffect(() => {
@@ -271,10 +217,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
     return (
       <div className='container mx-auto px-4 py-8'>
         <div className='flex items-center justify-center min-h-[400px]'>
-          <div className='text-center'>
-            <div className='w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4' />
-            <p className='text-muted-foreground'>{translations.loading}</p>
-          </div>
+          <Loading text={t('endpoints.loading')} />
         </div>
       </div>
     )
@@ -285,9 +228,9 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       <div className='container mx-auto px-4 py-8'>
         <div className='flex items-center justify-center min-h-[400px]'>
           <div className='text-center'>
-            <p className='text-muted-foreground mb-4'>{translations.apiNotFound}</p>
+            <p className='text-muted-foreground mb-4'>{t('endpoints.apiNotFound')}</p>
             <Button asChild>
-              <Link href='/api-provider'>{translations.backToList}</Link>
+              <Link href='/apis'>{t('endpoints.backToList')}</Link>
             </Button>
           </div>
         </div>
@@ -301,22 +244,22 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
       <div className='mb-8'>
         <div className='flex items-center gap-4 mb-4'>
           <Button variant='ghost' size='sm' asChild>
-            <Link href='/api-provider' className='flex items-center gap-2'>
+            <Link href='/apis' className='flex items-center gap-2'>
               <ArrowLeft className='w-4 h-4' />
-              {translations.backToList}
+              {t('endpoints.backToList')}
             </Link>
           </Button>
         </div>
         <div className='flex items-center justify-between'>
           <div>
             <h1 className='text-3xl font-bold text-foreground mb-2'>
-              {api.name} - {translations.title}
+              {api.name} - {t('endpoints.title')}
             </h1>
-            <p className='text-muted-foreground'>{translations.description}</p>
+            <p className='text-muted-foreground'>{t('endpoints.description')}</p>
           </div>
           <Button onClick={() => setCreatingNew(true)} className='flex items-center gap-2'>
             <Plus className='w-4 h-4' />
-            {translations.createNew}
+            {t('endpoints.createNew')}
           </Button>
         </div>
       </div>
@@ -335,20 +278,20 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
             />
           </div>
           <h3 className='text-xl font-semibold text-foreground mb-2'>
-            {endpointsError ? translations.endpointLoadFailed : translations.noEndpoints}
+            {endpointsError ? t('endpoints.endpointLoadFailed') : t('endpoints.noEndpoints')}
           </h3>
           <p className='text-muted-foreground mb-4'>
             {endpointsError
               ? endpointsError
               : api
-                ? translations.firstEndpoint
+                ? t('endpoints.firstEndpoint')
                 : '如果您刚才遇到了加载错误，可以尝试刷新'}
           </p>
           <div className='flex gap-2'>
             {!endpointsError && (
               <Button onClick={() => setCreatingNew(true)} className='flex items-center gap-2'>
                 <Plus className='w-4 h-4' />
-                {translations.createNew}
+                {t('endpoints.createNew')}
               </Button>
             )}
             <Button
@@ -356,7 +299,7 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
               onClick={endpointsError ? retryEndpoints : loadData}
               className='flex items-center gap-2'
             >
-              {endpointsError ? translations.retryEndpoints : translations.refreshAndRetry}
+              {endpointsError ? t('endpoints.retryEndpoints') : t('endpoints.refreshAndRetry')}
             </Button>
           </div>
         </div>
@@ -369,13 +312,32 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
               isCreating={true}
               onSave={async (data) => {
                 try {
-                  const endpoint = await EndpointService.create(apiId, data)
-                  setEndpoints((prev) => [...prev, endpoint])
-                  setCreatingNew(false)
-                  toast.success(translations.createSuccess)
+                  // Convert UpdateEndpointData to CreateEndpointData for creation
+                  const createData: CreateEndpointData = {
+                    name: data.name || '',
+                    description: data.description || '',
+                    path: data.path || '',
+                    method: data.method || 'GET',
+                    endpoint_type: data.endpoint_type || 'rest',
+                    price_per_call: data.price_per_call || 0.01,
+                    headers: data.headers,
+                    query_params: data.query_params,
+                    body_params: data.body_params,
+                    response_params: data.response_params,
+                    graphql_query: data.graphql_query,
+                    is_active: data.is_active ?? true,
+                  }
+                  const response = await EndpointService.create(apiId, createData)
+                  if (response.success && response.data) {
+                    setEndpoints((prev) => [...prev, response.data])
+                    setCreatingNew(false)
+                    toast.success(t('endpoints.createSuccess'))
+                  } else {
+                    throw new Error(response.message || t('endpoints.createFailed'))
+                  }
                 } catch (error: unknown) {
                   const errorMessage =
-                    error instanceof Error ? error.message : translations.createFailed
+                    error instanceof Error ? error.message : t('endpoints.createFailed')
                   toast.error(errorMessage)
                 }
               }}
@@ -397,15 +359,19 @@ export default function APIEndpointsSection({ apiId }: APIEndpointsSectionProps)
               onCancelEdit={cancelEditing}
               onSave={async (data) => {
                 try {
-                  const updatedEndpoint = await EndpointService.update(apiId, endpoint.id, data)
-                  setEndpoints((prev) =>
-                    prev.map((ep) => (ep.id === endpoint.id ? updatedEndpoint : ep))
-                  )
-                  setEditingEndpoint(null)
-                  toast.success(translations.updateSuccess)
+                  const response = await EndpointService.update(apiId, endpoint.id, data)
+                  if (response.success && response.data) {
+                    setEndpoints((prev) =>
+                      prev.map((ep) => (ep.id === endpoint.id ? response.data : ep))
+                    )
+                    setEditingEndpoint(null)
+                    toast.success(t('endpoints.updateSuccess'))
+                  } else {
+                    throw new Error(response.message || t('endpoints.updateFailed'))
+                  }
                 } catch (error: unknown) {
                   const errorMessage =
-                    error instanceof Error ? error.message : translations.updateFailed
+                    error instanceof Error ? error.message : t('endpoints.updateFailed')
                   toast.error(errorMessage)
                 }
               }}
@@ -457,66 +423,6 @@ function EndpointItem({
   formatTime,
 }: EndpointItemProps) {
   const { t } = useTranslation()
-  const translations = useMemo(
-    () => ({
-      dataFormatError: t('endpoints.dataFormatError'),
-      refreshSuccess: t('endpoints.refreshSuccess'),
-      generalLoadFailed: t('endpoints.generalLoadFailed'),
-      deleteConfirmMessage: t('endpoints.deleteConfirmMessage'),
-      deleteSuccess: t('endpoints.deleteSuccess'),
-      deleteFailed: t('endpoints.deleteFailed'),
-      loading: t('endpoints.loading'),
-      apiNotFound: t('endpoints.apiNotFound'),
-      backToList: t('endpoints.backToList'),
-      title: t('endpoints.title'),
-      description: t('endpoints.description'),
-      createNew: t('endpoints.createNew'),
-      endpointLoadFailed: t('endpoints.endpointLoadFailed'),
-      noEndpoints: t('endpoints.noEndpoints'),
-      firstEndpoint: t('endpoints.firstEndpoint'),
-      retryEndpoints: t('endpoints.retryEndpoints'),
-      refreshAndRetry: t('endpoints.refreshAndRetry'),
-      createSuccess: t('endpoints.createSuccess'),
-      createFailed: t('endpoints.createFailed'),
-      updateSuccess: t('endpoints.updateSuccess'),
-      updateFailed: t('endpoints.updateFailed'),
-      active: t('endpoints.active'),
-      inactive: t('endpoints.inactive'),
-      basicInfo: t('endpoints.basicInfo'),
-      endpointName: t('endpoints.endpointName'),
-      endpointDescription: t('endpoints.endpointDescription'),
-      type: t('endpoints.type'),
-      pricePerCall: t('endpoints.pricePerCall'),
-      statisticsInfo: t('endpoints.statisticsInfo'),
-      totalCalls: t('endpoints.totalCalls'),
-      successRate: t('endpoints.successRate'),
-      avgResponseTime: t('endpoints.avgResponseTime'),
-      requestParams: t('endpoints.requestParams'),
-      headersLabel: t('endpoints.headersLabel'),
-      queryParamsLabel: t('endpoints.queryParamsLabel'),
-      bodyParamsLabel: t('endpoints.bodyParamsLabel'),
-      none: t('endpoints.none'),
-      edit: t('endpoints.edit'),
-      delete: t('endpoints.delete'),
-      deleting: t('endpoints.deleting'),
-      nameLabel: t('endpoints.nameLabel'),
-      pathLabel: t('endpoints.pathLabel'),
-      methodLabel: t('endpoints.methodLabel'),
-      typeLabel: t('endpoints.typeLabel'),
-      priceLabel: t('endpoints.priceLabel'),
-      descriptionLabel: t('endpoints.descriptionLabel'),
-      responseBodyLabel: t('endpoints.responseBodyLabel'),
-      endpointNamePlaceholder: t('endpoints.endpointNamePlaceholder'),
-      endpointPathPlaceholder: t('endpoints.endpointPathPlaceholder'),
-      endpointDescPlaceholder: t('endpoints.endpointDescPlaceholder'),
-      jsonFormatNote: t('endpoints.jsonFormatNote'),
-      saving: t('endpoints.saving'),
-      save: t('endpoints.save'),
-      cancel: t('endpoints.cancel'),
-      // Add other translations as needed
-    }),
-    [t]
-  )
 
   if (editing) {
     return (
@@ -553,7 +459,7 @@ function EndpointItem({
               {formatNumber(endpoint.total_calls)} calls • {formatPercentage(endpoint.success_rate)}
             </div>
             <Badge variant={endpoint.is_active ? 'default' : 'secondary'} className='text-xs'>
-              {endpoint.is_active ? translations.active : translations.inactive}
+              {endpoint.is_active ? t('endpoints.active') : t('endpoints.inactive')}
             </Badge>
           </div>
         </div>
@@ -565,44 +471,44 @@ function EndpointItem({
             {/* 基本信息 */}
             <div className='grid md:grid-cols-2 gap-6'>
               <div>
-                <h4 className='font-medium mb-3'>{translations.basicInfo}</h4>
+                <h4 className='font-medium mb-3'>{t('endpoints.basicInfo')}</h4>
                 <div className='space-y-2 text-sm'>
                   <div className='flex justify-between'>
-                    <span className='text-muted-foreground'>{translations.endpointName}:</span>
+                    <span className='text-muted-foreground'>{t('endpoints.endpointName')}:</span>
                     <span>{endpoint.name}</span>
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-muted-foreground'>
-                      {translations.endpointDescription}:
+                      {t('endpoints.endpointDescription')}:
                     </span>
                     <span>{endpoint.description || '-'}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-muted-foreground'>{translations.type}:</span>
+                    <span className='text-muted-foreground'>{t('endpoints.type')}:</span>
                     <Badge variant='outline' className='text-xs'>
                       {endpoint.endpoint_type}
                     </Badge>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-muted-foreground'>{translations.pricePerCall}:</span>
+                    <span className='text-muted-foreground'>{t('endpoints.pricePerCall')}:</span>
                     <span>${endpoint.price_per_call}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className='font-medium mb-3'>{translations.statisticsInfo}</h4>
+                <h4 className='font-medium mb-3'>{t('endpoints.statisticsInfo')}</h4>
                 <div className='space-y-2 text-sm'>
                   <div className='flex justify-between'>
-                    <span className='text-muted-foreground'>{translations.totalCalls}:</span>
+                    <span className='text-muted-foreground'>{t('endpoints.totalCalls')}:</span>
                     <span>{formatNumber(endpoint.total_calls)}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-muted-foreground'>{translations.successRate}:</span>
+                    <span className='text-muted-foreground'>{t('endpoints.successRate')}:</span>
                     <span>{formatPercentage(endpoint.success_rate)}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-muted-foreground'>{translations.avgResponseTime}:</span>
+                    <span className='text-muted-foreground'>{t('endpoints.avgResponseTime')}:</span>
                     <span>{formatTime(endpoint.avg_response_time)}</span>
                   </div>
                 </div>
@@ -611,16 +517,16 @@ function EndpointItem({
 
             {/* 请求参数 */}
             <div>
-              <h4 className='font-medium mb-3'>{translations.requestParams}</h4>
+              <h4 className='font-medium mb-3'>{t('endpoints.requestParams')}</h4>
               <div className='grid gap-4'>
                 {/* Headers */}
                 <div>
                   <h5 className='text-sm font-medium text-muted-foreground mb-2'>
-                    {translations.headersLabel}
+                    {t('endpoints.headersLabel')}
                   </h5>
                   <div className='bg-muted/30 rounded-md p-3'>
                     {Object.keys(endpoint.headers || {}).length === 0 ? (
-                      <span className='text-sm text-muted-foreground'>{translations.none}</span>
+                      <span className='text-sm text-muted-foreground'>{t('endpoints.none')}</span>
                     ) : (
                       <pre className='text-xs overflow-auto max-h-32'>
                         {JSON.stringify(endpoint.headers, null, 2)}
@@ -632,11 +538,11 @@ function EndpointItem({
                 {/* Query Parameters */}
                 <div>
                   <h5 className='text-sm font-medium text-muted-foreground mb-2'>
-                    {translations.queryParamsLabel}
+                    {t('endpoints.queryParamsLabel')}
                   </h5>
                   <div className='bg-muted/30 rounded-md p-3'>
                     {Object.keys(endpoint.query_params || {}).length === 0 ? (
-                      <span className='text-sm text-muted-foreground'>{translations.none}</span>
+                      <span className='text-sm text-muted-foreground'>{t('endpoints.none')}</span>
                     ) : (
                       <pre className='text-xs overflow-auto max-h-32'>
                         {JSON.stringify(endpoint.query_params, null, 2)}
@@ -648,11 +554,11 @@ function EndpointItem({
                 {/* Body Parameters */}
                 <div>
                   <h5 className='text-sm font-medium text-muted-foreground mb-2'>
-                    {translations.bodyParamsLabel}
+                    {t('endpoints.bodyParamsLabel')}
                   </h5>
                   <div className='bg-muted/30 rounded-md p-3'>
                     {Object.keys(endpoint.body_params || {}).length === 0 ? (
-                      <span className='text-sm text-muted-foreground'>{translations.none}</span>
+                      <span className='text-sm text-muted-foreground'>{t('endpoints.none')}</span>
                     ) : (
                       <pre className='text-xs overflow-auto max-h-32'>
                         {JSON.stringify(endpoint.body_params, null, 2)}
@@ -672,7 +578,7 @@ function EndpointItem({
                 className='flex items-center gap-2'
               >
                 <Edit className='w-3 h-3' />
-                {translations.edit}
+                {t('endpoints.edit')}
               </Button>
               <Button
                 variant='ghost'
@@ -682,7 +588,7 @@ function EndpointItem({
                 className='flex items-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/10'
               >
                 <Trash2 className='w-3 h-3' />
-                {deleting ? translations.deleting : translations.delete}
+                {deleting ? t('endpoints.deleting') : t('endpoints.delete')}
               </Button>
             </div>
           </div>
@@ -697,7 +603,7 @@ interface EndpointFormProps {
   apiId: string
   endpoint?: APIEndpoint
   isCreating?: boolean
-  onSave: (data: Omit<APIEndpoint, 'id' | 'created_at' | 'updated_at'>) => Promise<void>
+  onSave: (data: UpdateEndpointData) => Promise<void>
   onCancel: () => void
 }
 
@@ -713,70 +619,13 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
     headers: endpoint?.headers ? JSON.stringify(endpoint.headers, null, 2) : '',
     query_params: endpoint?.query_params ? JSON.stringify(endpoint.query_params, null, 2) : '',
     body_params: endpoint?.body_params ? JSON.stringify(endpoint.body_params, null, 2) : '',
-    response_body: endpoint?.response_body ? JSON.stringify(endpoint.response_body, null, 2) : '',
+    response_body: endpoint?.response_params
+      ? JSON.stringify(endpoint.response_params, null, 2)
+      : '',
+    graphql_query: endpoint?.graphql_query || '',
   })
 
   const { t } = useTranslation()
-  const translations = useMemo(
-    () => ({
-      dataFormatError: t('endpoints.dataFormatError'),
-      refreshSuccess: t('endpoints.refreshSuccess'),
-      generalLoadFailed: t('endpoints.generalLoadFailed'),
-      deleteConfirmMessage: t('endpoints.deleteConfirmMessage'),
-      deleteSuccess: t('endpoints.deleteSuccess'),
-      deleteFailed: t('endpoints.deleteFailed'),
-      loading: t('endpoints.loading'),
-      apiNotFound: t('endpoints.apiNotFound'),
-      backToList: t('endpoints.backToList'),
-      title: t('endpoints.title'),
-      description: t('endpoints.description'),
-      createNew: t('endpoints.createNew'),
-      endpointLoadFailed: t('endpoints.endpointLoadFailed'),
-      noEndpoints: t('endpoints.noEndpoints'),
-      firstEndpoint: t('endpoints.firstEndpoint'),
-      retryEndpoints: t('endpoints.retryEndpoints'),
-      refreshAndRetry: t('endpoints.refreshAndRetry'),
-      createSuccess: t('endpoints.createSuccess'),
-      createFailed: t('endpoints.createFailed'),
-      updateSuccess: t('endpoints.updateSuccess'),
-      updateFailed: t('endpoints.updateFailed'),
-      active: t('endpoints.active'),
-      inactive: t('endpoints.inactive'),
-      basicInfo: t('endpoints.basicInfo'),
-      endpointName: t('endpoints.endpointName'),
-      endpointDescription: t('endpoints.endpointDescription'),
-      type: t('endpoints.type'),
-      pricePerCall: t('endpoints.pricePerCall'),
-      statisticsInfo: t('endpoints.statisticsInfo'),
-      totalCalls: t('endpoints.totalCalls'),
-      successRate: t('endpoints.successRate'),
-      avgResponseTime: t('endpoints.avgResponseTime'),
-      requestParams: t('endpoints.requestParams'),
-      headersLabel: t('endpoints.headersLabel'),
-      queryParamsLabel: t('endpoints.queryParamsLabel'),
-      bodyParamsLabel: t('endpoints.bodyParamsLabel'),
-      none: t('endpoints.none'),
-      edit: t('endpoints.edit'),
-      delete: t('endpoints.delete'),
-      deleting: t('endpoints.deleting'),
-      nameLabel: t('endpoints.nameLabel'),
-      pathLabel: t('endpoints.pathLabel'),
-      methodLabel: t('endpoints.methodLabel'),
-      typeLabel: t('endpoints.typeLabel'),
-      priceLabel: t('endpoints.priceLabel'),
-      descriptionLabel: t('endpoints.descriptionLabel'),
-      responseBodyLabel: t('endpoints.responseBodyLabel'),
-      endpointNamePlaceholder: t('endpoints.endpointNamePlaceholder'),
-      endpointPathPlaceholder: t('endpoints.endpointPathPlaceholder'),
-      endpointDescPlaceholder: t('endpoints.endpointDescPlaceholder'),
-      jsonFormatNote: t('endpoints.jsonFormatNote'),
-      saving: t('endpoints.saving'),
-      save: t('endpoints.save'),
-      cancel: t('endpoints.cancel'),
-      // Add other translations as needed
-    }),
-    [t]
-  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -793,8 +642,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
         }
       }
 
-      const data: Omit<APIEndpoint, 'id' | 'created_at' | 'updated_at'> = {
-        api_id: endpoint?.api_id || '',
+      const data: UpdateEndpointData = {
         name: formData.name,
         description: formData.description,
         path: formData.path,
@@ -804,12 +652,10 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
         headers: parseJsonSafely(formData.headers),
         query_params: parseJsonSafely(formData.query_params),
         body_params: parseJsonSafely(formData.body_params),
-        response_body: parseJsonSafely(formData.response_body),
-        // Add missing required fields with defaults
-        total_calls: endpoint?.total_calls || 0,
-        avg_response_time: endpoint?.avg_response_time || 0,
-        success_rate: endpoint?.success_rate || 0,
+        response_params: parseJsonSafely(formData.response_body),
         is_active: endpoint?.is_active ?? true,
+        // Handle GraphQL fields if needed
+        graphql_query: formData.graphql_query || undefined,
       }
 
       await onSave(data)
@@ -828,7 +674,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
     <Card className='border-dashed border-2'>
       <CardHeader>
         <CardTitle className='text-lg'>
-          {isCreating ? translations.createNew : `${translations.edit} - ${endpoint?.name}`}
+          {isCreating ? t('endpoints.createNew') : `${t('endpoints.edit')} - ${endpoint?.name}`}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -836,23 +682,23 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
           <div className='grid md:grid-cols-2 gap-6'>
             <div>
               <label className='block text-sm font-medium mb-2'>
-                {translations.nameLabel} <span className='text-destructive'>*</span>
+                {t('endpoints.nameLabel')} <span className='text-destructive'>*</span>
               </label>
               <Input
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                placeholder={translations.endpointNamePlaceholder}
+                placeholder={t('endpoints.endpointNamePlaceholder')}
                 required
               />
             </div>
             <div>
               <label className='block text-sm font-medium mb-2'>
-                {translations.pathLabel} <span className='text-destructive'>*</span>
+                {t('endpoints.pathLabel')} <span className='text-destructive'>*</span>
               </label>
               <Input
                 value={formData.path}
                 onChange={(e) => handleChange('path', e.target.value)}
-                placeholder={translations.endpointPathPlaceholder}
+                placeholder={t('endpoints.endpointPathPlaceholder')}
                 required
               />
             </div>
@@ -861,7 +707,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
           <div className='grid md:grid-cols-3 gap-6'>
             <div>
               <label className='block text-sm font-medium mb-2'>
-                {translations.methodLabel} <span className='text-destructive'>*</span>
+                {t('endpoints.methodLabel')} <span className='text-destructive'>*</span>
               </label>
               <select
                 value={formData.method}
@@ -877,7 +723,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               </select>
             </div>
             <div>
-              <label className='block text-sm font-medium mb-2'>{translations.typeLabel}</label>
+              <label className='block text-sm font-medium mb-2'>{t('endpoints.typeLabel')}</label>
               <select
                 value={formData.endpoint_type}
                 onChange={(e) => handleChange('endpoint_type', e.target.value)}
@@ -888,7 +734,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               </select>
             </div>
             <div>
-              <label className='block text-sm font-medium mb-2'>{translations.priceLabel}</label>
+              <label className='block text-sm font-medium mb-2'>{t('endpoints.priceLabel')}</label>
               <Input
                 type='number'
                 step='0.001'
@@ -901,19 +747,21 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
 
           <div>
             <label className='block text-sm font-medium mb-2'>
-              {translations.descriptionLabel}
+              {t('endpoints.descriptionLabel')}
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
               className='flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm'
-              placeholder={translations.endpointDescPlaceholder}
+              placeholder={t('endpoints.endpointDescPlaceholder')}
             />
           </div>
 
           <div className='grid md:grid-cols-3 gap-6'>
             <div>
-              <label className='block text-sm font-medium mb-2'>{translations.headersLabel}</label>
+              <label className='block text-sm font-medium mb-2'>
+                {t('endpoints.headersLabel')}
+              </label>
               <textarea
                 value={formData.headers}
                 onChange={(e) => handleChange('headers', e.target.value)}
@@ -923,7 +771,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
             </div>
             <div>
               <label className='block text-sm font-medium mb-2'>
-                {translations.queryParamsLabel}
+                {t('endpoints.queryParamsLabel')}
               </label>
               <textarea
                 value={formData.query_params}
@@ -934,7 +782,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
             </div>
             <div>
               <label className='block text-sm font-medium mb-2'>
-                {translations.bodyParamsLabel}
+                {t('endpoints.bodyParamsLabel')}
               </label>
               <textarea
                 value={formData.body_params}
@@ -947,7 +795,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
 
           <div>
             <label className='block text-sm font-medium mb-2'>
-              {translations.responseBodyLabel}
+              {t('endpoints.responseBodyLabel')}
             </label>
             <textarea
               value={formData.response_body}
@@ -955,20 +803,20 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               className='flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono'
               placeholder='{"success": true, "data": {"id": "123", "name": "example"}}'
             />
-            <p className='text-xs text-muted-foreground mt-1'>{translations.jsonFormatNote}</p>
+            <p className='text-xs text-muted-foreground mt-1'>{t('endpoints.jsonFormatNote')}</p>
           </div>
 
           <div className='flex items-center gap-4 pt-4 border-t border-border/50'>
             <Button type='submit' disabled={saving} className='flex items-center gap-2'>
               {saving ? (
                 <>
-                  <div className='w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin' />
-                  {translations.saving}
+                  <InlineLoading size='sm' />
+                  {t('endpoints.saving')}
                 </>
               ) : (
                 <>
                   <Save className='w-3 h-3' />
-                  {translations.save}
+                  {t('endpoints.save')}
                 </>
               )}
             </Button>
@@ -980,7 +828,7 @@ function EndpointForm({ endpoint, isCreating = false, onSave, onCancel }: Endpoi
               className='flex items-center gap-2'
             >
               <X className='w-3 h-3' />
-              {translations.cancel}
+              {t('endpoints.cancel')}
             </Button>
           </div>
         </form>

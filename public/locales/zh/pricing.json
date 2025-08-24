@@ -1,0 +1,40 @@
+{
+  "title": "定价方案",
+  "subtitle": "了解vola.fun的核心价值，选择适合您的使用方案",
+  "whyChoose": "为什么选择 vola.fun？",
+  "features": {
+    "apiManagement": {
+      "title": "简化API管理",
+      "description": "统一的API密钥，一次认证，调用所有API。告别繁琐的密钥管理，专注于业务逻辑。"
+    },
+    "centralizedPayment": {
+      "title": "集中化支付",
+      "description": "单一支付入口，统一计费。只需向vola支付，即可使用市场内所有API服务。"
+    },
+    "aiOptimized": {
+      "title": "面向AI优化",
+      "description": "专为AI应用场景设计的API生态，提供高质量、稳定可靠的AI工具和数据服务。"
+    }
+  },
+  "useCases": {
+    "title": "适用场景",
+    "independentDeveloper": {
+      "title": "独立开发者",
+      "description": "快速验证想法，需要一个能够轻松调用多种API的\"游乐场\"。无需为每个API单独注册和管理密钥。"
+    },
+    "aiDeveloper": {
+      "title": "AI应用开发者",
+      "description": "需要调用各种工具类API（数据处理、图像识别、自然语言处理）来构建和优化AI模型或应用。"
+    }
+  },
+  "pricingPlans": {
+    "title": "定价计划",
+    "comingSoon": "定价计划正在制定中...",
+    "stayTuned": "我们将很快推出灵活的定价方案，敬请期待！"
+  },
+  "cta": {
+    "title": "开始构建你的AI应用",
+    "subtitle": "加入thousands of developers，使用vola.fun简化你的API集成流程",
+    "browseMarket": "浏览API市场"
+  }
+}

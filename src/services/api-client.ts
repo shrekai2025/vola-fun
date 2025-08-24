@@ -65,8 +65,8 @@ const refreshToken = async (): Promise<string> => {
       }
     )
 
-    if (response.data.success && response.data.data) {
-      const tokens = response.data.data
+    if (response.data && (response.data as any).success && (response.data as any).data) {
+      const tokens = (response.data as any).data
       TokenManager.setTokens({
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
@@ -74,7 +74,7 @@ const refreshToken = async (): Promise<string> => {
       })
       return tokens.access_token
     } else {
-      throw new Error(response.data.message || '刷新令牌失败')
+      throw new Error((response.data as any).message || '刷新令牌失败')
     }
   } catch (error) {
     console.error('Token refresh failed:', error)

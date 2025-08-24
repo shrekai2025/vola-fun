@@ -1,9 +1,9 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { useGlobalCache } from '@/hooks/useGlobalCache'
+import { useGlobalCache } from '@/hooks/ui'
 
-type Theme = 'light' | 'dark'
+type Theme = 'light' | 'dark' | 'system'
 
 interface ThemeContextType {
   theme: Theme
@@ -33,7 +33,16 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProvider
     if (typeof window !== 'undefined') {
       const root = document.documentElement
       root.classList.remove('light', 'dark')
-      root.classList.add(newTheme)
+
+      if (newTheme === 'system') {
+        // 系统主题根据用户设备偏好决定
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(newTheme)
+      }
     }
 
     // 保存到全局缓存
@@ -41,7 +50,14 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProvider
   }
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
+    let newTheme: Theme
+    if (theme === 'light') {
+      newTheme = 'dark'
+    } else if (theme === 'dark') {
+      newTheme = 'system'
+    } else {
+      newTheme = 'light'
+    }
     updateTheme(newTheme)
   }
 
@@ -61,12 +77,28 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }: ThemeProvider
       // 更新DOM以匹配缓存的主题
       const root = document.documentElement
       root.classList.remove('light', 'dark')
-      root.classList.add(cachedTheme)
+
+      if (cachedTheme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(cachedTheme)
+      }
     } else if (!cachedTheme) {
       // 如果没有缓存，应用默认主题到DOM
       const root = document.documentElement
       root.classList.remove('light', 'dark')
-      root.classList.add(defaultTheme)
+
+      if (defaultTheme === 'system') {
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(defaultTheme)
+      }
     }
   }, [defaultTheme, getCachedTheme])
 

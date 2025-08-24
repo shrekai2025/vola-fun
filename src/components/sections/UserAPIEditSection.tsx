@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Loading, InlineLoading } from '@/components/ui/loading'
 import { useToast } from '@/components/ui/toast'
 import { APIService, type API, type UpdateAPIData } from '@/lib/api'
 import { dataManager } from '@/lib/data-manager'
+import { getCategoryOptions } from '@/utils/categories'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, Plus, Save, X } from 'lucide-react'
 import Link from 'next/link'
@@ -70,20 +72,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
   const router = useRouter()
 
   // 创建分类选项
-  const categories = useMemo(
-    () => [
-      { value: 'data', label: t('apiProvider.categories.data') },
-      { value: 'ai_ml', label: t('apiProvider.categories.ai_ml') },
-      { value: 'finance', label: t('apiProvider.categories.finance') },
-      { value: 'social', label: t('apiProvider.categories.social') },
-      { value: 'tools', label: t('apiProvider.categories.tools') },
-      { value: 'communication', label: t('apiProvider.categories.communication') },
-      { value: 'entertainment', label: t('apiProvider.categories.entertainment') },
-      { value: 'business', label: t('apiProvider.categories.business') },
-      { value: 'other', label: t('apiProvider.categories.other') },
-    ],
-    [t]
-  )
+  const categories = useMemo(() => getCategoryOptions(t), [t])
 
   const {
     register,
@@ -98,41 +87,46 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
   const loadAPI = useCallback(async () => {
     try {
       setLoading(true)
-      const apiData = await APIService.get(apiId)
+      const response = await APIService.get(apiId)
 
-      setApi(apiData)
-      setTags(apiData.tags || [])
+      if (response.success && response.data) {
+        const apiData = response.data
+        setApi(apiData)
+        setTags(apiData.tags || [])
 
-      // 填充表单
-      reset({
-        name: apiData.name,
-        slug: apiData.slug,
-        short_description: apiData.short_description,
-        long_description: apiData.long_description || '', // 现在MarketAPI包含此字段
-        category: apiData.category as
-          | 'data'
-          | 'ai_ml'
-          | 'finance'
-          | 'social'
-          | 'tools'
-          | 'communication'
-          | 'entertainment'
-          | 'business'
-          | 'other',
-        base_url: apiData.base_url,
-        estimated_response_time: apiData.estimated_response_time || undefined,
-        health_check_url: apiData.health_check_url || '',
-        website_url: apiData.website_url || '',
-        documentation_url: apiData.documentation_url || '',
-        terms_url: apiData.terms_url || '',
-        documentation_markdown: apiData.documentation_markdown || '',
-      })
+        // 填充表单
+        reset({
+          name: apiData.name,
+          slug: apiData.slug,
+          short_description: apiData.short_description,
+          long_description: apiData.long_description || '', // 现在MarketAPI包含此字段
+          category: apiData.category as
+            | 'data'
+            | 'ai_ml'
+            | 'finance'
+            | 'social'
+            | 'tools'
+            | 'communication'
+            | 'entertainment'
+            | 'business'
+            | 'other',
+          base_url: apiData.base_url,
+          estimated_response_time: apiData.estimated_response_time || undefined,
+          health_check_url: apiData.health_check_url || '',
+          website_url: apiData.website_url || '',
+          documentation_url: apiData.documentation_url || '',
+          terms_url: apiData.terms_url || '',
+          documentation_markdown: apiData.documentation_markdown || '',
+        })
+      } else {
+        throw new Error(response.message || 'Failed to load API')
+      }
     } catch (error: unknown) {
       console.error('Failed to load API details:', error)
       const errorMessage = error instanceof Error ? error.message : t('errors.loadFailed')
       toast.error(errorMessage)
       // 返回列表页
-      router.push('/api-provider')
+      router.push('/apis')
     } finally {
       setLoading(false)
     }
@@ -206,7 +200,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
 
         // 延迟跳转，确保Toast显示完成
         setTimeout(() => {
-          router.push('/api-provider')
+          router.push('/apis')
         }, 800)
       } catch (error: unknown) {
         console.error('Failed to update API:', error)
@@ -227,10 +221,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
     return (
       <div className='container mx-auto px-4 py-8'>
         <div className='flex items-center justify-center min-h-[400px]'>
-          <div className='text-center'>
-            <div className='w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4' />
-            <p className='text-muted-foreground'>{t('apiProvider.edit.loadingAPI')}</p>
-          </div>
+          <Loading text={t('apiProvider.edit.loadingAPI')} />
         </div>
       </div>
     )
@@ -243,7 +234,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
           <div className='text-center'>
             <p className='text-muted-foreground mb-4'>{t('apiProvider.edit.notFound')}</p>
             <Button asChild>
-              <Link href='/api-provider'>{t('apiProvider.edit.noAccess')}</Link>
+              <Link href='/apis'>{t('apiProvider.edit.noAccess')}</Link>
             </Button>
           </div>
         </div>
@@ -257,7 +248,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
       <div className='mb-8'>
         <div className='flex items-center gap-4 mb-4'>
           <Button variant='ghost' size='sm' asChild>
-            <Link href='/api-provider' className='flex items-center gap-2'>
+            <Link href='/apis' className='flex items-center gap-2'>
               <ArrowLeft className='w-4 h-4' />
               {t('apiProvider.edit.backToList')}
             </Link>
@@ -400,7 +391,7 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
                 </p>
               )}
               <p className='text-xs text-muted-foreground mt-1'>
-                API预期响应时间，单位为毫秒（可选）
+                {t('apiProvider.create.responseTimeHelper')}
               </p>
             </div>
 
@@ -537,12 +528,12 @@ export default function UserAPIEditSection({ apiId }: UserAPIEditSectionProps) {
         {/* 提交按钮 */}
         <div className='flex items-center justify-end gap-4'>
           <Button type='button' variant='outline' asChild>
-            <Link href='/api-provider'>{t('apiProvider.edit.cancel')}</Link>
+            <Link href='/apis'>{t('apiProvider.edit.cancel')}</Link>
           </Button>
           <Button type='submit' disabled={submitting} className='flex items-center gap-2'>
             {submitting ? (
               <>
-                <div className='w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin' />
+                <InlineLoading size='sm' />
                 {t('apiProvider.edit.saving')}
               </>
             ) : (

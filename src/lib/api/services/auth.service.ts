@@ -1,82 +1,84 @@
 import { apiClient } from '../client'
 import { API_ENDPOINTS } from '../config'
+import type { LoginCredentials, TokenData, User, ApiResponse } from '@/types/api'
 
-export interface LoginCredentials {
-  firebaseIdToken: string
-}
-
-export interface TokenData {
-  access_token: string
-  refresh_token: string
-  token_type: string
-  expires_in: number
-  user?: UserInfo
-}
-
-export interface UserInfo {
-  id: string
-  firebase_uid: string
-  email: string
-  username: string
-  full_name: string
-  avatar_url: string
-  role: string
-  is_active: boolean
-  is_verified: boolean
-  subscription_balance: number
-  one_time_balance: number
-  bio: string
-  company: string
-  website: string
-  location: string
-  plan?: string
-  created_at: string
-  updated_at: string
-}
+// 重新导出类型以保持向后兼容
+export type { LoginCredentials, TokenData, User }
 
 export class AuthService {
-  static async login(firebaseIdToken: string): Promise<TokenData> {
+  /**
+   * 登录 - 使用Firebase ID Token
+   */
+  static async login(credentials: LoginCredentials): Promise<ApiResponse<TokenData>> {
     const response = await apiClient.post<TokenData>(API_ENDPOINTS.AUTH.LOGIN, null, {
       headers: {
-        Authorization: `Bearer ${firebaseIdToken}`,
+        Authorization: `Bearer ${credentials.firebase_id_token}`,
       },
     })
 
-    if (!response.success) {
-      throw new Error(response.message || 'Login failed')
-    }
-
-    return response.data
+    return response
   }
 
-  static async logout(): Promise<void> {
-    const response = await apiClient.post<null>(API_ENDPOINTS.AUTH.LOGOUT)
-
-    if (!response.success) {
-      throw new Error(response.message || 'Logout failed')
-    }
-  }
-
-  static async refreshToken(refreshToken: string): Promise<TokenData> {
+  /**
+   * 刷新Token
+   */
+  static async refreshToken(refreshToken: string): Promise<ApiResponse<TokenData>> {
     const response = await apiClient.post<TokenData>(API_ENDPOINTS.AUTH.REFRESH, {
       refresh_token: refreshToken,
     })
 
-    if (!response.success) {
-      throw new Error(response.message || 'Token refresh failed')
-    }
-
-    return response.data
+    return response
   }
 
-  static async getCurrentUser(): Promise<UserInfo> {
-    const response = await apiClient.get<UserInfo>(API_ENDPOINTS.AUTH.ME)
+  /**
+   * 登出
+   */
+  static async logout(): Promise<ApiResponse<null>> {
+    const response = await apiClient.post<null>(API_ENDPOINTS.AUTH.LOGOUT)
+    return response
+  }
 
-    if (!response.success) {
-      throw new Error(response.message || 'Failed to get user info')
-    }
+  /**
+   * 获取当前用户信息
+   */
+  static async getCurrentUser(): Promise<ApiResponse<User>> {
+    const response = await apiClient.get<User>(API_ENDPOINTS.USERS.ME)
+    return response
+  }
 
-    return response.data
+  /**
+   * 获取当前用户详细信息
+   */
+  /**
+   * 获取当前用户详细信息
+   */
+  static async getCurrentUserDetailed(): Promise<ApiResponse<User>> {
+    const response = await apiClient.get<User>(API_ENDPOINTS.USERS.ME_DETAILED)
+    return response
+  }
+
+  /**
+   * 获取当前用户统计信息
+   */
+  static async getCurrentUserStats(): Promise<
+    ApiResponse<{
+      total_apis: number
+      total_nodes: number
+      total_favorites: number
+      total_api_calls: number
+      total_revenue: number
+      member_since_days: number
+    }>
+  > {
+    const response = await apiClient.get(API_ENDPOINTS.USERS.ME_STATS)
+    return response as ApiResponse<{
+      total_apis: number
+      total_nodes: number
+      total_favorites: number
+      total_api_calls: number
+      total_revenue: number
+      member_since_days: number
+    }>
   }
 }
 
